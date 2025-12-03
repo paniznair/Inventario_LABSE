@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Stock LABSE</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; }
+        button#addBtn { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #333; color: white; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📦 Control de Stock LABSE</h1>
+    <div class="form-group">
+        <input type="text" id="nombre" placeholder="Producto" required>
+        <input type="number" id="cantidad" placeholder="Cant." required>
+        <input type="number" id="precio" placeholder="Precio" required>
+        <button id="addBtn" onclick="agregarProducto()">Agregar</button>
+    </div>
+    <table>
+        <thead>
+            <tr><th>Producto</th><th>Stock</th><th>Precio</th><th>Acción</th></tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+    </table>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', cargarDatos);
+    function agregarProducto() {
+        let n = document.getElementById('nombre').value;
+        let c = document.getElementById('cantidad').value;
+        let p = document.getElementById('precio').value;
+        if(n && c && p) {
+            let inv = JSON.parse(localStorage.getItem('inv')) || [];
+            inv.push({id: Date.now(), n, c, p});
+            localStorage.setItem('inv', JSON.stringify(inv));
+            cargarDatos();
+            document.getElementById('nombre').value = ''; 
+            document.getElementById('cantidad').value = '';
+            document.getElementById('precio').value = '';
+        }
+    }
+    function cargarDatos() {
+        let body = document.getElementById('tabla-body');
+        body.innerHTML = '';
+        let inv = JSON.parse(localStorage.getItem('inv')) || [];
+        inv.forEach(i => {
+            body.innerHTML += `<tr><td>${i.n}</td><td>${i.c}</td><td>$${i.p}</td><td><button class="delete-btn" onclick="eliminar(${i.id})">X</button></td></tr>`;
+        });
+    }
+    function eliminar(id) {
+        let inv = JSON.parse(localStorage.getItem('inv')) || [];
+        localStorage.setItem('inv', JSON.stringify(inv.filter(i => i.id !== id)));
+        cargarDatos();
+    }
+</script>
+</body>
+</html>
