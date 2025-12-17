@@ -59,10 +59,12 @@
                         <label class="text-xs font-bold text-slate-500">Stock Actual</label>
                         <input type="number" id="cantidad" placeholder="0" class="w-full p-2 border rounded shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
+                    
                     <div class="md:col-span-1">
-                        <label class="text-xs font-bold text-orange-600">Alerta (Naranja)</label>
-                        <input type="number" id="limite" placeholder="Min" class="w-full p-2 border rounded border-orange-300 font-bold text-orange-800 focus:ring-2 focus:ring-orange-500 outline-none">
+                        <label class="text-xs font-bold text-orange-600">Stock Seguridad</label>
+                        <input type="number" id="limite" placeholder="Ej. 6" class="w-full p-2 border rounded border-orange-300 font-bold text-orange-800 focus:ring-2 focus:ring-orange-500 outline-none" title="Si el stock llega a este número, se pone Naranja. Si baja, Rojo.">
                     </div>
+                    
                     <div class="md:col-span-1">
                         <label class="text-xs font-bold text-blue-600">Stock Ideal</label>
                         <input type="number" id="ideal" placeholder="Max" class="w-full p-2 border rounded border-blue-300 font-bold text-blue-800 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -118,26 +120,25 @@
     </div>
 
 <script>
-    const DB_NAME = 'labse_db_v5'; // Versión 5
+    // Versión 5.1 con etiqueta corregida
+    const DB_NAME = 'labse_db_v5'; 
 
     document.addEventListener('DOMContentLoaded', cargarDatos);
 
     function agregarItem() {
-        // Datos del Item
         const codigo = document.getElementById('codigo').value;
         const desc = document.getElementById('descripcion').value;
         const cant = parseInt(document.getElementById('cantidad').value);
-        const lim = parseInt(document.getElementById('limite').value);
+        const lim = parseInt(document.getElementById('limite').value); // Stock de Seguridad
         const ideal = parseInt(document.getElementById('ideal').value);
         
-        // Datos del Proveedor
         const pNom = document.getElementById('prov_nombre').value || "Genérico";
         const pCon = document.getElementById('prov_contacto').value || "-";
         const pWeb = document.getElementById('prov_web').value || "-";
         const pUbi = document.getElementById('prov_ubi').value || "-";
 
         if(!codigo || !desc || isNaN(cant) || isNaN(lim) || isNaN(ideal)) {
-            alert("⚠️ Por favor completa los datos obligatorios del producto.");
+            alert("⚠️ Por favor completa los datos obligatorios.");
             return;
         }
 
@@ -148,16 +149,14 @@
             stock: cant, 
             limite: lim, 
             ideal: ideal,
-            prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi } // Objeto Proveedor
+            prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi }
         };
         
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
         inventario.push(nuevoItem);
         localStorage.setItem(DB_NAME, JSON.stringify(inventario));
 
-        // Limpiar formulario (Todos los campos)
         document.querySelectorAll('input').forEach(i => i.value = '');
-        
         cargarDatos();
     }
 
@@ -194,14 +193,15 @@
             let estadoClass = '';
             let estadoTexto = '';
             
+            // LÓGICA DE COLORES EXACTA
             if (item.stock > item.limite) {
-                estadoClass = 'status-ok';
+                estadoClass = 'status-ok'; // Verde
                 estadoTexto = '✅ OK';
             } else if (item.stock === item.limite) {
-                estadoClass = 'status-warn';
+                estadoClass = 'status-warn'; // Naranja
                 estadoTexto = '⚠️ ALERTA';
             } else {
-                estadoClass = 'status-crit';
+                estadoClass = 'status-crit'; // Rojo
                 estadoTexto = '🛑 CRÍTICO';
             }
 
@@ -220,7 +220,7 @@
                         </div>
                     </td>
                     <td class="p-4 text-center text-xs">
-                        <div class="text-orange-600 font-bold bg-orange-50 rounded px-1 mb-1">Min: ${item.limite}</div>
+                        <div class="text-orange-600 font-bold bg-orange-50 rounded px-1 mb-1">Seg: ${item.limite}</div>
                         <div class="text-blue-600 bg-blue-50 rounded px-1">Ideal: ${item.ideal}</div>
                     </td>
                     <td class="p-4 text-center">
@@ -248,6 +248,7 @@
         const mensajeVacio = document.getElementById('mensaje-vacio');
         
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        // Filtramos todo lo que sea igual o menor al límite (Naranja o Rojo)
         const itemsAComprar = inventario.filter(i => i.stock <= i.limite);
 
         listaBody.innerHTML = '';
