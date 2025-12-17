@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Stock LABSE V10.2</title>
+    <title>Sistema Stock LABSE V11</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
@@ -12,30 +12,38 @@
         .btn-module { transition: all 0.2s; border-bottom: 4px solid rgba(0,0,0,0.1); }
         .btn-module:active { transform: translateY(2px); border-bottom: 0px; }
     </style>
+    <script>
+        window.onerror = function(msg, url, line) {
+            alert("⚠️ ALERTA DE SISTEMA:\nOcurrió un error interno: " + msg + "\nPor favor, revisa que hayas copiado todo el código correctamente.");
+            return false;
+        };
+    </script>
 </head>
 <body class="bg-slate-100 min-h-screen">
 
     <div id="view-dashboard" class="max-w-5xl mx-auto p-6 fade-in">
+        
         <header class="text-center mb-10 mt-5">
             <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">🏭 LABSE STOCK</h1>
-            <p class="text-slate-500 mt-2 text-lg">Sistema Integral de Gestión de Inventario</p>
+            <p class="text-slate-500 mt-2 text-lg">Sistema Integral V11.0</p>
         </header>
 
         <div class="mb-12 text-center">
             <button onclick="verOrdenCompraGlobal()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xl font-bold py-4 px-10 rounded-2xl shadow-lg transform transition hover:scale-105 btn-module flex items-center justify-center gap-3 mx-auto w-full md:w-auto">
                 📋 Generar Orden de Compra Global
             </button>
-            <p class="text-sm text-slate-400 mt-2">Analiza todas las categorías y genera el reporte</p>
+            <p class="text-sm text-slate-400 mt-2">Analiza todas las categorías, imprime o envía por correo</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
             <button onclick="abrirModulo('consumibles')" class="btn-module bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl text-left group">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-4xl bg-blue-100 p-3 rounded-xl group-hover:bg-blue-200 transition">🧪</span>
                     <span class="text-3xl font-bold text-slate-200 group-hover:text-blue-500 transition">→</span>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-800 group-hover:text-blue-700">Insumos y Consumibles</h2>
-                <p class="text-slate-500 mt-2">Gestión de stock por volumen, peso y empaques (Cajas, Litros, etc).</p>
+                <p class="text-slate-500 mt-2">Cajas, Litros, Packs, Gramos, etc.</p>
             </button>
 
             <button onclick="abrirModulo('herramientas')" class="btn-module bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl text-left group">
@@ -44,12 +52,15 @@
                     <span class="text-3xl font-bold text-slate-200 group-hover:text-purple-500 transition">→</span>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-800 group-hover:text-purple-700">Herramientas y Máquinas</h2>
-                <p class="text-slate-500 mt-2">Control de activos físicos y unidades enteras (Taladros, Pinzas).</p>
+                <p class="text-slate-500 mt-2">Activos físicos y unidades enteras.</p>
             </button>
+
         </div>
     </div>
 
+
     <div id="view-manager" class="hidden max-w-7xl mx-auto p-4 md:p-6 fade-in">
+        
         <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
             <button onclick="volverAlDashboard()" class="text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition hover:scale-105">
                 ⬅ Volver al Menú
@@ -68,6 +79,7 @@
             </div>
             
             <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+                
                 <div class="md:col-span-2">
                     <label class="text-xs font-bold text-slate-400">Código</label>
                     <input type="text" id="input-codigo" class="w-full p-2 border rounded font-mono focus:ring-2 focus:ring-blue-500 outline-none">
@@ -124,4 +136,429 @@
         </div>
 
         <div class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden mb-8">
-            <div class="
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                        <tr>
+                            <th class="p-4">Descripción</th>
+                            <th class="p-4">Detalle</th>
+                            <th class="p-4">Proveedor</th>
+                            <th class="p-4 text-center">Seguridad</th>
+                            <th class="p-4 text-center">Stock</th>
+                            <th class="p-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body" class="text-sm divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="text-center pb-10">
+            <button onclick="volverAlDashboard()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold py-3 px-8 rounded-xl shadow-sm transition transform hover:scale-105 flex items-center gap-2 mx-auto">
+                ⬅ Volver al Inicio
+            </button>
+        </div>
+    </div>
+
+    <div id="modal-compras" class="fixed inset-0 bg-slate-900 bg-opacity-80 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h2 class="text-2xl font-bold">📑 Orden de Compra Global</h2>
+                    <p class="text-slate-400 text-sm">Reporte unificado por categorías</p>
+                </div>
+                <button onclick="cerrarOrdenCompra()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
+            </div>
+
+            <div class="overflow-y-auto p-8 bg-slate-50 flex-1">
+                
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
+                    <div class="bg-blue-600 p-3 flex items-center gap-2">
+                        <span class="text-2xl">🧪</span>
+                        <h3 class="text-white font-bold text-lg">INSUMOS Y CONSUMIBLES</h3>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="bg-blue-50 text-blue-800 text-xs uppercase">
+                            <tr><th class="p-3">Ítem</th><th class="p-3">Proveedor</th><th class="p-3 text-right">Compra Sugerida</th></tr>
+                        </thead>
+                        <tbody id="lista-compra-insumos" class="divide-y divide-blue-50 text-slate-700"></tbody>
+                    </table>
+                    <div id="vacio-insumos" class="p-4 text-center text-slate-400 text-sm italic hidden">✅ Stock OK.</div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
+                    <div class="bg-purple-600 p-3 flex items-center gap-2">
+                        <span class="text-2xl">⚙️</span>
+                        <h3 class="text-white font-bold text-lg">HERRAMIENTAS Y MÁQUINAS</h3>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="bg-purple-50 text-purple-800 text-xs uppercase">
+                            <tr><th class="p-3">Ítem</th><th class="p-3">Proveedor</th><th class="p-3 text-right">Reponer</th></tr>
+                        </thead>
+                        <tbody id="lista-compra-herramientas" class="divide-y divide-purple-50 text-slate-700"></tbody>
+                    </table>
+                    <div id="vacio-herramientas" class="p-4 text-center text-slate-400 text-sm italic hidden">✅ Stock OK.</div>
+                </div>
+
+            </div>
+
+            <div class="p-4 bg-white border-t border-slate-200 text-right flex flex-wrap justify-end gap-3">
+                <button onclick="window.print()" class="text-slate-500 hover:text-slate-800 font-bold px-4 flex items-center gap-2">
+                    🖨️ Imprimir
+                </button>
+                <button onclick="abrirModalEmail()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-sm transition">
+                    📧 Enviar por Correo
+                </button>
+                <button onclick="cerrarOrdenCompra()" class="bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-700 font-bold shadow-sm">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-email" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-800">📧 Enviar Reporte a:</h3>
+                <button onclick="document.getElementById('modal-email').classList.add('hidden')" class="text-slate-400 font-bold text-xl">&times;</button>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <p class="text-xs text-slate-400 uppercase font-bold">Contactos Frecuentes</p>
+                <button onclick="enviarCorreoFinal('compras@labse.com')" class="w-full text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center gap-3">
+                    <span class="bg-blue-100 text-blue-600 p-2 rounded-full">🛒</span>
+                    <div>
+                        <div class="font-bold text-slate-700">Dpto. Compras</div>
+                        <div class="text-xs text-slate-400">compras@labse.com</div>
+                    </div>
+                </button>
+                <button onclick="enviarCorreoFinal('administracion@labse.com')" class="w-full text-left p-3 border rounded-lg hover:bg-purple-50 hover:border-purple-300 transition flex items-center gap-3">
+                    <span class="bg-purple-100 text-purple-600 p-2 rounded-full">🏢</span>
+                    <div>
+                        <div class="font-bold text-slate-700">Administración</div>
+                        <div class="text-xs text-slate-400">administracion@labse.com</div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <label class="text-xs text-slate-400 uppercase font-bold">O escribir otro correo:</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="email" id="email-custom" placeholder="ejemplo@gmail.com" class="flex-1 p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="enviarCorreoCustom()" class="bg-slate-800 text-white px-4 rounded hover:bg-slate-700 font-bold">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- 1. CONFIGURACIÓN (NUEVA DB) ---
+    const DB_NAME = 'labse_db_v11_clean'; // CAMBIO DE NOMBRE PARA EVITAR CONFLICTOS
+    let categoriaActual = ''; 
+    let editandoId = null;
+
+    // --- 2. NAVEGACIÓN ---
+    function abrirModulo(cat) {
+        categoriaActual = cat;
+        document.getElementById('view-dashboard').classList.add('hidden');
+        document.getElementById('view-manager').classList.remove('hidden');
+        window.scrollTo(0, 0);
+        
+        const titulo = document.getElementById('titulo-modulo');
+        const panelEmpaque = document.getElementById('panel-empaque');
+        const panelVacio = document.getElementById('panel-vacio');
+        
+        if (cat === 'consumibles') {
+            titulo.innerText = "🧪 Gestión de Insumos y Consumibles";
+            titulo.className = "text-xl font-bold text-blue-700 uppercase tracking-wider";
+            panelEmpaque.classList.remove('hidden');
+            panelVacio.classList.add('hidden');
+        } else {
+            titulo.innerText = "⚙️ Gestión de Herramientas";
+            titulo.className = "text-xl font-bold text-purple-700 uppercase tracking-wider";
+            panelEmpaque.classList.add('hidden');
+            panelVacio.classList.remove('hidden');
+        }
+        renderTabla();
+    }
+
+    function volverAlDashboard() {
+        document.getElementById('view-manager').classList.add('hidden');
+        document.getElementById('view-dashboard').classList.remove('hidden');
+        window.scrollTo(0, 0);
+        limpiarFormulario();
+    }
+
+    // --- 3. GUARDAR (CON PROTECCIÓN DE ERRORES) ---
+    function guardarItem() {
+        try {
+            const codigo = document.getElementById('input-codigo').value.trim();
+            const desc = document.getElementById('input-desc').value.trim();
+            
+            // Protección contra valores vacíos
+            const stockInput = document.getElementById('input-stock').value;
+            const limiteInput = document.getElementById('input-limite').value;
+            const stock = (stockInput === '') ? 0 : parseInt(stockInput);
+            const limite = (limiteInput === '') ? 0 : parseInt(limiteInput);
+            
+            const prov = {
+                nombre: document.getElementById('prov-nom').value,
+                tel: document.getElementById('prov-tel').value,
+                web: document.getElementById('prov-web').value,
+                ubi: document.getElementById('prov-ubi').value
+            };
+
+            if(!codigo || !desc) { alert("⚠️ Faltan datos: Código o Descripción."); return; }
+            if(isNaN(stock) || isNaN(limite)) { alert("⚠️ El stock debe ser un número."); return; }
+
+            let empaque = null;
+            if (categoriaActual === 'consumibles') {
+                const contenidoVal = parseFloat(document.getElementById('input-contenido').value);
+                empaque = {
+                    tipo: document.getElementById('input-tipo-envase').value,
+                    contenido: isNaN(contenidoVal) ? 1 : contenidoVal,
+                    unidad: document.getElementById('input-unidad').value
+                };
+            }
+
+            let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+
+            const itemObj = {
+                id: editandoId || Date.now(),
+                categoria: categoriaActual, 
+                codigo, desc, stock, limite, prov, empaque
+            };
+
+            if (editandoId) {
+                if (inventario.some(i => i.codigo === codigo && i.id !== editandoId)) {
+                    alert("⛔ El Código ya existe en otro producto."); return;
+                }
+                const idx = inventario.findIndex(i => i.id === editandoId);
+                if (idx !== -1) inventario[idx] = itemObj;
+                alert("✅ Actualizado correctamente.");
+            } else {
+                if (inventario.some(i => i.codigo === codigo)) {
+                    alert("⛔ El Código ya existe."); return;
+                }
+                inventario.push(itemObj);
+            }
+
+            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            cancelarEdicion();
+            renderTabla();
+        } catch (e) { 
+            console.error(e);
+            alert("Error al guardar: " + e.message); 
+        }
+    }
+
+    // --- 4. RENDERIZADO DE TABLA ---
+    function renderTabla() {
+        const tbody = document.getElementById('tabla-body');
+        const totalCounter = document.getElementById('total-items-modulo');
+        tbody.innerHTML = '';
+
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const itemsFiltrados = inventario.filter(i => i.categoria === categoriaActual);
+        totalCounter.innerText = itemsFiltrados.length;
+
+        itemsFiltrados.forEach(item => {
+            let estadoHTML = '';
+            if (item.stock > item.limite) estadoHTML = '<span class="text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded">OK</span>';
+            else if (item.stock === item.limite) estadoHTML = '<span class="text-orange-600 font-bold text-xs bg-orange-100 px-2 py-1 rounded">ALERTA</span>';
+            else estadoHTML = '<span class="text-red-600 font-bold text-xs bg-red-100 px-2 py-1 rounded animate-pulse">CRÍTICO</span>';
+
+            let detalleHTML = '<span class="text-slate-400">-</span>';
+            if (item.categoria === 'consumibles' && item.empaque) {
+                detalleHTML = `<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 font-bold">
+                    ${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}
+                </span>`;
+            } else {
+                detalleHTML = `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100 font-bold">Unidad Física</span>`;
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition";
+            tr.innerHTML = `
+                <td class="p-4">
+                    <div class="font-bold text-slate-800">${item.desc}</div>
+                    <div class="text-xs text-slate-400 font-mono">#${item.codigo}</div>
+                </td>
+                <td class="p-4">${detalleHTML}</td>
+                <td class="p-4 text-xs text-slate-500">
+                    ${item.prov.nombre ? `<div class="font-bold">${item.prov.nombre}</div>` : '-'}
+                    ${item.prov.tel ? `<div>📞 ${item.prov.tel}</div>` : ''}
+                </td>
+                <td class="p-4 text-center text-xs font-bold text-orange-600">Min: ${item.limite}</td>
+                <td class="p-4 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="cambiarStock(${item.id}, -1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-red-500 hover:text-white font-bold">-</button>
+                        <span class="text-lg font-bold w-10 text-center">${item.stock}</span>
+                        <button onclick="cambiarStock(${item.id}, 1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-green-500 hover:text-white font-bold">+</button>
+                    </div>
+                </td>
+                <td class="p-4 text-center">${estadoHTML}</td>
+                <td class="p-4 text-center">
+                    <button onclick="editarItem(${item.id})" class="text-blue-500 hover:text-blue-700 mr-2">✏️</button>
+                    <button onclick="eliminarItem(${item.id})" class="text-slate-300 hover:text-red-500">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- 5. ORDEN DE COMPRA Y EMAIL ---
+    function verOrdenCompraGlobal() {
+        const modal = document.getElementById('modal-compras');
+        const listaInsumos = document.getElementById('lista-compra-insumos');
+        const listaHerramientas = document.getElementById('lista-compra-herramientas');
+        
+        listaInsumos.innerHTML = '';
+        listaHerramientas.innerHTML = '';
+        
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const faltantes = inventario.filter(i => i.stock <= i.limite);
+
+        let countInsumos = 0;
+        let countHerramientas = 0;
+
+        faltantes.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = "border-b border-slate-100 hover:bg-slate-50";
+            let compraHTML = '';
+            
+            if (item.categoria === 'consumibles') {
+                countInsumos++;
+                const faltanteTotal = (item.limite + 1) - item.stock;
+                // Protección: evitar división por cero
+                const contenido = (item.empaque.contenido && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
+                const envases = Math.ceil(faltanteTotal / contenido);
+                
+                compraHTML = `<div class="font-bold text-blue-700 text-lg">+ ${envases} ${item.empaque.tipo}</div>
+                              <div class="text-[10px] text-slate-400 uppercase">(Total: ${envases * contenido} ${item.empaque.unidad})</div>`;
+                
+                row.innerHTML = `<td class="p-3 font-medium text-slate-700">${item.desc}</td><td class="p-3 text-sm text-slate-500">${item.prov.nombre || '-'}</td><td class="p-3 text-right">${compraHTML}</td>`;
+                listaInsumos.appendChild(row);
+            } else {
+                countHerramientas++;
+                const reposicion = (item.limite + 1) - item.stock;
+                compraHTML = `<div class="font-bold text-purple-700 text-lg">+ ${reposicion} Unid.</div>`;
+                row.innerHTML = `<td class="p-3 font-medium text-slate-700">${item.desc}</td><td class="p-3 text-sm text-slate-500">${item.prov.nombre || '-'}</td><td class="p-3 text-right">${compraHTML}</td>`;
+                listaHerramientas.appendChild(row);
+            }
+        });
+
+        document.getElementById('vacio-insumos').classList.toggle('hidden', countInsumos > 0);
+        document.getElementById('vacio-herramientas').classList.toggle('hidden', countHerramientas > 0);
+        modal.classList.remove('hidden');
+    }
+
+    function cerrarOrdenCompra() { document.getElementById('modal-compras').classList.add('hidden'); }
+
+    // --- 6. LOGICA EMAIL ---
+    function abrirModalEmail() { document.getElementById('modal-email').classList.remove('hidden'); }
+
+    function enviarCorreoCustom() {
+        const email = document.getElementById('email-custom').value;
+        if(email && email.includes('@')) enviarCorreoFinal(email);
+        else alert("⚠️ Escribe un correo válido");
+    }
+
+    function enviarCorreoFinal(emailDestino) {
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const faltantes = inventario.filter(i => i.stock <= i.limite);
+        
+        if(faltantes.length === 0) { alert("✅ No hay ítems para comprar."); return; }
+
+        let cuerpo = "SOLICITUD DE COMPRA - LABSE\n\n";
+        
+        const insumos = faltantes.filter(i => i.categoria === 'consumibles');
+        if (insumos.length > 0) {
+            cuerpo += "--- INSUMOS ---\n";
+            insumos.forEach(item => {
+                const faltanteTotal = (item.limite + 1) - item.stock;
+                const cont = item.empaque.contenido || 1;
+                const envases = Math.ceil(faltanteTotal / cont);
+                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (Prov: ${item.prov.nombre || 'N/A'})\n`;
+            });
+            cuerpo += "\n";
+        }
+
+        const herram = faltantes.filter(i => i.categoria === 'herramientas');
+        if (herram.length > 0) {
+            cuerpo += "--- HERRAMIENTAS ---\n";
+            herram.forEach(item => {
+                const rep = (item.limite + 1) - item.stock;
+                cuerpo += `- ${item.desc}: ${rep} Unidades (Prov: ${item.prov.nombre || 'N/A'})\n`;
+            });
+        }
+
+        const asunto = encodeURIComponent("Orden de Compra LABSE");
+        const body = encodeURIComponent(cuerpo);
+        window.location.href = `mailto:${emailDestino}?subject=${asunto}&body=${body}`;
+        document.getElementById('modal-email').classList.add('hidden');
+    }
+
+    // --- 7. EDICIÓN Y BORRADO ---
+    function cambiarStock(id, delta) {
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const idx = inventario.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            let nuevo = inventario[idx].stock + delta;
+            if (nuevo < 0) nuevo = 0;
+            inventario[idx].stock = nuevo;
+            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            renderTabla();
+        }
+    }
+    function eliminarItem(id) {
+        if(confirm("¿Eliminar este ítem?")) {
+            let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+            inventario = inventario.filter(i => i.id !== id);
+            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            renderTabla();
+            // Si estamos editando el que borramos, limpiar
+            if(editandoId === id) cancelarEdicion();
+        }
+    }
+    function editarItem(id) {
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const item = inventario.find(i => i.id === id);
+        if(item) {
+            editandoId = id;
+            document.getElementById('input-codigo').value = item.codigo;
+            document.getElementById('input-desc').value = item.desc;
+            document.getElementById('input-stock').value = item.stock;
+            document.getElementById('input-limite').value = item.limite;
+            document.getElementById('prov-nom').value = item.prov.nombre;
+            document.getElementById('prov-tel').value = item.prov.tel;
+            document.getElementById('prov-web').value = item.prov.web;
+            document.getElementById('prov-ubi').value = item.prov.ubi;
+            
+            if(item.categoria === 'consumibles' && item.empaque) {
+                document.getElementById('input-tipo-envase').value = item.empaque.tipo;
+                document.getElementById('input-contenido').value = item.empaque.contenido;
+                document.getElementById('input-unidad').value = item.empaque.unidad;
+            }
+            document.getElementById('btn-guardar').innerText = "🔄 Actualizar";
+            document.getElementById('btn-guardar').classList.replace('bg-slate-800', 'bg-blue-600');
+            document.getElementById('modo-edicion').classList.remove('hidden');
+            document.getElementById('btn-cancelar').classList.remove('hidden');
+            
+            // Scroll arriba suave
+            document.getElementById('view-manager').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    function cancelarEdicion() {
+        editandoId = null;
+        limpiarFormulario();
+        document.getElementById('btn-guardar').innerText = "+ Guardar";
+        document.getElementById('btn-guardar').classList.replace('bg-blue-600', 'bg-slate-800');
+        document.getElementById('modo-edicion').classList.add('hidden');
+        document.getElementById('btn-cancelar').classList.add('hidden');
+    }
+    function limpiarFormulario() { document.querySelectorAll('input').forEach(i => i.value = ''); }
+</script>
+</body>
+</html>
