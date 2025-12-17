@@ -21,7 +21,7 @@
         <div class="bg-slate-800 p-6 text-white flex justify-between items-center shadow-md">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">🏭 Gestión de Stock LABSE</h1>
-                <p class="text-slate-400 text-sm">Control de Herramientas, Insumos y Proveedores</p>
+                <p class="text-slate-400 text-sm">Sistema V6.0 - Control Total</p>
             </div>
             <div class="flex gap-4 items-center">
                 <button onclick="verCompras()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded shadow flex items-center gap-2 transition hover:scale-105">
@@ -114,7 +114,7 @@
                     </thead>
                     <tbody id="lista-compras-body" class="text-sm text-slate-700"></tbody>
                 </table>
-                <div id="mensaje-vacio" class="hidden text-center py-8 text-slate-400">✅ Todo en orden (Verde). No se requieren compras.</div>
+                <div id="mensaje-vacio" class="hidden text-center py-8 text-slate-400">✅ Todo en orden. No hay faltantes.</div>
             </div>
             <div class="p-4 bg-slate-50 border-t text-right">
                 <button onclick="cerrarCompras()" class="bg-slate-800 text-white px-6 py-2 rounded hover:bg-slate-700">Cerrar</button>
@@ -123,67 +123,86 @@
     </div>
 
 <script>
-    const DB_NAME = 'labse_db_v5_2'; 
+    // CAMBIO IMPORTANTE: Versión V6 para limpiar errores de memoria
+    const DB_NAME = 'labse_db_v6'; 
     let editandoId = null;
 
     document.addEventListener('DOMContentLoaded', cargarDatos);
 
     function procesarItem() {
-        const codigo = document.getElementById('codigo').value.trim();
-        const desc = document.getElementById('descripcion').value;
-        const cant = parseInt(document.getElementById('cantidad').value);
-        const lim = parseInt(document.getElementById('limite').value);
-        
-        const pNom = document.getElementById('prov_nombre').value || "Genérico";
-        const pCon = document.getElementById('prov_contacto').value || "-";
-        const pWeb = document.getElementById('prov_web').value || "-";
-        const pUbi = document.getElementById('prov_ubi').value || "-";
+        try {
+            // 1. Obtener valores y limpiar espacios extra
+            const codigo = document.getElementById('codigo').value.trim();
+            const desc = document.getElementById('descripcion').value.trim();
+            // Convertir a número (si está vacío, será NaN)
+            const cantInput = document.getElementById('cantidad').value;
+            const limInput = document.getElementById('limite').value;
+            
+            const cant = (cantInput === '') ? NaN : parseInt(cantInput);
+            const lim = (limInput === '') ? NaN : parseInt(limInput);
+            
+            const pNom = document.getElementById('prov_nombre').value || "Genérico";
+            const pCon = document.getElementById('prov_contacto').value || "-";
+            const pWeb = document.getElementById('prov_web').value || "-";
+            const pUbi = document.getElementById('prov_ubi').value || "-";
 
-        if(!codigo || !desc || isNaN(cant) || isNaN(lim)) {
-            alert("⚠️ Por favor completa los datos obligatorios.");
-            return;
+            // 2. Validación estricta
+            if(!codigo) { alert("⚠️ Falta el CÓDIGO."); return; }
+            if(!desc) { alert("⚠️ Falta la DESCRIPCIÓN."); return; }
+            if(isNaN(cant)) { alert("⚠️ El STOCK debe ser un número."); return; }
+            if(isNaN(lim)) { alert("⚠️ La SEGURIDAD debe ser un número."); return; }
+
+            // 3. Cargar inventario
+            let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+
+            // 4. Lógica de Guardado vs Edición
+            if (editandoId) {
+                // Modo Edición: Revisar que no dupliquemos código de OTRO item
+                const duplicado = inventario.some(item => item.codigo === codigo && item.id !== editandoId);
+                if (duplicado) {
+                    alert("⛔ El código '" + codigo + "' ya está usado en otro producto.");
+                    return;
+                }
+
+                const index = inventario.findIndex(item => item.id === editandoId);
+                if (index !== -1) {
+                    inventario[index].codigo = codigo;
+                    inventario[index].desc = desc;
+                    inventario[index].stock = cant;
+                    inventario[index].limite = lim;
+                    inventario[index].prov = { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi };
+                    alert("✅ Actualizado con éxito.");
+                }
+                cancelarEdicion();
+            } 
+            else {
+                // Modo Creación: Revisar duplicados
+                if (inventario.some(item => item.codigo === codigo)) {
+                    alert("⛔ ERROR: El código '" + codigo + "' ya existe.");
+                    return;
+                }
+                const nuevoItem = { 
+                    id: Date.now(), 
+                    codigo, 
+                    desc, 
+                    stock: cant, 
+                    limite: lim, 
+                    prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi }
+                };
+                inventario.push(nuevoItem);
+            }
+            
+            // 5. Guardar en memoria
+            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            
+            // 6. Limpiar y recargar
+            limpiarFormulario();
+            cargarDatos();
+
+        } catch (error) {
+            console.error(error);
+            alert("❌ Ocurrió un error inesperado al guardar. Por favor recarga la página.");
         }
-
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-
-        if (editandoId) {
-            const duplicado = inventario.some(item => item.codigo === codigo && item.id !== editandoId);
-            if (duplicado) {
-                alert("⛔ El código '" + codigo + "' ya está usado en otro producto.");
-                return;
-            }
-
-            const index = inventario.findIndex(item => item.id === editandoId);
-            if (index !== -1) {
-                inventario[index].codigo = codigo;
-                inventario[index].desc = desc;
-                inventario[index].stock = cant;
-                inventario[index].limite = lim;
-                inventario[index].prov = { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi };
-                
-                alert("✅ Producto actualizado correctamente.");
-            }
-            cancelarEdicion();
-        } 
-        else {
-            if (inventario.some(item => item.codigo === codigo)) {
-                alert("⛔ ERROR: El código '" + codigo + "' ya existe.");
-                return;
-            }
-            const nuevoItem = { 
-                id: Date.now(), 
-                codigo, 
-                desc, 
-                stock: cant, 
-                limite: lim, 
-                prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi }
-            };
-            inventario.push(nuevoItem);
-        }
-        
-        localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-        limpiarFormulario();
-        cargarDatos();
     }
 
     function editarItem(id) {
@@ -202,9 +221,11 @@
             document.getElementById('prov_ubi').value = item.prov.ubi;
 
             editandoId = id;
-            document.getElementById('btn-accion').innerText = "🔄 Actualizar Producto";
-            document.getElementById('btn-accion').classList.remove('bg-slate-800');
-            document.getElementById('btn-accion').classList.add('bg-blue-600');
+            const btn = document.getElementById('btn-accion');
+            btn.innerText = "🔄 Actualizar Producto";
+            btn.classList.remove('bg-slate-800');
+            btn.classList.add('bg-blue-600');
+            
             document.getElementById('modo-edicion').classList.remove('hidden');
             document.getElementById('btn-cancelar').classList.remove('hidden');
             document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
@@ -214,9 +235,11 @@
     function cancelarEdicion() {
         editandoId = null;
         limpiarFormulario();
-        document.getElementById('btn-accion').innerText = "+ Guardar";
-        document.getElementById('btn-accion').classList.add('bg-slate-800');
-        document.getElementById('btn-accion').classList.remove('bg-blue-600');
+        const btn = document.getElementById('btn-accion');
+        btn.innerText = "+ Guardar";
+        btn.classList.add('bg-slate-800');
+        btn.classList.remove('bg-blue-600');
+        
         document.getElementById('modo-edicion').classList.add('hidden');
         document.getElementById('btn-cancelar').classList.add('hidden');
     }
@@ -245,5 +268,116 @@
             let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
             inventario = inventario.filter(item => item.id !== id);
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-            if
+            if (editandoId === id) cancelarEdicion();
+            cargarDatos();
+        }
+    }
+
+    function cargarDatos() {
+        const cuerpo = document.getElementById('tabla-body');
+        const totalItems = document.getElementById('total-items');
+        cuerpo.innerHTML = '';
+        
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        totalItems.innerText = inventario.length;
+
+        inventario.forEach(item => {
+            let estadoClass = '';
+            let estadoTexto = '';
+            
+            if (item.stock > item.limite) {
+                estadoClass = 'status-ok';
+                estadoTexto = '✅ OK';
+            } else if (item.stock === item.limite) {
+                estadoClass = 'status-warn';
+                estadoTexto = '⚠️ ALERTA';
+            } else {
+                estadoClass = 'status-crit';
+                estadoTexto = '🛑 CRÍTICO';
+            }
+
+            const row = `
+                <tr class="border-b hover:bg-slate-50 transition align-middle">
+                    <td class="p-4">
+                        <span class="font-bold text-slate-800 block text-base">${item.desc}</span>
+                        <span class="text-xs text-slate-400 font-mono">#${item.codigo}</span>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-sm font-bold text-slate-700">🏢 ${item.prov.nombre}</div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            ${item.prov.contacto !== '-' ? `📞 ${item.prov.contacto}<br>` : ''}
+                            ${item.prov.ubi !== '-' ? `📍 ${item.prov.ubi}` : ''}
+                        </div>
+                    </td>
+                    <td class="p-4 text-center text-xs">
+                        <div class="text-orange-600 font-bold bg-orange-50 rounded px-1 mb-1">Seg: ${item.limite}</div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="actualizarStock(${item.id}, -1)" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-red-500 hover:text-white font-bold transition">-</button>
+                            <span class="text-xl font-bold w-8 text-center">${item.stock}</span>
+                            <button onclick="actualizarStock(${item.id}, 1)" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-green-500 hover:text-white font-bold transition">+</button>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="py-1 px-3 rounded text-xs font-bold inline-block shadow-sm ${estadoClass}">${estadoTexto}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="editarItem(${item.id})" class="text-blue-400 hover:text-blue-600 transition" title="Editar">✏️</button>
+                            <button onclick="eliminar(${item.id})" class="text-slate-300 hover:text-red-500 transition" title="Eliminar">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            cuerpo.innerHTML += row;
+        });
+    }
+
+    function verCompras() {
+        const modal = document.getElementById('modal-compras');
+        const listaBody = document.getElementById('lista-compras-body');
+        const mensajeVacio = document.getElementById('mensaje-vacio');
+        
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        // Filtro corregido: Incluye los IGUALES al límite (Naranjas)
+        const itemsAComprar = inventario.filter(i => i.stock <= i.limite);
+
+        listaBody.innerHTML = '';
+        
+        if (itemsAComprar.length === 0) {
+            mensajeVacio.classList.remove('hidden');
+        } else {
+            mensajeVacio.classList.add('hidden');
+            itemsAComprar.forEach(item => {
+                // Fórmula: Superar el límite por 1 para volver a Verde
+                const cantidadCompra = (item.limite + 1) - item.stock;
+
+                const row = `
+                    <tr class="border-b hover:bg-orange-50">
+                        <td class="p-3 font-semibold text-slate-800">${item.desc}</td>
+                        <td class="p-3 text-sm text-slate-600">
+                            <strong>${item.prov.nombre}</strong><br>
+                            ${item.prov.contacto}
+                        </td>
+                        <td class="p-3 text-center">
+                            <span class="bg-orange-100 text-orange-800 py-1 px-4 rounded-full font-bold text-lg border border-orange-200 shadow-sm">
+                                + ${cantidadCompra} u.
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                listaBody.innerHTML += row;
+            });
+        }
+        modal.classList.remove('hidden');
+    }
+
+    function cerrarCompras() {
+        document.getElementById('modal-compras').classList.add('hidden');
+    }
+</script>
+</body>
+</html>
+
 
