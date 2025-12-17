@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Stock LABSE V11</title>
+    <title>Sistema Stock LABSE V12 (Final)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
@@ -12,31 +12,24 @@
         .btn-module { transition: all 0.2s; border-bottom: 4px solid rgba(0,0,0,0.1); }
         .btn-module:active { transform: translateY(2px); border-bottom: 0px; }
     </style>
-    <script>
-        window.onerror = function(msg, url, line) {
-            alert("⚠️ ALERTA DE SISTEMA:\nOcurrió un error interno: " + msg + "\nPor favor, revisa que hayas copiado todo el código correctamente.");
-            return false;
-        };
-    </script>
 </head>
 <body class="bg-slate-100 min-h-screen">
 
     <div id="view-dashboard" class="max-w-5xl mx-auto p-6 fade-in">
         
-        <header class="text-center mb-10 mt-5">
+        <header class="text-center mb-8 mt-5">
             <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">🏭 LABSE STOCK</h1>
-            <p class="text-slate-500 mt-2 text-lg">Sistema Integral V11.0</p>
+            <p class="text-slate-500 mt-2 text-lg">Sistema Integral de Gestión V12</p>
         </header>
 
-        <div class="mb-12 text-center">
+        <div class="mb-10 text-center">
             <button onclick="verOrdenCompraGlobal()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xl font-bold py-4 px-10 rounded-2xl shadow-lg transform transition hover:scale-105 btn-module flex items-center justify-center gap-3 mx-auto w-full md:w-auto">
                 📋 Generar Orden de Compra Global
             </button>
-            <p class="text-sm text-slate-400 mt-2">Analiza todas las categorías, imprime o envía por correo</p>
+            <p class="text-sm text-slate-400 mt-2">Reporte unificado para Compras</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <button onclick="abrirModulo('consumibles')" class="btn-module bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl text-left group">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-4xl bg-blue-100 p-3 rounded-xl group-hover:bg-blue-200 transition">🧪</span>
@@ -54,7 +47,20 @@
                 <h2 class="text-2xl font-bold text-slate-800 group-hover:text-purple-700">Herramientas y Máquinas</h2>
                 <p class="text-slate-500 mt-2">Activos físicos y unidades enteras.</p>
             </button>
+        </div>
 
+        <div class="border-t border-slate-300 pt-8">
+            <h3 class="text-center text-slate-400 text-sm font-bold uppercase mb-4">💾 Zona de Seguridad de Datos</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="descargarBackup()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                    ⬇️ Descargar Copia de Seguridad
+                </button>
+                <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 cursor-pointer">
+                    ⬆️ Restaurar Datos
+                    <input type="file" id="input-backup" class="hidden" onchange="cargarBackup(this)">
+                </label>
+            </div>
+            <p class="text-center text-xs text-slate-400 mt-2">Usa esto para guardar tus datos en tu PC y no perderlos nunca.</p>
         </div>
     </div>
 
@@ -253,12 +259,12 @@
     </div>
 
 <script>
-    // --- 1. CONFIGURACIÓN (NUEVA DB) ---
-    const DB_NAME = 'labse_db_v11_clean'; // CAMBIO DE NOMBRE PARA EVITAR CONFLICTOS
+    // --- NOMBRE DEFINITIVO DE LA BASE DE DATOS (NO CAMBIARÁ MÁS) ---
+    const DB_NAME = 'labse_stock_master'; 
     let categoriaActual = ''; 
     let editandoId = null;
 
-    // --- 2. NAVEGACIÓN ---
+    // --- NAVEGACIÓN ---
     function abrirModulo(cat) {
         categoriaActual = cat;
         document.getElementById('view-dashboard').classList.add('hidden');
@@ -290,17 +296,13 @@
         limpiarFormulario();
     }
 
-    // --- 3. GUARDAR (CON PROTECCIÓN DE ERRORES) ---
+    // --- GUARDAR ---
     function guardarItem() {
         try {
             const codigo = document.getElementById('input-codigo').value.trim();
             const desc = document.getElementById('input-desc').value.trim();
-            
-            // Protección contra valores vacíos
-            const stockInput = document.getElementById('input-stock').value;
-            const limiteInput = document.getElementById('input-limite').value;
-            const stock = (stockInput === '') ? 0 : parseInt(stockInput);
-            const limite = (limiteInput === '') ? 0 : parseInt(limiteInput);
+            const stock = parseInt(document.getElementById('input-stock').value) || 0;
+            const limite = parseInt(document.getElementById('input-limite').value) || 0;
             
             const prov = {
                 nombre: document.getElementById('prov-nom').value,
@@ -310,7 +312,6 @@
             };
 
             if(!codigo || !desc) { alert("⚠️ Faltan datos: Código o Descripción."); return; }
-            if(isNaN(stock) || isNaN(limite)) { alert("⚠️ El stock debe ser un número."); return; }
 
             let empaque = null;
             if (categoriaActual === 'consumibles') {
@@ -332,11 +333,11 @@
 
             if (editandoId) {
                 if (inventario.some(i => i.codigo === codigo && i.id !== editandoId)) {
-                    alert("⛔ El Código ya existe en otro producto."); return;
+                    alert("⛔ El Código ya existe."); return;
                 }
                 const idx = inventario.findIndex(i => i.id === editandoId);
-                if (idx !== -1) inventario[idx] = itemObj;
-                alert("✅ Actualizado correctamente.");
+                inventario[idx] = itemObj;
+                alert("✅ Actualizado.");
             } else {
                 if (inventario.some(i => i.codigo === codigo)) {
                     alert("⛔ El Código ya existe."); return;
@@ -347,13 +348,10 @@
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
             cancelarEdicion();
             renderTabla();
-        } catch (e) { 
-            console.error(e);
-            alert("Error al guardar: " + e.message); 
-        }
+        } catch (e) { alert("Error al guardar: " + e.message); }
     }
 
-    // --- 4. RENDERIZADO DE TABLA ---
+    // --- TABLA ---
     function renderTabla() {
         const tbody = document.getElementById('tabla-body');
         const totalCounter = document.getElementById('total-items-modulo');
@@ -371,9 +369,7 @@
 
             let detalleHTML = '<span class="text-slate-400">-</span>';
             if (item.categoria === 'consumibles' && item.empaque) {
-                detalleHTML = `<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 font-bold">
-                    ${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}
-                </span>`;
+                detalleHTML = `<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 font-bold">${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}</span>`;
             } else {
                 detalleHTML = `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100 font-bold">Unidad Física</span>`;
             }
@@ -381,15 +377,9 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-50 transition";
             tr.innerHTML = `
-                <td class="p-4">
-                    <div class="font-bold text-slate-800">${item.desc}</div>
-                    <div class="text-xs text-slate-400 font-mono">#${item.codigo}</div>
-                </td>
+                <td class="p-4"><div class="font-bold text-slate-800">${item.desc}</div><div class="text-xs text-slate-400 font-mono">#${item.codigo}</div></td>
                 <td class="p-4">${detalleHTML}</td>
-                <td class="p-4 text-xs text-slate-500">
-                    ${item.prov.nombre ? `<div class="font-bold">${item.prov.nombre}</div>` : '-'}
-                    ${item.prov.tel ? `<div>📞 ${item.prov.tel}</div>` : ''}
-                </td>
+                <td class="p-4 text-xs text-slate-500">${item.prov.nombre || '-'}</td>
                 <td class="p-4 text-center text-xs font-bold text-orange-600">Min: ${item.limite}</td>
                 <td class="p-4 text-center">
                     <div class="flex items-center justify-center gap-2">
@@ -408,7 +398,7 @@
         });
     }
 
-    // --- 5. ORDEN DE COMPRA Y EMAIL ---
+    // --- ORDEN DE COMPRA ---
     function verOrdenCompraGlobal() {
         const modal = document.getElementById('modal-compras');
         const listaInsumos = document.getElementById('lista-compra-insumos');
@@ -431,13 +421,11 @@
             if (item.categoria === 'consumibles') {
                 countInsumos++;
                 const faltanteTotal = (item.limite + 1) - item.stock;
-                // Protección: evitar división por cero
-                const contenido = (item.empaque.contenido && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
+                const contenido = item.empaque.contenido || 1;
                 const envases = Math.ceil(faltanteTotal / contenido);
                 
                 compraHTML = `<div class="font-bold text-blue-700 text-lg">+ ${envases} ${item.empaque.tipo}</div>
                               <div class="text-[10px] text-slate-400 uppercase">(Total: ${envases * contenido} ${item.empaque.unidad})</div>`;
-                
                 row.innerHTML = `<td class="p-3 font-medium text-slate-700">${item.desc}</td><td class="p-3 text-sm text-slate-500">${item.prov.nombre || '-'}</td><td class="p-3 text-right">${compraHTML}</td>`;
                 listaInsumos.appendChild(row);
             } else {
@@ -453,26 +441,23 @@
         document.getElementById('vacio-herramientas').classList.toggle('hidden', countHerramientas > 0);
         modal.classList.remove('hidden');
     }
-
     function cerrarOrdenCompra() { document.getElementById('modal-compras').classList.add('hidden'); }
 
-    // --- 6. LOGICA EMAIL ---
+    // --- EMAIL ---
     function abrirModalEmail() { document.getElementById('modal-email').classList.remove('hidden'); }
-
     function enviarCorreoCustom() {
         const email = document.getElementById('email-custom').value;
-        if(email && email.includes('@')) enviarCorreoFinal(email);
+        if(email) enviarCorreoFinal(email);
         else alert("⚠️ Escribe un correo válido");
     }
-
     function enviarCorreoFinal(emailDestino) {
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
         const faltantes = inventario.filter(i => i.stock <= i.limite);
-        
-        if(faltantes.length === 0) { alert("✅ No hay ítems para comprar."); return; }
+        if(faltantes.length === 0) { alert("Nada para comprar"); return; }
 
         let cuerpo = "SOLICITUD DE COMPRA - LABSE\n\n";
         
+        // Insumos
         const insumos = faltantes.filter(i => i.categoria === 'consumibles');
         if (insumos.length > 0) {
             cuerpo += "--- INSUMOS ---\n";
@@ -480,17 +465,18 @@
                 const faltanteTotal = (item.limite + 1) - item.stock;
                 const cont = item.empaque.contenido || 1;
                 const envases = Math.ceil(faltanteTotal / cont);
-                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (Prov: ${item.prov.nombre || 'N/A'})\n`;
+                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (${item.prov.nombre || 'Genérico'})\n`;
             });
             cuerpo += "\n";
         }
 
+        // Herramientas
         const herram = faltantes.filter(i => i.categoria === 'herramientas');
         if (herram.length > 0) {
             cuerpo += "--- HERRAMIENTAS ---\n";
             herram.forEach(item => {
-                const rep = (item.limite + 1) - item.stock;
-                cuerpo += `- ${item.desc}: ${rep} Unidades (Prov: ${item.prov.nombre || 'N/A'})\n`;
+                const reposicion = (item.limite + 1) - item.stock;
+                cuerpo += `- ${item.desc}: ${reposicion} Unidades (${item.prov.nombre || 'Genérico'})\n`;
             });
         }
 
@@ -500,7 +486,47 @@
         document.getElementById('modal-email').classList.add('hidden');
     }
 
-    // --- 7. EDICIÓN Y BORRADO ---
+    // --- COPIA DE SEGURIDAD (BACKUP) ---
+    function descargarBackup() {
+        const datos = localStorage.getItem(DB_NAME);
+        if(!datos || datos === '[]') { alert("No hay datos para guardar."); return; }
+        
+        const blob = new Blob([datos], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `LABSE_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function cargarBackup(input) {
+        const file = input.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                // Validación básica de que es un array
+                if(Array.isArray(json)) {
+                    if(confirm("⚠️ ATENCIÓN: Al cargar este archivo, se reemplazarán los datos actuales. ¿Continuar?")) {
+                        localStorage.setItem(DB_NAME, JSON.stringify(json));
+                        alert("✅ Datos restaurados con éxito.");
+                        location.reload(); // Recargar para ver cambios
+                    }
+                } else {
+                    alert("❌ El archivo no tiene el formato correcto.");
+                }
+            } catch(err) {
+                alert("❌ Error al leer el archivo: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- UTILIDADES ---
     function cambiarStock(id, delta) {
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
         const idx = inventario.findIndex(i => i.id === id);
@@ -513,12 +539,11 @@
         }
     }
     function eliminarItem(id) {
-        if(confirm("¿Eliminar este ítem?")) {
+        if(confirm("¿Eliminar?")) {
             let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
             inventario = inventario.filter(i => i.id !== id);
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
             renderTabla();
-            // Si estamos editando el que borramos, limpiar
             if(editandoId === id) cancelarEdicion();
         }
     }
@@ -535,7 +560,6 @@
             document.getElementById('prov-tel').value = item.prov.tel;
             document.getElementById('prov-web').value = item.prov.web;
             document.getElementById('prov-ubi').value = item.prov.ubi;
-            
             if(item.categoria === 'consumibles' && item.empaque) {
                 document.getElementById('input-tipo-envase').value = item.empaque.tipo;
                 document.getElementById('input-contenido').value = item.empaque.contenido;
@@ -545,9 +569,7 @@
             document.getElementById('btn-guardar').classList.replace('bg-slate-800', 'bg-blue-600');
             document.getElementById('modo-edicion').classList.remove('hidden');
             document.getElementById('btn-cancelar').classList.remove('hidden');
-            
-            // Scroll arriba suave
-            document.getElementById('view-manager').scrollIntoView({ behavior: 'smooth' });
+            window.scrollTo(0,0);
         }
     }
     function cancelarEdicion() {
