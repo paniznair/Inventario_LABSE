@@ -3,110 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Stock LABSE V12 (Final)</title>
+    <title>Sistema Stock LABSE - V12.1 Blue</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        labse: {
+                            light: '#3b82f6', // Azul claro
+                            DEFAULT: '#1e40af', // Azul principal corporativo
+                            dark: '#1e3a8a', // Azul oscuro fondos
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f9ff; font-family: 'Segoe UI', sans-serif; } /* Fondo azul muy claro */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .btn-module { transition: all 0.2s; border-bottom: 4px solid rgba(0,0,0,0.1); }
+        .btn-module { transition: all 0.2s; border-bottom: 4px solid rgba(30, 58, 138, 0.1); }
         .btn-module:active { transform: translateY(2px); border-bottom: 0px; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen">
+<body class="bg-slate-50 min-h-screen relative">
 
     <div id="view-dashboard" class="max-w-5xl mx-auto p-6 fade-in">
         
-        <header class="text-center mb-8 mt-5">
-            <h1 class="text-4xl font-extrabold text-slate-800 tracking-tight">🏭 LABSE STOCK</h1>
-            <p class="text-slate-500 mt-2 text-lg">Sistema Integral de Gestión V12</p>
+        <header class="text-center mb-10 mt-8 flex flex-col items-center">
+            <img src="https://via.placeholder.com/400x120/1e3a8a/ffffff?text=LOGO+LABSE+AZUL+(Insertar+Aquí)" alt="Logo LABSE" class="h-28 object-contain mb-4 drop-shadow-sm transition hover:scale-105">
+            
+            <p class="text-labse-dark mt-2 text-xl font-semibold tracking-wide">Sistema Integral de Gestión de Inventario</p>
         </header>
 
-        <div class="mb-10 text-center">
-            <button onclick="verOrdenCompraGlobal()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xl font-bold py-4 px-10 rounded-2xl shadow-lg transform transition hover:scale-105 btn-module flex items-center justify-center gap-3 mx-auto w-full md:w-auto">
-                📋 Generar Orden de Compra Global
+        <div class="mb-12 text-center">
+            <button onclick="verOrdenCompraGlobal()" class="bg-gradient-to-r from-blue-600 to-labse-dark hover:from-blue-700 hover:to-black text-white text-xl font-bold py-5 px-12 rounded-2xl shadow-xl transform transition hover:scale-105 btn-module flex items-center justify-center gap-4 mx-auto w-full md:w-auto">
+                <span class="text-3xl">📋</span> Generar Orden de Compra Global
             </button>
-            <p class="text-sm text-slate-400 mt-2">Reporte unificado para Compras</p>
+            <p class="text-sm text-labse font-medium mt-3">Reporte unificado para Compras y Administración</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <button onclick="abrirModulo('consumibles')" class="btn-module bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl text-left group">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <button onclick="abrirModulo('consumibles')" class="btn-module bg-white p-8 rounded-3xl shadow-[0_10px_30px_-10px_rgba(30,58,138,0.2)] border border-blue-100 hover:shadow-2xl hover:border-blue-300 text-left group transition-all">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-4xl bg-blue-100 p-3 rounded-xl group-hover:bg-blue-200 transition">🧪</span>
-                    <span class="text-3xl font-bold text-slate-200 group-hover:text-blue-500 transition">→</span>
+                    <span class="text-5xl bg-blue-50 p-4 rounded-2xl group-hover:bg-blue-100 transition text-labse">🧪</span>
+                    <span class="text-4xl font-bold text-blue-200 group-hover:text-labse-light transition">→</span>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800 group-hover:text-blue-700">Insumos y Consumibles</h2>
-                <p class="text-slate-500 mt-2">Cajas, Litros, Packs, Gramos, etc.</p>
+                <h2 class="text-2xl font-extrabold text-labse-dark group-hover:text-labse">Insumos y Consumibles</h2>
+                <p class="text-blue-600 mt-2 font-medium">Cajas, Litros, Packs, Gramos, etc.</p>
             </button>
 
-            <button onclick="abrirModulo('herramientas')" class="btn-module bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:shadow-xl text-left group">
+            <button onclick="abrirModulo('herramientas')" class="btn-module bg-white p-8 rounded-3xl shadow-[0_10px_30px_-10px_rgba(30,58,138,0.2)] border border-blue-100 hover:shadow-2xl hover:border-blue-300 text-left group transition-all">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-4xl bg-purple-100 p-3 rounded-xl group-hover:bg-purple-200 transition">⚙️</span>
-                    <span class="text-3xl font-bold text-slate-200 group-hover:text-purple-500 transition">→</span>
+                    <span class="text-5xl bg-blue-50 p-4 rounded-2xl group-hover:bg-blue-100 transition text-labse">⚙️</span>
+                    <span class="text-4xl font-bold text-blue-200 group-hover:text-labse-light transition">→</span>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800 group-hover:text-purple-700">Herramientas y Máquinas</h2>
-                <p class="text-slate-500 mt-2">Activos físicos y unidades enteras.</p>
+                <h2 class="text-2xl font-extrabold text-labse-dark group-hover:text-labse">Herramientas y Máquinas</h2>
+                <p class="text-blue-600 mt-2 font-medium">Activos físicos y unidades enteras.</p>
             </button>
         </div>
 
-        <div class="border-t border-slate-300 pt-8">
-            <h3 class="text-center text-slate-400 text-sm font-bold uppercase mb-4">💾 Zona de Seguridad de Datos</h3>
+        <div class="border-t-2 border-blue-100 pt-8 bg-blue-50 rounded-xl p-6">
+            <h3 class="text-center text-labse-dark text-sm font-black uppercase mb-4 flex items-center justify-center gap-2">
+                🛡️ Zona de Seguridad de Datos
+            </h3>
             <div class="flex flex-wrap justify-center gap-4">
-                <button onclick="descargarBackup()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                <button onclick="descargarBackup()" class="bg-labse hover:bg-labse-dark text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow transition">
                     ⬇️ Descargar Copia de Seguridad
                 </button>
-                <label class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 cursor-pointer">
+                <label class="bg-white border-2 border-blue-200 hover:border-labse hover:text-labse-dark text-blue-600 px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer shadow transition">
                     ⬆️ Restaurar Datos
                     <input type="file" id="input-backup" class="hidden" onchange="cargarBackup(this)">
                 </label>
             </div>
-            <p class="text-center text-xs text-slate-400 mt-2">Usa esto para guardar tus datos en tu PC y no perderlos nunca.</p>
         </div>
     </div>
 
 
     <div id="view-manager" class="hidden max-w-7xl mx-auto p-4 md:p-6 fade-in">
         
-        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-            <button onclick="volverAlDashboard()" class="text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition hover:scale-105">
+        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-blue-100">
+            <button onclick="volverAlDashboard()" class="text-labse hover:text-labse-dark font-bold flex items-center gap-2 transition hover:scale-105 px-4 py-2 rounded-lg hover:bg-blue-50">
                 ⬅ Volver al Menú
             </button>
-            <h2 id="titulo-modulo" class="text-xl font-bold text-slate-800 uppercase tracking-wider">Categoría</h2>
-            <div class="bg-slate-100 px-4 py-2 rounded-lg">
-                <span class="text-xs text-slate-500 uppercase font-bold">Total Ítems</span>
-                <span id="total-items-modulo" class="ml-2 font-bold text-lg text-slate-800">0</span>
+            <h2 id="titulo-modulo" class="text-2xl font-black text-labse-dark uppercase tracking-wider">Categoría</h2>
+            <div class="bg-blue-50 px-4 py-2 rounded-xl border border-blue-100">
+                <span class="text-xs text-blue-500 uppercase font-bold">Total Ítems</span>
+                <span id="total-items-modulo" class="ml-2 font-black text-xl text-labse-dark">0</span>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 mb-8">
-            <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-bold text-slate-600">📝 Gestión de Inventario</h3>
-                <span id="modo-edicion" class="text-blue-600 font-bold text-sm hidden animate-pulse">✏️ EDITANDO ÍTEM</span>
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-blue-200 mb-8">
+            <div class="p-6 bg-blue-50 border-b border-blue-200 flex justify-between items-center">
+                <h3 class="font-extrabold text-labse-dark flex items-center gap-2">📝 Gestión de Inventario</h3>
+                <span id="modo-edicion" class="text-labse-light font-black text-sm hidden animate-pulse bg-white px-3 py-1 rounded-full border border-blue-200">✏️ EDITANDO ÍTEM</span>
             </div>
             
             <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
                 
                 <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-400">Código</label>
-                    <input type="text" id="input-codigo" class="w-full p-2 border rounded font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="text-xs font-bold text-blue-700">Código</label>
+                    <input type="text" id="input-codigo" class="w-full p-3 border-2 border-blue-100 rounded-xl font-mono focus:border-labse-light outline-none font-bold text-labse-dark">
                 </div>
                 <div class="md:col-span-5">
-                    <label class="text-xs font-bold text-slate-400">Descripción</label>
-                    <input type="text" id="input-desc" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="text-xs font-bold text-blue-700">Descripción</label>
+                    <input type="text" id="input-desc" class="w-full p-3 border-2 border-blue-100 rounded-xl focus:border-labse-light outline-none font-semibold text-slate-700">
                 </div>
 
-                <div id="panel-empaque" class="md:col-span-5 grid grid-cols-3 gap-2 bg-blue-50 p-2 rounded border border-blue-100">
-                    <div class="col-span-3 text-[10px] font-bold text-blue-600 uppercase">Configuración de Compra</div>
-                    <select id="input-tipo-envase" class="p-2 border rounded text-sm text-blue-900 font-bold">
-                        <option value="Cajas">Cajas</option>
-                        <option value="Bidones">Bidones</option>
-                        <option value="Packs">Packs</option>
-                        <option value="Bolsas">Bolsas</option>
-                        <option value="Rollos">Rollos</option>
-                        <option value="Unid.">Unidad</option>
+                <div id="panel-empaque" class="md:col-span-5 grid grid-cols-3 gap-2 bg-indigo-50 p-3 rounded-xl border-2 border-indigo-100">
+                    <div class="col-span-3 text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-1">Configuración de Compra</div>
+                    <select id="input-tipo-envase" class="p-2 border-2 border-indigo-200 rounded-lg text-sm text-indigo-900 font-bold bg-white outline-none focus:border-indigo-500">
+                        <option value="Cajas">📦 Cajas</option>
+                        <option value="Bidones">🛢️ Bidones</option>
+                        <option value="Packs">🛍️ Packs</option>
+                        <option value="Bolsas">💰 Bolsas</option>
+                        <option value="Rollos">🧻 Rollos</option>
+                        <option value="Unid.">📦 Unidad</option>
                     </select>
-                    <input type="number" id="input-contenido" placeholder="Cant." class="p-2 border rounded text-center font-bold text-blue-900">
-                    <select id="input-unidad" class="p-2 border rounded text-sm text-blue-900 font-bold">
+                    <input type="number" id="input-contenido" placeholder="Cant." class="p-2 border-2 border-indigo-200 rounded-lg text-center font-bold text-indigo-900 outline-none focus:border-indigo-500">
+                    <select id="input-unidad" class="p-2 border-2 border-indigo-200 rounded-lg text-sm text-indigo-900 font-bold bg-white outline-none focus:border-indigo-500">
                         <option value="gr">Gramos</option>
                         <option value="lt">Litros</option>
                         <option value="mt">Metros</option>
@@ -115,151 +132,151 @@
                 </div>
                 <div id="panel-vacio" class="md:col-span-5 hidden"></div>
 
-                <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-50 p-3 rounded border border-gray-200">
-                    <input type="text" id="prov-nom" placeholder="Proveedor" class="p-2 text-sm border rounded">
-                    <input type="text" id="prov-tel" placeholder="Contacto" class="p-2 text-sm border rounded">
-                    <input type="text" id="prov-web" placeholder="Web" class="p-2 text-sm border rounded">
-                    <input type="text" id="prov-ubi" placeholder="Ubicación" class="p-2 text-sm border rounded">
+                <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <input type="text" id="prov-nom" placeholder="Proveedor (Nombre)" class="p-2 text-sm border rounded-lg outline-none focus:border-blue-400">
+                    <input type="text" id="prov-tel" placeholder="📞 Contacto" class="p-2 text-sm border rounded-lg outline-none focus:border-blue-400">
+                    <input type="text" id="prov-web" placeholder="🌐 Web" class="p-2 text-sm border rounded-lg outline-none focus:border-blue-400">
+                    <input type="text" id="prov-ubi" placeholder="📍 Ubicación" class="p-2 text-sm border rounded-lg outline-none focus:border-blue-400">
                 </div>
 
                 <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-6 gap-4 items-end mt-2">
                     <div class="md:col-span-2">
-                        <label class="text-xs font-bold text-slate-500">Stock Actual</label>
-                        <input type="number" id="input-stock" class="w-full p-2 border rounded font-bold text-lg">
+                        <label class="text-xs font-bold text-blue-700">Stock Actual</label>
+                        <input type="number" id="input-stock" class="w-full p-3 border-2 border-blue-200 bg-blue-50 rounded-xl font-black text-xl text-labse-dark text-center outline-none focus:border-labse">
                     </div>
                     <div class="md:col-span-2">
                         <label class="text-xs font-bold text-orange-600">Punto de Pedido (Seguridad)</label>
-                        <input type="number" id="input-limite" class="w-full p-2 border border-orange-300 rounded font-bold text-lg text-orange-800">
+                        <input type="number" id="input-limite" class="w-full p-3 border-2 border-orange-200 bg-orange-50 rounded-xl font-black text-xl text-orange-800 text-center outline-none focus:border-orange-500">
                     </div>
-                    <div class="md:col-span-2 flex gap-2">
-                        <button onclick="guardarItem()" id="btn-guardar" class="w-full bg-slate-800 text-white font-bold py-2 rounded hover:bg-slate-900 transition shadow-lg">
-                            + Guardar
+                    <div class="md:col-span-2 flex gap-2 h-[52px]">
+                        <button onclick="guardarItem()" id="btn-guardar" class="h-full w-full bg-labse-dark text-white font-bold rounded-xl hover:bg-blue-900 transition shadow-md text-lg tracking-wide">
+                            + GUARDAR
                         </button>
-                        <button onclick="cancelarEdicion()" id="btn-cancelar" class="hidden bg-red-100 text-red-600 px-3 rounded font-bold">X</button>
+                        <button onclick="cancelarEdicion()" id="btn-cancelar" class="hidden h-full bg-red-100 text-red-600 px-4 rounded-xl font-bold border-2 border-red-200 hover:bg-red-200">X</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden mb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden mb-8">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                    <thead class="bg-blue-50 text-labse-dark text-xs uppercase font-black tracking-wider">
                         <tr>
-                            <th class="p-4">Descripción</th>
-                            <th class="p-4">Detalle</th>
-                            <th class="p-4">Proveedor</th>
-                            <th class="p-4 text-center">Seguridad</th>
-                            <th class="p-4 text-center">Stock</th>
-                            <th class="p-4 text-center">Acciones</th>
+                            <th class="p-5">Descripción</th>
+                            <th class="p-5">Detalle</th>
+                            <th class="p-5">Proveedor</th>
+                            <th class="p-5 text-center">Seguridad</th>
+                            <th class="p-5 text-center">Stock</th>
+                            <th class="p-5 text-center">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-body" class="text-sm divide-y divide-slate-100"></tbody>
+                    <tbody id="tabla-body" class="text-sm divide-y divide-blue-50"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="text-center pb-10">
-            <button onclick="volverAlDashboard()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold py-3 px-8 rounded-xl shadow-sm transition transform hover:scale-105 flex items-center gap-2 mx-auto">
+            <button onclick="volverAlDashboard()" class="bg-white border-2 border-blue-200 text-labse hover:bg-blue-50 hover:border-labse font-bold py-3 px-10 rounded-2xl shadow-sm transition transform hover:scale-105 flex items-center gap-2 mx-auto">
                 ⬅ Volver al Inicio
             </button>
         </div>
     </div>
 
-    <div id="modal-compras" class="fixed inset-0 bg-slate-900 bg-opacity-80 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div id="modal-compras" class="fixed inset-0 bg-labse-dark bg-opacity-90 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
             
-            <div class="bg-slate-800 p-5 text-white flex justify-between items-center shrink-0">
+            <div class="bg-labse-dark p-6 text-white flex justify-between items-center shrink-0">
                 <div>
-                    <h2 class="text-2xl font-bold">📑 Orden de Compra Global</h2>
-                    <p class="text-slate-400 text-sm">Reporte unificado por categorías</p>
+                    <h2 class="text-3xl font-black tracking-tight">📑 Orden de Compra Global</h2>
+                    <p class="text-blue-200 text-sm font-medium">Reporte unificado para reposición</p>
                 </div>
-                <button onclick="cerrarOrdenCompra()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
+                <button onclick="cerrarOrdenCompra()" class="text-blue-200 hover:text-white text-4xl font-bold transition hover:rotate-90">&times;</button>
             </div>
 
             <div class="overflow-y-auto p-8 bg-slate-50 flex-1">
                 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
-                    <div class="bg-blue-600 p-3 flex items-center gap-2">
-                        <span class="text-2xl">🧪</span>
-                        <h3 class="text-white font-bold text-lg">INSUMOS Y CONSUMIBLES</h3>
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-blue-100 mb-8 overflow-hidden">
+                    <div class="bg-blue-100 p-4 flex items-center gap-3 border-b border-blue-200">
+                        <span class="text-3xl">🧪</span>
+                        <h3 class="text-labse-dark font-extrabold text-xl">INSUMOS Y CONSUMIBLES</h3>
                     </div>
                     <table class="w-full text-left">
-                        <thead class="bg-blue-50 text-blue-800 text-xs uppercase">
-                            <tr><th class="p-3">Ítem</th><th class="p-3">Proveedor</th><th class="p-3 text-right">Compra Sugerida</th></tr>
+                        <thead class="bg-blue-50 text-blue-800 text-xs uppercase font-bold">
+                            <tr><th class="p-4">Ítem</th><th class="p-4">Proveedor</th><th class="p-4 text-right">Compra Sugerida</th></tr>
                         </thead>
-                        <tbody id="lista-compra-insumos" class="divide-y divide-blue-50 text-slate-700"></tbody>
+                        <tbody id="lista-compra-insumos" class="divide-y divide-blue-50 text-slate-700 font-medium"></tbody>
                     </table>
-                    <div id="vacio-insumos" class="p-4 text-center text-slate-400 text-sm italic hidden">✅ Stock OK.</div>
+                    <div id="vacio-insumos" class="p-6 text-center text-blue-400 text-sm italic hidden font-medium">✅ Stock Saludable. No se requieren compras.</div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
-                    <div class="bg-purple-600 p-3 flex items-center gap-2">
-                        <span class="text-2xl">⚙️</span>
-                        <h3 class="text-white font-bold text-lg">HERRAMIENTAS Y MÁQUINAS</h3>
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-indigo-100 mb-8 overflow-hidden">
+                    <div class="bg-indigo-100 p-4 flex items-center gap-3 border-b border-indigo-200">
+                        <span class="text-3xl">⚙️</span>
+                        <h3 class="text-indigo-900 font-extrabold text-xl">HERRAMIENTAS Y MÁQUINAS</h3>
                     </div>
                     <table class="w-full text-left">
-                        <thead class="bg-purple-50 text-purple-800 text-xs uppercase">
-                            <tr><th class="p-3">Ítem</th><th class="p-3">Proveedor</th><th class="p-3 text-right">Reponer</th></tr>
+                        <thead class="bg-indigo-50 text-indigo-800 text-xs uppercase font-bold">
+                            <tr><th class="p-4">Ítem</th><th class="p-4">Proveedor</th><th class="p-4 text-right">Reponer</th></tr>
                         </thead>
-                        <tbody id="lista-compra-herramientas" class="divide-y divide-purple-50 text-slate-700"></tbody>
+                        <tbody id="lista-compra-herramientas" class="divide-y divide-indigo-50 text-slate-700 font-medium"></tbody>
                     </table>
-                    <div id="vacio-herramientas" class="p-4 text-center text-slate-400 text-sm italic hidden">✅ Stock OK.</div>
+                    <div id="vacio-herramientas" class="p-6 text-center text-indigo-400 text-sm italic hidden font-medium">✅ Todo en orden.</div>
                 </div>
 
             </div>
 
-            <div class="p-4 bg-white border-t border-slate-200 text-right flex flex-wrap justify-end gap-3">
-                <button onclick="window.print()" class="text-slate-500 hover:text-slate-800 font-bold px-4 flex items-center gap-2">
+            <div class="p-5 bg-white border-t border-slate-200 text-right flex flex-wrap justify-end gap-3">
+                <button onclick="window.print()" class="text-slate-500 hover:text-labse font-bold px-6 py-3 rounded-xl border-2 border-transparent hover:border-blue-100 flex items-center gap-2 transition">
                     🖨️ Imprimir
                 </button>
-                <button onclick="abrirModalEmail()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-sm transition">
+                <button onclick="abrirModalEmail()" class="bg-labse hover:bg-labse-dark text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-md transition hover:-translate-y-1">
                     📧 Enviar por Correo
                 </button>
-                <button onclick="cerrarOrdenCompra()" class="bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-700 font-bold shadow-sm">
+                <button onclick="cerrarOrdenCompra()" class="bg-slate-800 text-white px-8 py-3 rounded-xl hover:bg-black font-bold shadow-md transition">
                     Cerrar
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modal-email" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-slate-800">📧 Enviar Reporte a:</h3>
-                <button onclick="document.getElementById('modal-email').classList.add('hidden')" class="text-slate-400 font-bold text-xl">&times;</button>
+    <div id="modal-email" class="fixed inset-0 bg-labse-dark bg-opacity-90 hidden flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border-4 border-blue-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-labse-dark">📧 Enviar Reporte</h3>
+                <button onclick="document.getElementById('modal-email').classList.add('hidden')" class="text-slate-300 hover:text-red-400 font-bold text-3xl">&times;</button>
             </div>
             
-            <div class="space-y-3 mb-6">
-                <p class="text-xs text-slate-400 uppercase font-bold">Contactos Frecuentes</p>
-                <button onclick="enviarCorreoFinal('compras@labse.com')" class="w-full text-left p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center gap-3">
-                    <span class="bg-blue-100 text-blue-600 p-2 rounded-full">🛒</span>
+            <div class="space-y-3 mb-8">
+                <p class="text-xs text-blue-500 uppercase font-black tracking-wider mb-2">Destinatarios Rápidos</p>
+                <button onclick="enviarCorreoFinal('compras@labse.com')" class="w-full text-left p-4 border-2 border-blue-100 rounded-2xl hover:bg-blue-50 hover:border-labse transition flex items-center gap-4 group">
+                    <span class="bg-blue-100 text-labse p-3 rounded-xl group-hover:bg-labse group-hover:text-white transition">🛒</span>
                     <div>
-                        <div class="font-bold text-slate-700">Dpto. Compras</div>
-                        <div class="text-xs text-slate-400">compras@labse.com</div>
+                        <div class="font-bold text-labse-dark text-lg">Dpto. Compras</div>
+                        <div class="text-xs text-blue-400 font-medium">compras@labse.com</div>
                     </div>
                 </button>
-                <button onclick="enviarCorreoFinal('administracion@labse.com')" class="w-full text-left p-3 border rounded-lg hover:bg-purple-50 hover:border-purple-300 transition flex items-center gap-3">
-                    <span class="bg-purple-100 text-purple-600 p-2 rounded-full">🏢</span>
+                <button onclick="enviarCorreoFinal('administracion@labse.com')" class="w-full text-left p-4 border-2 border-indigo-100 rounded-2xl hover:bg-indigo-50 hover:border-indigo-500 transition flex items-center gap-4 group">
+                    <span class="bg-indigo-100 text-indigo-600 p-3 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition">🏢</span>
                     <div>
-                        <div class="font-bold text-slate-700">Administración</div>
-                        <div class="text-xs text-slate-400">administracion@labse.com</div>
+                        <div class="font-bold text-indigo-900 text-lg">Administración</div>
+                        <div class="text-xs text-indigo-400 font-medium">administracion@labse.com</div>
                     </div>
                 </button>
             </div>
 
-            <div class="mb-6">
-                <label class="text-xs text-slate-400 uppercase font-bold">O escribir otro correo:</label>
-                <div class="flex gap-2 mt-1">
-                    <input type="email" id="email-custom" placeholder="ejemplo@gmail.com" class="flex-1 p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="enviarCorreoCustom()" class="bg-slate-800 text-white px-4 rounded hover:bg-slate-700 font-bold">➤</button>
+            <div class="mb-2">
+                <label class="text-xs text-blue-500 uppercase font-black tracking-wider">O escribir otro correo:</label>
+                <div class="flex gap-2 mt-2">
+                    <input type="email" id="email-custom" placeholder="ejemplo@email.com" class="flex-1 p-3 border-2 border-blue-200 rounded-xl outline-none focus:border-labse font-medium text-labse-dark">
+                    <button onclick="enviarCorreoCustom()" class="bg-labse-dark text-white px-6 rounded-xl hover:bg-black font-bold transition">ENVIAR ➤</button>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    // --- NOMBRE DEFINITIVO DE LA BASE DE DATOS (NO CAMBIARÁ MÁS) ---
+    // --- CONFIGURACIÓN PERMANENTE ---
     const DB_NAME = 'labse_stock_master'; 
     let categoriaActual = ''; 
     let editandoId = null;
@@ -277,12 +294,12 @@
         
         if (cat === 'consumibles') {
             titulo.innerText = "🧪 Gestión de Insumos y Consumibles";
-            titulo.className = "text-xl font-bold text-blue-700 uppercase tracking-wider";
+            titulo.className = "text-2xl font-black text-labse uppercase tracking-wider";
             panelEmpaque.classList.remove('hidden');
             panelVacio.classList.add('hidden');
         } else {
             titulo.innerText = "⚙️ Gestión de Herramientas";
-            titulo.className = "text-xl font-bold text-purple-700 uppercase tracking-wider";
+            titulo.className = "text-2xl font-black text-indigo-900 uppercase tracking-wider";
             panelEmpaque.classList.add('hidden');
             panelVacio.classList.remove('hidden');
         }
@@ -318,7 +335,7 @@
                 const contenidoVal = parseFloat(document.getElementById('input-contenido').value);
                 empaque = {
                     tipo: document.getElementById('input-tipo-envase').value,
-                    contenido: isNaN(contenidoVal) ? 1 : contenidoVal,
+                    contenido: isNaN(contenidoVal) || contenidoVal <= 0 ? 1 : contenidoVal,
                     unidad: document.getElementById('input-unidad').value
                 };
             }
@@ -363,35 +380,37 @@
 
         itemsFiltrados.forEach(item => {
             let estadoHTML = '';
-            if (item.stock > item.limite) estadoHTML = '<span class="text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded">OK</span>';
-            else if (item.stock === item.limite) estadoHTML = '<span class="text-orange-600 font-bold text-xs bg-orange-100 px-2 py-1 rounded">ALERTA</span>';
-            else estadoHTML = '<span class="text-red-600 font-bold text-xs bg-red-100 px-2 py-1 rounded animate-pulse">CRÍTICO</span>';
+            if (item.stock > item.limite) estadoHTML = '<span class="text-green-700 font-black text-xs bg-green-100 px-3 py-1 rounded-full border border-green-200">OK</span>';
+            else if (item.stock === item.limite) estadoHTML = '<span class="text-orange-700 font-black text-xs bg-orange-100 px-3 py-1 rounded-full border border-orange-200">ALERTA</span>';
+            else estadoHTML = '<span class="text-red-700 font-black text-xs bg-red-100 px-3 py-1 rounded-full border border-red-200 animate-pulse">CRÍTICO</span>';
 
-            let detalleHTML = '<span class="text-slate-400">-</span>';
+            let detalleHTML = '<span class="text-slate-400 font-medium">-</span>';
             if (item.categoria === 'consumibles' && item.empaque) {
-                detalleHTML = `<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100 font-bold">${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}</span>`;
+                detalleHTML = `<span class="text-xs bg-white text-indigo-700 px-3 py-1 rounded-lg border-2 border-indigo-100 font-bold shadow-sm">
+                    ${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}
+                </span>`;
             } else {
-                detalleHTML = `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100 font-bold">Unidad Física</span>`;
+                detalleHTML = `<span class="text-xs bg-white text-slate-600 px-3 py-1 rounded-lg border-2 border-slate-200 font-bold shadow-sm">Unidad Física</span>`;
             }
 
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50 transition";
+            tr.className = "hover:bg-blue-50 transition align-middle font-medium text-slate-700";
             tr.innerHTML = `
-                <td class="p-4"><div class="font-bold text-slate-800">${item.desc}</div><div class="text-xs text-slate-400 font-mono">#${item.codigo}</div></td>
-                <td class="p-4">${detalleHTML}</td>
-                <td class="p-4 text-xs text-slate-500">${item.prov.nombre || '-'}</td>
-                <td class="p-4 text-center text-xs font-bold text-orange-600">Min: ${item.limite}</td>
-                <td class="p-4 text-center">
-                    <div class="flex items-center justify-center gap-2">
-                        <button onclick="cambiarStock(${item.id}, -1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-red-500 hover:text-white font-bold">-</button>
-                        <span class="text-lg font-bold w-10 text-center">${item.stock}</span>
-                        <button onclick="cambiarStock(${item.id}, 1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-green-500 hover:text-white font-bold">+</button>
+                <td class="p-5"><div class="font-extrabold text-labse-dark text-base">${item.desc}</div><div class="text-xs text-blue-400 font-mono font-bold mt-1">#${item.codigo}</div></td>
+                <td class="p-5">${detalleHTML}</td>
+                <td class="p-5 text-sm"><div class="font-bold text-slate-800">${item.prov.nombre || '-'}</div><div class="text-xs text-slate-500">${item.prov.tel || ''}</div></td>
+                <td class="p-5 text-center text-xs font-black text-orange-700 bg-orange-50 rounded-lg mx-2">Min: ${item.limite}</td>
+                <td class="p-5 text-center">
+                    <div class="flex items-center justify-center gap-3 bg-white p-2 rounded-xl border border-blue-100 shadow-sm">
+                        <button onclick="cambiarStock(${item.id}, -1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-red-500 hover:text-white font-bold transition">-</button>
+                        <span class="text-xl font-black w-12 text-center text-labse-dark">${item.stock}</span>
+                        <button onclick="cambiarStock(${item.id}, 1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-green-500 hover:text-white font-bold transition">+</button>
                     </div>
                 </td>
-                <td class="p-4 text-center">${estadoHTML}</td>
-                <td class="p-4 text-center">
-                    <button onclick="editarItem(${item.id})" class="text-blue-500 hover:text-blue-700 mr-2">✏️</button>
-                    <button onclick="eliminarItem(${item.id})" class="text-slate-300 hover:text-red-500">🗑️</button>
+                <td class="p-5 text-center">${estadoHTML}</td>
+                <td class="p-5 text-center">
+                    <button onclick="editarItem(${item.id})" class="text-blue-500 hover:text-labse bg-blue-50 p-2 rounded-lg mr-2 transition hover:shadow-md">✏️</button>
+                    <button onclick="eliminarItem(${item.id})" class="text-slate-400 hover:text-red-500 bg-slate-50 p-2 rounded-lg transition hover:shadow-md">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -415,24 +434,29 @@
 
         faltantes.forEach(item => {
             const row = document.createElement('tr');
-            row.className = "border-b border-slate-100 hover:bg-slate-50";
+            row.className = "border-b border-blue-100 hover:bg-blue-50 transition";
             let compraHTML = '';
             
             if (item.categoria === 'consumibles') {
                 countInsumos++;
                 const faltanteTotal = (item.limite + 1) - item.stock;
-                const contenido = item.empaque.contenido || 1;
+                const contenido = (item.empaque && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
                 const envases = Math.ceil(faltanteTotal / contenido);
                 
-                compraHTML = `<div class="font-bold text-blue-700 text-lg">+ ${envases} ${item.empaque.tipo}</div>
-                              <div class="text-[10px] text-slate-400 uppercase">(Total: ${envases * contenido} ${item.empaque.unidad})</div>`;
-                row.innerHTML = `<td class="p-3 font-medium text-slate-700">${item.desc}</td><td class="p-3 text-sm text-slate-500">${item.prov.nombre || '-'}</td><td class="p-3 text-right">${compraHTML}</td>`;
+                compraHTML = `<div class="font-black text-labse text-xl bg-white px-4 py-2 rounded-xl border-2 border-blue-100 shadow-sm inline-block text-center">
+                                + ${envases} ${item.empaque.tipo}
+                                <div class="text-[10px] text-blue-400 font-bold uppercase mt-1 tracking-wider">(Total: ${envases * contenido} ${item.empaque.unidad})</div>
+                              </div>`;
+                row.innerHTML = `<td class="p-5 font-bold text-labse-dark text-lg">${item.desc}</td><td class="p-5 text-sm font-medium text-slate-600">${item.prov.nombre || '-'}</td><td class="p-5 text-right">${compraHTML}</td>`;
                 listaInsumos.appendChild(row);
             } else {
                 countHerramientas++;
                 const reposicion = (item.limite + 1) - item.stock;
-                compraHTML = `<div class="font-bold text-purple-700 text-lg">+ ${reposicion} Unid.</div>`;
-                row.innerHTML = `<td class="p-3 font-medium text-slate-700">${item.desc}</td><td class="p-3 text-sm text-slate-500">${item.prov.nombre || '-'}</td><td class="p-3 text-right">${compraHTML}</td>`;
+                compraHTML = `<div class="font-black text-indigo-700 text-xl bg-white px-4 py-2 rounded-xl border-2 border-indigo-100 shadow-sm inline-block">
+                                + ${reposicion} Unid.
+                              </div>`;
+                row.className = "border-b border-indigo-100 hover:bg-indigo-50 transition";
+                row.innerHTML = `<td class="p-5 font-bold text-indigo-900 text-lg">${item.desc}</td><td class="p-5 text-sm font-medium text-slate-600">${item.prov.nombre || '-'}</td><td class="p-5 text-right">${compraHTML}</td>`;
                 listaHerramientas.appendChild(row);
             }
         });
@@ -447,81 +471,65 @@
     function abrirModalEmail() { document.getElementById('modal-email').classList.remove('hidden'); }
     function enviarCorreoCustom() {
         const email = document.getElementById('email-custom').value;
-        if(email) enviarCorreoFinal(email);
+        if(email && email.includes('@')) enviarCorreoFinal(email);
         else alert("⚠️ Escribe un correo válido");
     }
     function enviarCorreoFinal(emailDestino) {
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
         const faltantes = inventario.filter(i => i.stock <= i.limite);
-        if(faltantes.length === 0) { alert("Nada para comprar"); return; }
+        if(faltantes.length === 0) { alert("✅ No hay ítems para comprar."); return; }
 
         let cuerpo = "SOLICITUD DE COMPRA - LABSE\n\n";
         
-        // Insumos
         const insumos = faltantes.filter(i => i.categoria === 'consumibles');
         if (insumos.length > 0) {
             cuerpo += "--- INSUMOS ---\n";
             insumos.forEach(item => {
                 const faltanteTotal = (item.limite + 1) - item.stock;
-                const cont = item.empaque.contenido || 1;
+                const cont = (item.empaque && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
                 const envases = Math.ceil(faltanteTotal / cont);
-                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (${item.prov.nombre || 'Genérico'})\n`;
+                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (Prov: ${item.prov.nombre || 'N/A'})\n`;
             });
             cuerpo += "\n";
         }
 
-        // Herramientas
         const herram = faltantes.filter(i => i.categoria === 'herramientas');
         if (herram.length > 0) {
             cuerpo += "--- HERRAMIENTAS ---\n";
             herram.forEach(item => {
-                const reposicion = (item.limite + 1) - item.stock;
-                cuerpo += `- ${item.desc}: ${reposicion} Unidades (${item.prov.nombre || 'Genérico'})\n`;
+                const rep = (item.limite + 1) - item.stock;
+                cuerpo += `- ${item.desc}: ${rep} Unidades (Prov: ${item.prov.nombre || 'N/A'})\n`;
             });
         }
 
-        const asunto = encodeURIComponent("Orden de Compra LABSE");
+        const asunto = encodeURIComponent("Orden de Compra LABSE - " + new Date().toLocaleDateString());
         const body = encodeURIComponent(cuerpo);
         window.location.href = `mailto:${emailDestino}?subject=${asunto}&body=${body}`;
         document.getElementById('modal-email').classList.add('hidden');
     }
 
-    // --- COPIA DE SEGURIDAD (BACKUP) ---
+    // --- BACKUP ---
     function descargarBackup() {
         const datos = localStorage.getItem(DB_NAME);
         if(!datos || datos === '[]') { alert("No hay datos para guardar."); return; }
-        
         const blob = new Blob([datos], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `LABSE_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
+        a.href = URL.createObjectURL(blob);
+        a.download = `LABSE_Stock_${new Date().toISOString().slice(0,10)}.json`;
         a.click();
-        document.body.removeChild(a);
     }
-
     function cargarBackup(input) {
         const file = input.files[0];
         if(!file) return;
-
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const json = JSON.parse(e.target.result);
-                // Validación básica de que es un array
-                if(Array.isArray(json)) {
-                    if(confirm("⚠️ ATENCIÓN: Al cargar este archivo, se reemplazarán los datos actuales. ¿Continuar?")) {
-                        localStorage.setItem(DB_NAME, JSON.stringify(json));
-                        alert("✅ Datos restaurados con éxito.");
-                        location.reload(); // Recargar para ver cambios
-                    }
-                } else {
-                    alert("❌ El archivo no tiene el formato correcto.");
+                if(Array.isArray(json) && confirm("⚠️ ¿Reemplazar datos actuales con esta copia?")) {
+                    localStorage.setItem(DB_NAME, JSON.stringify(json));
+                    alert("✅ Datos restaurados."); location.reload();
                 }
-            } catch(err) {
-                alert("❌ Error al leer el archivo: " + err.message);
-            }
+            } catch(err) { alert("❌ Archivo inválido."); }
         };
         reader.readAsText(file);
     }
@@ -539,7 +547,7 @@
         }
     }
     function eliminarItem(id) {
-        if(confirm("¿Eliminar?")) {
+        if(confirm("¿Eliminar ítem?")) {
             let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
             inventario = inventario.filter(i => i.id !== id);
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
@@ -565,18 +573,16 @@
                 document.getElementById('input-contenido').value = item.empaque.contenido;
                 document.getElementById('input-unidad').value = item.empaque.unidad;
             }
-            document.getElementById('btn-guardar').innerText = "🔄 Actualizar";
-            document.getElementById('btn-guardar').classList.replace('bg-slate-800', 'bg-blue-600');
+            document.getElementById('btn-guardar').innerText = "🔄 ACTUALIZAR";
             document.getElementById('modo-edicion').classList.remove('hidden');
             document.getElementById('btn-cancelar').classList.remove('hidden');
-            window.scrollTo(0,0);
+            document.getElementById('view-manager').scrollIntoView({ behavior: 'smooth' });
         }
     }
     function cancelarEdicion() {
         editandoId = null;
         limpiarFormulario();
-        document.getElementById('btn-guardar').innerText = "+ Guardar";
-        document.getElementById('btn-guardar').classList.replace('bg-blue-600', 'bg-slate-800');
+        document.getElementById('btn-guardar').innerText = "+ GUARDAR";
         document.getElementById('modo-edicion').classList.add('hidden');
         document.getElementById('btn-cancelar').classList.add('hidden');
     }
