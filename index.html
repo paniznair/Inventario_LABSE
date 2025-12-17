@@ -3,64 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Stock LABSE</title>
+    <title>Inventario Laboratorio LABSE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; }
-        button#addBtn { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #333; color: white; }
-        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', sans-serif; }
+        .status-ok { background-color: #dcfce7; color: #166534; border: 1px solid #22c55e; } /* Verde */
+        .status-warning { background-color: #fef9c3; color: #854d0e; border: 1px solid #eab308; } /* Amarillo */
+        .status-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; font-weight: bold; } /* Rojo */
     </style>
 </head>
-<body>
-<div class="container">
-    <h1>📦 Control de Stock LABSE</h1>
-    <div class="form-group">
-        <input type="text" id="nombre" placeholder="Producto" required>
-        <input type="number" id="cantidad" placeholder="Cant." required>
-        <input type="number" id="precio" placeholder="Precio" required>
-        <button id="addBtn" onclick="agregarProducto()">Agregar</button>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold">🏭 Gestión de Stock LABSE</h1>
+                <p class="text-slate-400 text-sm">Control de Insumos y Stock de Seguridad</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs uppercase tracking-widest opacity-70">Total Ítems</p>
+                <p class="text-3xl font-bold" id="total-items">0</p>
+            </div>
+        </div>
+
+        <div class="p-6 bg-slate-50 border-b border-slate-200">
+            <h3 class="text-sm font-bold text-slate-500 mb-2 uppercase">Nuevo Ingreso</h3>
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                <input type="text" id="codigo" placeholder="Cód." class="p-2 border rounded md:col-span-1 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="descripcion" placeholder="Descripción del Insumo" class="p-2 border rounded md:col-span-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="number" id="cantidad" placeholder="Stock Actual" class="p-2 border rounded md:col-span-1 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                
+                <div class="md:col-span-1 relative">
+                     <input type="number" id="minimo" placeholder="Punto Pedido" class="w-full p-2 border rounded border-yellow-400 focus:ring-2 focus:ring-yellow-500 outline-none text-sm" title="Nivel para empezar a comprar (Alerta Amarilla)">
+                     <p class="text-[10px] text-slate-400 mt-1">Alerta Amarilla</p>
+                </div>
+                <div class="md:col-span-1 relative">
+                    <input type="number" id="seguridad" placeholder="Stock Seguridad" class="w-full p-2 border rounded border-red-400 focus:ring-2 focus:ring-red-500 outline-none text-sm" title="Nivel crítico mínimo (Alerta Roja)">
+                    <p class="text-[10px] text-slate-400 mt-1">Alerta Crítica</p>
+                </div>
+
+                <button onclick="agregarItem()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded md:col-span-6 transition mt-2">+ Agregar al Inventario</button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-600 text-sm uppercase tracking-wider">
+                        <th class="p-4 border-b">Cód</th>
+                        <th class="p-4 border-b w-1/3">Descripción</th>
+                        <th class="p-4 border-b text-center">Niveles Configurados</th>
+                        <th class="p-4 border-b text-center">Stock Real</th>
+                        <th class="p-4 border-b text-center">Semáforo / Estado</th>
+                        <th class="p-4 border-b text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body" class="text-slate-700 text-sm">
+                    </tbody>
+            </table>
+        </div>
     </div>
-    <table>
-        <thead>
-            <tr><th>Producto</th><th>Stock</th><th>Precio</th><th>Acción</th></tr>
-        </thead>
-        <tbody id="tabla-body"></tbody>
-    </table>
-</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', cargarDatos);
-    function agregarProducto() {
-        let n = document.getElementById('nombre').value;
-        let c = document.getElementById('cantidad').value;
-        let p = document.getElementById('precio').value;
-        if(n && c && p) {
-            let inv = JSON.parse(localStorage.getItem('inv')) || [];
-            inv.push({id: Date.now(), n, c, p});
-            localStorage.setItem('inv', JSON.stringify(inv));
+
+    function agregarItem() {
+        const codigo = document.getElementById('codigo').value;
+        const desc = document.getElementById('descripcion').value;
+        const cant = parseInt(document.getElementById('cantidad').value);
+        const min = parseInt(document.getElementById('minimo').value); // Punto de Pedido
+        const seg = parseInt(document.getElementById('seguridad').value); // Stock de Seguridad
+
+        if(!codigo || !desc || isNaN(cant) || isNaN(min) || isNaN(seg)) {
+            alert("Por favor completa todos los campos, incluyendo los niveles de alerta.");
+            return;
+        }
+
+        if(seg >= min) {
+            alert("⚠️ Error de Ingeniería: El Stock de Seguridad debería ser MENOR que el Punto de Pedido.");
+            return;
+        }
+
+        const nuevoItem = { id: Date.now(), codigo, desc, stock: cant, min, seg };
+        
+        let inventario = JSON.parse(localStorage.getItem('labse_db_v2')) || [];
+        inventario.push(nuevoItem);
+        localStorage.setItem('labse_db_v2', JSON.stringify(inventario));
+
+        document.getElementById('codigo').value = '';
+        document.getElementById('descripcion').value = '';
+        document.getElementById('cantidad').value = '';
+        document.getElementById('minimo').value = '';
+        document.getElementById('seguridad').value = '';
+        
+        cargarDatos();
+    }
+
+    function actualizarStock(id, cambio) {
+        let inventario = JSON.parse(localStorage.getItem('labse_db_v2')) || [];
+        const index = inventario.findIndex(item => item.id === id);
+        
+        if (index !== -1) {
+            let nuevoStock = inventario[index].stock + cambio;
+            if (nuevoStock < 0) nuevoStock = 0;
+            inventario[index].stock = nuevoStock;
+            localStorage.setItem('labse_db_v2', JSON.stringify(inventario));
             cargarDatos();
-            document.getElementById('nombre').value = ''; 
-            document.getElementById('cantidad').value = '';
-            document.getElementById('precio').value = '';
         }
     }
-    function cargarDatos() {
-        let body = document.getElementById('tabla-body');
-        body.innerHTML = '';
-        let inv = JSON.parse(localStorage.getItem('inv')) || [];
-        inv.forEach(i => {
-            body.innerHTML += `<tr><td>${i.n}</td><td>${i.c}</td><td>$${i.p}</td><td><button class="delete-btn" onclick="eliminar(${i.id})">X</button></td></tr>`;
-        });
-    }
+
     function eliminar(id) {
-        let inv = JSON.parse(localStorage.getItem('inv')) || [];
-        localStorage.setItem('inv', JSON.stringify(inv.filter(i => i.id !== id)));
-        cargarDatos();
+        if(confirm('¿Borrar este ítem definitivamente?')) {
+            let inventario = JSON.parse(localStorage.getItem('labse_db_v2')) || [];
+            inventario = inventario.filter(item => item.id !== id);
+            localStorage.setItem('labse_db_v2', JSON.stringify(inventario));
+            cargarDatos();
+        }
+    }
+
+    function cargarDatos() {
+        const cuerpo = document.getElementById('tabla-body');
+        const totalItems = document.getElementById('total-items');
+        cuerpo.innerHTML = '';
+        
+        let inventario = JSON.parse(localStorage.getItem('labse_db_v2')) || [];
+        totalItems.innerText = inventario.length;
+
+        inventario.forEach(item => {
+            let estadoClass = '';
+            let estadoTexto = '';
+            
+            if (item.stock <= item.seguridad) {
+                estadoClass = 'status-danger';
+                estadoTexto = `🛑 CRÍTICO (Stock Seguridad)`;
+            } else if (item.stock <= item.min) {
+                estadoClass = 'status-warning';
+                estadoTexto = `⚠️ REPOSICIÓN (Bajo Punto Pedido)`;
+            } else {
+                estadoClass = 'status-ok';
+                estadoTexto = `✅ OK (Suficiente)`;
+            }
+
+            const row = `
+                <tr class="border-b hover:bg-slate-50 transition">
+                    <td class="p-4 font-mono font-bold text-slate-500">#${item.codigo}</td>
+                    <td class="p-4 font-medium">${item.desc}</td>
+                    <td class="p-4 text-center text-xs text-slate-400">
+                        P. Pedido: <span class="font-bold text-slate-600">${item.min}</span><br>
+                        Seguridad: <span class="font-bold text-red-400">${item.seguridad}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="actualizarStock(${item.id}, -1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-red-200 font-bold text-slate-600">-</button>
+                            <span class="text-xl font-bold w-8 text-center">${item.stock}</span>
+                            <button onclick="actualizarStock(${item.id}, 1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-green-200 font-bold text-slate-600">+</button>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        <span class="py-1 px-3 rounded text-xs font-semibold inline-block shadow-sm ${estadoClass}">
+                            ${estadoTexto}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="eliminar(${item.id})" class="text-slate-300 hover:text-red-600 transition" title="Eliminar">🗑️</button>
+                    </td>
+                </tr>
+            `;
+            cuerpo.innerHTML += row;
+        });
     }
 </script>
 </body>
