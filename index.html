@@ -34,8 +34,11 @@
             </div>
         </div>
 
-        <div class="p-6 bg-slate-50 border-b border-slate-200">
-            <h3 class="text-sm font-bold text-slate-500 mb-3 uppercase">📝 Ingresar Nuevo Ítem</h3>
+        <div class="p-6 bg-slate-50 border-b border-slate-200" id="formulario">
+            <h3 class="text-sm font-bold text-slate-500 mb-3 uppercase flex justify-between">
+                <span>📝 Ingresar / Editar Ítem</span>
+                <span id="modo-edicion" class="text-blue-600 hidden font-bold animate-pulse">✏️ MODO EDICIÓN ACTIVADO</span>
+            </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 
@@ -62,11 +65,15 @@
                     
                     <div class="md:col-span-2">
                         <label class="text-xs font-bold text-orange-600">Stock Seguridad</label>
-                        <input type="number" id="limite" placeholder="Ej. 6" class="w-full p-2 border rounded border-orange-300 font-bold text-orange-800 focus:ring-2 focus:ring-orange-500 outline-none" title="Punto de alerta Naranja">
+                        <input type="number" id="limite" placeholder="Ej. 6" class="w-full p-2 border rounded border-orange-300 font-bold text-orange-800 focus:ring-2 focus:ring-orange-500 outline-none">
                     </div>
 
-                    <button onclick="agregarItem()" class="md:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded shadow transition h-10">
+                    <button id="btn-accion" onclick="procesarItem()" class="md:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded shadow transition h-10">
                         + Guardar
+                    </button>
+                    
+                    <button id="btn-cancelar" onclick="cancelarEdicion()" class="hidden md:col-span-6 text-xs text-red-500 underline mt-1 text-right">
+                        Cancelar edición
                     </button>
                 </div>
 
@@ -93,7 +100,7 @@
     <div id="modal-compras" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 backdrop-blur-sm">
         <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden modal-enter mx-4">
             <div class="bg-orange-600 p-4 text-white flex justify-between items-center">
-                <h2 class="text-xl font-bold">📋 Orden de Compra (Reposición Exacta)</h2>
+                <h2 class="text-xl font-bold">📋 Orden de Compra (Críticos)</h2>
                 <button onclick="cerrarCompras()" class="text-white hover:text-gray-200 font-bold text-xl">&times;</button>
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto">
@@ -107,7 +114,7 @@
                     </thead>
                     <tbody id="lista-compras-body" class="text-sm text-slate-700"></tbody>
                 </table>
-                <div id="mensaje-vacio" class="hidden text-center py-8 text-slate-400">✅ Stock saludable. No se requieren compras.</div>
+                <div id="mensaje-vacio" class="hidden text-center py-8 text-slate-400">✅ No hay ítems críticos.</div>
             </div>
             <div class="p-4 bg-slate-50 border-t text-right">
                 <button onclick="cerrarCompras()" class="bg-slate-800 text-white px-6 py-2 rounded hover:bg-slate-700">Cerrar</button>
@@ -116,13 +123,13 @@
     </div>
 
 <script>
-    // Versión 5.2 (Misma base de datos para no perder info)
     const DB_NAME = 'labse_db_v5_2'; 
+    let editandoId = null; // Variable para saber si estamos editando
 
     document.addEventListener('DOMContentLoaded', cargarDatos);
 
-    function agregarItem() {
-        const codigo = document.getElementById('codigo').value.trim(); // Quitamos espacios
+    function procesarItem() {
+        const codigo = document.getElementById('codigo').value.trim();
         const desc = document.getElementById('descripcion').value;
         const cant = parseInt(document.getElementById('cantidad').value);
         const lim = parseInt(document.getElementById('limite').value);
@@ -132,38 +139,101 @@
         const pWeb = document.getElementById('prov_web').value || "-";
         const pUbi = document.getElementById('prov_ubi').value || "-";
 
-        // 1. Validación de campos vacíos
         if(!codigo || !desc || isNaN(cant) || isNaN(lim)) {
-            alert("⚠️ Por favor completa los datos obligatorios (Código, Descripción, Cantidad, Seguridad).");
+            alert("⚠️ Por favor completa los datos obligatorios.");
             return;
         }
 
-        // 2. VALIDACIÓN DE DUPLICADOS (NUEVO)
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        
-        // Buscamos si existe algun item que tenga exactamente el mismo código
-        const existe = inventario.some(item => item.codigo === codigo);
 
-        if (existe) {
-            alert("⛔ ERROR CRÍTICO:\nEl código '" + codigo + "' ya existe en el inventario.\n\nPor favor, verifica si el producto ya está cargado o usa un código distinto.");
-            return; // Detenemos la función, NO guarda nada.
+        // SI ESTAMOS EDITANDO
+        if (editandoId) {
+            // Verificar duplicados (excluyendo el item que estamos editando)
+            const duplicado = inventario.some(item => item.codigo === codigo && item.id !== editandoId);
+            if (duplicado) {
+                alert("⛔ El código '" + codigo + "' ya está usado en otro producto.");
+                return;
+            }
+
+            const index = inventario.findIndex(item => item.id === editandoId);
+            if (index !== -1) {
+                // Actualizamos los datos
+                inventario[index].codigo = codigo;
+                inventario[index].desc = desc;
+                inventario[index].stock = cant;
+                inventario[index].limite = lim;
+                inventario[index].prov = { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi };
+                
+                alert("✅ Producto actualizado correctamente.");
+            }
+            cancelarEdicion(); // Salir del modo edición
+        } 
+        // SI ESTAMOS AGREGANDO NUEVO
+        else {
+            if (inventario.some(item => item.codigo === codigo)) {
+                alert("⛔ ERROR: El código '" + codigo + "' ya existe.");
+                return;
+            }
+            const nuevoItem = { 
+                id: Date.now(), 
+                codigo, 
+                desc, 
+                stock: cant, 
+                limite: lim, 
+                prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi }
+            };
+            inventario.push(nuevoItem);
         }
-
-        // Si pasa la validación, creamos el objeto
-        const nuevoItem = { 
-            id: Date.now(), 
-            codigo, 
-            desc, 
-            stock: cant, 
-            limite: lim, 
-            prov: { nombre: pNom, contacto: pCon, web: pWeb, ubi: pUbi }
-        };
         
-        inventario.push(nuevoItem);
         localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-
-        document.querySelectorAll('input').forEach(i => i.value = '');
+        limpiarFormulario();
         cargarDatos();
+    }
+
+    // Función para activar el modo edición
+    function editarItem(id) {
+        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
+        const item = inventario.find(i => i.id === id);
+
+        if (item) {
+            // Subimos los datos al formulario
+            document.getElementById('codigo').value = item.codigo;
+            document.getElementById('descripcion').value = item.desc;
+            document.getElementById('cantidad').value = item.stock;
+            document.getElementById('limite').value = item.limite;
+            
+            document.getElementById('prov_nombre').value = item.prov.nombre;
+            document.getElementById('prov_contacto').value = item.prov.contacto;
+            document.getElementById('prov_web').value = item.prov.web;
+            document.getElementById('prov_ubi').value = item.prov.ubi;
+
+            // Cambiamos estado visual
+            editandoId = id;
+            document.getElementById('btn-accion').innerText = "🔄 Actualizar Producto";
+            document.getElementById('btn-accion').classList.remove('bg-slate-800');
+            document.getElementById('btn-accion').classList.add('bg-blue-600');
+            document.getElementById('modo-edicion').classList.remove('hidden');
+            document.getElementById('btn-cancelar').classList.remove('hidden');
+
+            // Scroll suave hacia el formulario
+            document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function cancelarEdicion() {
+        editandoId = null;
+        limpiarFormulario();
+        
+        // Restaurar botón
+        document.getElementById('btn-accion').innerText = "+ Guardar";
+        document.getElementById('btn-accion').classList.add('bg-slate-800');
+        document.getElementById('btn-accion').classList.remove('bg-blue-600');
+        document.getElementById('modo-edicion').classList.add('hidden');
+        document.getElementById('btn-cancelar').classList.add('hidden');
+    }
+
+    function limpiarFormulario() {
+        document.querySelectorAll('input').forEach(i => i.value = '');
     }
 
     function actualizarStock(id, cambio) {
@@ -174,15 +244,21 @@
             if (nuevoStock < 0) nuevoStock = 0;
             inventario[index].stock = nuevoStock;
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            // Si estamos editando este mismo item, actualizar el input también
+            if (editandoId === id) {
+                document.getElementById('cantidad').value = nuevoStock;
+            }
             cargarDatos();
         }
     }
 
     function eliminar(id) {
-        if(confirm('¿Eliminar item?')) {
+        if(confirm('¿Seguro que quieres borrar este ítem?')) {
             let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
             inventario = inventario.filter(item => item.id !== id);
             localStorage.setItem(DB_NAME, JSON.stringify(inventario));
+            
+            if (editandoId === id) cancelarEdicion(); // Si borras lo que editas, se cancela
             cargarDatos();
         }
     }
@@ -199,15 +275,14 @@
             let estadoClass = '';
             let estadoTexto = '';
             
-            // LÓGICA DE COLORES EXACTA
             if (item.stock > item.limite) {
-                estadoClass = 'status-ok'; // Verde
+                estadoClass = 'status-ok';
                 estadoTexto = '✅ OK';
             } else if (item.stock === item.limite) {
-                estadoClass = 'status-warn'; // Naranja
+                estadoClass = 'status-warn';
                 estadoTexto = '⚠️ ALERTA';
             } else {
-                estadoClass = 'status-crit'; // Rojo
+                estadoClass = 'status-crit';
                 estadoTexto = '🛑 CRÍTICO';
             }
 
@@ -238,7 +313,10 @@
                         <span class="py-1 px-3 rounded text-xs font-bold inline-block shadow-sm ${estadoClass}">${estadoTexto}</span>
                     </td>
                     <td class="p-4 text-center">
-                        <button onclick="eliminar(${item.id})" class="text-slate-300 hover:text-red-500 transition">🗑️</button>
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="editarItem(${item.id})" class="text-blue-400 hover:text-blue-600 transition" title="Editar">✏️</button>
+                            <button onclick="eliminar(${item.id})" class="text-slate-300 hover:text-red-500 transition" title="Eliminar">🗑️</button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -252,8 +330,7 @@
         const mensajeVacio = document.getElementById('mensaje-vacio');
         
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        // Filtramos items en Naranja o Rojo
-        const itemsAComprar = inventario.filter(i => i.stock <= i.limite);
+        const itemsAComprar = inventario.filter(i => i.stock < i.limite);
 
         listaBody.innerHTML = '';
         
@@ -262,10 +339,8 @@
         } else {
             mensajeVacio.classList.add('hidden');
             itemsAComprar.forEach(item => {
-                // Cálculo para llegar al límite (Naranja)
                 const cantidadJusta = item.limite - item.stock;
-                
-                if(cantidadJusta < 0) return; // Por si acaso
+                if(cantidadJusta < 0) return;
 
                 const row = `
                     <tr class="border-b hover:bg-orange-50">
@@ -293,3 +368,4 @@
 </script>
 </body>
 </html>
+
