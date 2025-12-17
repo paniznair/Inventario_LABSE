@@ -80,7 +80,7 @@
 
         const nuevoItem = { id: Date.now(), codigo, desc, stock: cant, limite: lim };
         
-        // Base de datos v3 (Mantenemos la misma para no borrar tus datos esta vez)
+        // Base de datos v3
         let inventario = JSON.parse(localStorage.getItem('labse_db_v3')) || [];
         inventario.push(nuevoItem);
         localStorage.setItem('labse_db_v3', JSON.stringify(inventario));
@@ -127,47 +127,7 @@
             let estadoClass = '';
             let estadoTexto = '';
             
-            // Lógica Semáforo
             if (item.stock > item.limite) {
                 estadoClass = 'status-ok';
                 estadoTexto = '✅ OK';
-            } else if (item.stock === item.limite) {
-                estadoClass = 'status-warn';
-                estadoTexto = '⚠️ ALERTA (Límite)';
-            } else {
-                estadoClass = 'status-crit';
-                estadoTexto = '🛑 CRÍTICO';
-            }
-
-            const row = `
-                <tr class="border-b hover:bg-blue-50 transition duration-150">
-                    <td class="p-4 text-slate-500">#${item.codigo}</td>
-                    <td class="p-4 font-semibold text-slate-800">${item.desc}</td>
-                    <td class="p-4 text-center">
-                        <span class="bg-slate-100 text-slate-600 py-1 px-3 rounded text-xs font-bold border border-slate-300">
-                            ${item.limite} u.
-                        </span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <div class="flex items-center justify-center gap-2 select-none">
-                            <button onclick="actualizarStock(${item.id}, -1)" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-red-500 hover:text-white font-bold transition shadow text-slate-600">-</button>
-                            <span class="text-xl font-bold w-10 text-center text-slate-700">${item.stock}</span>
-                            <button onclick="actualizarStock(${item.id}, 1)" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-green-500 hover:text-white font-bold transition shadow text-slate-600">+</button>
-                        </div>
-                    </td>
-                    <td class="p-4 text-center">
-                        <span class="py-1 px-4 rounded-full text-xs inline-block shadow-sm ${estadoClass}">
-                            ${estadoTexto}
-                        </span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="eliminar(${item.id})" class="text-slate-300 hover:text-red-500 transition p-2" title="Eliminar">🗑️</button>
-                    </td>
-                </tr>
-            `;
-            cuerpo.innerHTML += row;
-        });
-    }
-</script>
-</body>
-</html>
+            } else if (item.stock === item.limite)
