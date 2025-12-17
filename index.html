@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
-        /* Semáforo Exacto según tu pedido */
+        /* Semáforo Exacto */
         .status-ok { background-color: #dcfce7; color: #15803d; border: 1px solid #22c55e; } /* Verde (> Límite) */
         .status-warn { background-color: #ffedd5; color: #c2410c; border: 1px solid #f97316; font-weight: bold; } /* Naranja (= Límite) */
         .status-crit { background-color: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; font-weight: bold; } /* Rojo (< Límite) */
@@ -19,7 +19,7 @@
         
         <div class="bg-slate-800 p-6 text-white flex justify-between items-center shadow-md">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">🛠️ Pañol LABSE</h1>
+                <h1 class="text-2xl font-bold tracking-tight">🏭 Gestión de Stock LABSE</h1>
                 <p class="text-slate-400 text-sm">Control de Herramientas e Insumos</p>
             </div>
             <div class="text-right">
@@ -53,7 +53,7 @@
                         <th class="p-4 border-b">Cód</th>
                         <th class="p-4 border-b w-1/3">Descripción</th>
                         <th class="p-4 border-b text-center">Seguridad</th>
-                        <th class="p-4 border-b text-center">Stock Real</th>
+                        <th class="p-4 border-b text-center">Stock Actual</th>
                         <th class="p-4 border-b text-center">Estado</th>
                         <th class="p-4 border-b text-center">Acción</th>
                     </tr>
@@ -71,22 +71,20 @@
         const codigo = document.getElementById('codigo').value;
         const desc = document.getElementById('descripcion').value;
         const cant = parseInt(document.getElementById('cantidad').value);
-        const lim = parseInt(document.getElementById('limite').value); // Tu límite único
+        const lim = parseInt(document.getElementById('limite').value);
 
         if(!codigo || !desc || isNaN(cant) || isNaN(lim)) {
             alert("⚠️ Por favor completa todos los campos.");
             return;
         }
 
-        // Corrección de nombre de variable para evitar 'undefined'
         const nuevoItem = { id: Date.now(), codigo, desc, stock: cant, limite: lim };
         
-        // Guardamos en una lista nueva 'v3' para limpiar los errores anteriores
+        // Base de datos v3 (Mantenemos la misma para no borrar tus datos esta vez)
         let inventario = JSON.parse(localStorage.getItem('labse_db_v3')) || [];
         inventario.push(nuevoItem);
         localStorage.setItem('labse_db_v3', JSON.stringify(inventario));
 
-        // Limpiar formulario
         document.getElementById('codigo').value = '';
         document.getElementById('descripcion').value = '';
         document.getElementById('cantidad').value = '';
@@ -126,20 +124,17 @@
         totalItems.innerText = inventario.length;
 
         inventario.forEach(item => {
-            // Lógica EXACTA que pediste:
             let estadoClass = '';
             let estadoTexto = '';
             
+            // Lógica Semáforo
             if (item.stock > item.limite) {
-                // MAYOR al límite -> VERDE
                 estadoClass = 'status-ok';
                 estadoTexto = '✅ OK';
             } else if (item.stock === item.limite) {
-                // IGUAL al límite -> NARANJA
                 estadoClass = 'status-warn';
                 estadoTexto = '⚠️ ALERTA (Límite)';
             } else {
-                // MENOR al límite -> ROJO
                 estadoClass = 'status-crit';
                 estadoTexto = '🛑 CRÍTICO';
             }
