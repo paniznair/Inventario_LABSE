@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Stock LABSE - V15 Admin Control</title>
+    <title>Sistema Stock LABSE - Admin Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,9 +11,9 @@
                 extend: {
                     colors: {
                         labse: {
-                            light: '#3b82f6', 
-                            DEFAULT: '#1e40af', 
-                            dark: '#1e3a8a', 
+                            light: '#3b82f6',
+                            DEFAULT: '#1e40af', // Azul oscuro corporativo
+                            dark: '#1e3a8a',
                         }
                     }
                 }
@@ -21,580 +21,164 @@
         }
     </script>
     <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-module { transition: all 0.2s; border-bottom: 4px solid rgba(30, 58, 138, 0.1); }
-        .btn-module:active { transform: translateY(2px); border-bottom: 0px; }
         
-        .watermark {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; max-width: 1000px; opacity: 0.04; z-index: 0; pointer-events: none; filter: grayscale(100%);
-        }
-        .content-layer { position: relative; z-index: 10; }
-        
-        /* Estilo para input bloqueado */
-        input:read-only {
-            background-color: #f1f5f9; /* Slate-100 */
-            color: #94a3b8; /* Slate-400 */
-            cursor: not-allowed;
-            border-color: #e2e8f0;
-        }
+        /* Ocultar vistas por defecto */
+        .hidden-view { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen relative">
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
 
-    <img src="https://labse.fio.unam.edu.ar/wp-content/uploads/2020/03/labse.png" class="watermark" alt="Marca de Agua">
-
-    <div id="view-login" class="fixed inset-0 bg-labse-dark z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 text-center fade-in">
-            <img src="https://labse.fio.unam.edu.ar/wp-content/uploads/2020/03/labse.png" alt="Logo" class="h-24 mx-auto mb-6 object-contain">
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Bienvenido a LABSE Stock</h2>
-            <p class="text-slate-500 mb-6 text-sm">Ingresa tus credenciales personales</p>
-
-            <div class="text-left mb-1 ml-1"><label class="text-xs font-bold text-slate-400 uppercase">Usuario</label></div>
-            <input type="text" id="login-user" placeholder="ej: camila" class="w-full p-3 border-2 border-blue-100 rounded-xl mb-3 font-bold text-labse-dark outline-none focus:border-labse focus:bg-blue-50 transition">
-
-            <div class="text-left mb-1 ml-1"><label class="text-xs font-bold text-slate-400 uppercase">Contraseña</label></div>
-            <input type="password" id="login-pass" placeholder="••••••" class="w-full p-3 border-2 border-blue-100 rounded-xl mb-6 outline-none focus:border-labse focus:bg-blue-50 transition font-mono">
-
-            <button onclick="intentarLogin()" class="w-full bg-labse hover:bg-labse-dark text-white font-bold py-3 rounded-xl shadow-lg transition transform hover:scale-105">
+    <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-labse-DEFAULT fade-in">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-96 text-center">
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">LABSE Stock</h2>
+            <p class="text-gray-500 text-sm mb-6">Ingresa tus credenciales de Ingeniero</p>
+            
+            <input type="text" id="user-input" placeholder="Usuario" class="w-full p-3 mb-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="pass-input" placeholder="Contraseña" class="w-full p-3 mb-6 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <button onclick="login()" class="w-full bg-labse-DEFAULT text-white font-bold py-3 rounded hover:bg-labse-dark transition shadow-lg">
                 INGRESAR AL SISTEMA
             </button>
-            <p id="login-error" class="text-red-500 text-xs font-bold mt-4 hidden">Usuario o Contraseña Incorrectos</p>
+            <p class="mt-4 text-xs text-gray-400">Default: admin / admin</p>
         </div>
     </div>
 
-    <div id="view-dashboard" class="hidden max-w-5xl mx-auto p-6 fade-in content-layer">
+    <div id="dashboard-view" class="hidden-view flex-1 flex flex-col items-center justify-center p-6 fade-in relative">
         
-        <header class="text-center mb-10 mt-8 flex flex-col items-center">
-            <img src="https://labse.fio.unam.edu.ar/wp-content/uploads/2020/03/labse.png" alt="LABSE" class="h-24 md:h-32 object-contain mb-6 transition hover:scale-105 filter drop-shadow-sm">
-            <div class="flex items-center gap-2">
-                <span id="user-badge" class="bg-blue-100 text-labse-dark px-4 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">USUARIO</span>
-                <button onclick="cerrarSesion()" class="text-xs text-red-400 hover:text-red-600 font-bold underline ml-2">Cerrar Sesión</button>
+        <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-center bg-white shadow-sm">
+            <div class="font-bold text-labse-DEFAULT tracking-wider">LABSE SYSTEM v2.0</div>
+            <div class="flex items-center gap-4">
+                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">ING. CAMILA (ADMIN)</span>
+                <button onclick="logout()" class="text-red-500 text-sm hover:underline">Cerrar Sesión</button>
             </div>
-        </header>
-
-        <div class="mb-14 text-center">
-            <button onclick="verOrdenCompraGlobal()" class="bg-gradient-to-r from-blue-600 to-labse-dark hover:from-blue-700 hover:to-black text-white text-xl font-bold py-5 px-12 rounded-2xl shadow-xl transform transition hover:scale-105 btn-module flex items-center justify-center gap-4 mx-auto w-full md:w-auto ring-4 ring-blue-50">
-                GENERAR ORDEN DE COMPRA GLOBAL
-            </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            <button onclick="abrirModulo('consumibles')" class="btn-module bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-white hover:border-blue-300 text-left group transition-all">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-4xl font-bold text-blue-200 group-hover:text-blue-600 transition">&rarr;</span>
-                </div>
-                <h2 class="text-2xl font-black text-slate-800 group-hover:text-blue-700">Insumos y Consumibles</h2>
-                <p class="text-slate-500 mt-2 font-medium">Cajas, Litros, Packs, Gramos, etc.</p>
-            </button>
-
-            <button onclick="abrirModulo('herramientas')" class="btn-module bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-white hover:border-indigo-300 text-left group transition-all">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-4xl font-bold text-indigo-200 group-hover:text-indigo-600 transition">&rarr;</span>
-                </div>
-                <h2 class="text-2xl font-black text-slate-800 group-hover:text-indigo-700">Herramientas y Máquinas</h2>
-                <p class="text-slate-500 mt-2 font-medium">Activos físicos y unidades enteras.</p>
-            </button>
+        <div class="mb-8 text-center mt-12">
+            <h1 class="text-6xl font-black text-gray-200 tracking-tighter select-none">LABSE</h1>
+            <p class="text-gray-400 tracking-widest text-sm mt-2">INDUSTRIAL PROCESS MANAGEMENT</p>
         </div>
 
-        <div id="admin-zone" class="hidden border-t border-slate-200 pt-8 bg-white/60 backdrop-blur rounded-2xl p-6 shadow-sm">
-            <h3 class="text-center text-slate-400 text-[10px] font-black uppercase mb-4 tracking-[0.2em]">
-                ZONA ADMIN (BACKUPS)
-            </h3>
-            <div class="flex flex-wrap justify-center gap-4">
-                <button onclick="descargarBackup()" class="bg-slate-700 hover:bg-slate-900 text-white px-6 py-3 rounded-xl text-sm font-bold shadow transition">
-                    Descargar Copia
+        <button onclick="generarOrden()" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-4 px-12 rounded-full shadow-xl hover:scale-105 transition transform mb-12 flex items-center gap-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+            GENERAR ORDEN DE COMPRA GLOBAL
+        </button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+            <div onclick="abrirInventario('Insumos')" class="bg-white p-8 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl transition border-l-4 border-blue-400 group">
+                <div class="text-blue-400 text-2xl mb-2 group-hover:translate-x-2 transition">→</div>
+                <h3 class="text-xl font-bold text-gray-800">Insumos y Consumibles</h3>
+                <p class="text-gray-500 text-sm mt-1">Cajas, Litros, Packs, Gramos, etc.</p>
+            </div>
+
+            <div onclick="abrirInventario('Herramientas')" class="bg-white p-8 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl transition border-l-4 border-indigo-400 group">
+                <div class="text-indigo-400 text-2xl mb-2 group-hover:translate-x-2 transition">→</div>
+                <h3 class="text-xl font-bold text-gray-800">Herramientas y Máquinas</h3>
+                <p class="text-gray-500 text-sm mt-1">Activos físicos y unidades enteras.</p>
+            </div>
+        </div>
+
+        <div class="mt-12 flex gap-4">
+            <button onclick="descargarBackup()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">⬇ Descargar Copia</button>
+            <input type="file" id="file-input" class="hidden" onchange="restaurarBackup(this)">
+            <button onclick="document.getElementById('file-input').click()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-50">⬆ Restaurar Datos</button>
+        </div>
+    </div>
+
+    <div id="inventory-view" class="hidden-view h-full flex flex-col bg-white fade-in">
+        <div class="bg-white border-b p-4 flex justify-between items-center shadow-sm z-10">
+            <div>
+                <button onclick="volverAlDashboard()" class="text-gray-500 hover:text-blue-600 flex items-center gap-1 font-semibold">
+                    ← Volver al Panel
                 </button>
-                <label class="bg-white border-2 border-slate-200 hover:border-slate-400 text-slate-600 px-6 py-3 rounded-xl text-sm font-bold cursor-pointer shadow transition">
-                    Restaurar Datos
-                    <input type="file" id="input-backup" class="hidden" onchange="cargarBackup(this)">
-                </label>
+                <h2 id="titulo-categoria" class="text-2xl font-bold text-labse-DEFAULT mt-1">Categoría</h2>
             </div>
-        </div>
-    </div>
-
-
-    <div id="view-manager" class="hidden max-w-7xl mx-auto p-4 md:p-6 fade-in content-layer">
-        
-        <div class="flex justify-between items-center mb-6 bg-white/95 backdrop-blur shadow-sm p-4 rounded-2xl border border-white">
-            <button onclick="volverAlDashboard()" class="text-slate-500 hover:text-labse-dark font-bold flex items-center gap-2 transition hover:scale-105 px-4 py-2 rounded-lg hover:bg-slate-100">
-                &larr; Volver al Menú
+            <button onclick="mostrarModalAgregar()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow flex items-center gap-2">
+                + Nuevo Ítem
             </button>
-            <h2 id="titulo-modulo" class="text-2xl font-black text-slate-800 uppercase tracking-wider">Categoría</h2>
-            <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">
-                <span class="text-xs text-slate-400 uppercase font-bold">Total Ítems</span>
-                <span id="total-items-modulo" class="ml-2 font-black text-xl text-slate-700">0</span>
-            </div>
         </div>
 
-        <div id="form-container" class="bg-white/95 backdrop-blur rounded-2xl shadow-lg overflow-hidden border border-white mb-8">
-            <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="font-extrabold text-slate-700 flex items-center gap-2">Gestión de Inventario</h3>
-                <span id="modo-edicion" class="text-labse-light font-black text-sm hidden animate-pulse bg-white px-3 py-1 rounded-full border border-blue-200">EDITANDO</span>
-            </div>
-            
-            <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500 uppercase">Código (SKU)</label>
-                    <input type="text" id="input-codigo" class="w-full p-3 border-2 border-slate-200 rounded-xl font-mono focus:border-labse-light outline-none font-bold text-slate-700 focus:bg-blue-50 transition" title="Solo el Admin puede cambiar esto al editar">
-                </div>
-                <div class="md:col-span-5">
-                    <label class="text-xs font-bold text-slate-500 uppercase">Descripción</label>
-                    <input type="text" id="input-desc" class="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-labse-light outline-none font-semibold text-slate-700 focus:bg-blue-50 transition">
-                </div>
-                <div id="panel-empaque" class="md:col-span-5 grid grid-cols-3 gap-2 bg-blue-50 p-3 rounded-xl border-2 border-blue-100">
-                    <div class="col-span-3 text-[10px] font-black text-blue-500 uppercase tracking-wider mb-1">Configuración de Compra</div>
-                    <select id="input-tipo-envase" class="p-2 border-2 border-blue-200 rounded-lg text-sm text-blue-900 font-bold bg-white outline-none focus:border-blue-500">
-                        <option value="Cajas">Cajas</option><option value="Bidones">Bidones</option><option value="Packs">Packs</option><option value="Bolsas">Bolsas</option><option value="Rollos">Rollos</option><option value="Unid.">Unidad</option>
-                    </select>
-                    <input type="number" id="input-contenido" placeholder="Cant." class="p-2 border-2 border-blue-200 rounded-lg text-center font-bold text-blue-900 outline-none focus:border-blue-500">
-                    <select id="input-unidad" class="p-2 border-2 border-blue-200 rounded-lg text-sm text-blue-900 font-bold bg-white outline-none focus:border-blue-500">
-                        <option value="gr">Gramos</option><option value="lt">Litros</option><option value="mt">Metros</option><option value="un">Unid.</option>
-                    </select>
-                </div>
-                <div id="panel-vacio" class="md:col-span-5 hidden"></div>
-                <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <input type="text" id="prov-nom" placeholder="Proveedor" class="p-2 text-sm border rounded-lg bg-white">
-                    <input type="text" id="prov-tel" placeholder="Contacto" class="p-2 text-sm border rounded-lg bg-white">
-                    <input type="text" id="prov-web" placeholder="Web" class="p-2 text-sm border rounded-lg bg-white">
-                    <input type="text" id="prov-ubi" placeholder="Ubicación" class="p-2 text-sm border rounded-lg bg-white">
-                </div>
-                <div class="md:col-span-12 grid grid-cols-1 md:grid-cols-6 gap-4 items-end mt-2">
-                    <div class="md:col-span-2">
-                        <label class="text-xs font-bold text-slate-500 uppercase">Stock Actual</label>
-                        <input type="number" id="input-stock" class="w-full p-3 border-2 border-slate-300 bg-white rounded-xl font-black text-xl text-slate-800 text-center outline-none focus:border-labse">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="text-xs font-bold text-orange-600 uppercase">Punto de Pedido</label>
-                        <input type="number" id="input-limite" class="w-full p-3 border-2 border-orange-200 bg-orange-50 rounded-xl font-black text-xl text-orange-800 text-center outline-none focus:border-orange-500">
-                    </div>
-                    <div class="md:col-span-2 flex gap-2 h-[52px]">
-                        <button onclick="guardarItem()" id="btn-guardar" class="h-full w-full bg-labse-dark text-white font-bold rounded-xl hover:bg-blue-900 transition shadow-md text-lg tracking-wide border-b-4 border-blue-900 active:border-b-0 active:translate-y-1">GUARDAR</button>
-                        <button onclick="cancelarEdicion()" id="btn-cancelar" class="hidden h-full bg-red-100 text-red-600 px-4 rounded-xl font-bold border-2 border-red-200 hover:bg-red-200">X</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white/95 backdrop-blur rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-black tracking-wider">
-                        <tr>
-                            <th class="p-5">Descripción</th>
-                            <th class="p-5">Detalle</th>
-                            <th class="p-5">Proveedor</th>
-                            <th class="p-5 text-center">Seguridad</th>
-                            <th class="p-5 text-center">Stock</th>
-                            <th class="p-5 text-center" id="col-acciones">Acciones</th>
+        <div class="flex-1 overflow-auto p-6 bg-gray-50">
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                            <th class="px-5 py-3 text-left">Nombre del Ítem</th>
+                            <th class="px-5 py-3 text-left">Stock Actual</th>
+                            <th class="px-5 py-3 text-left">Punto de Pedido (Min)</th>
+                            <th class="px-5 py-3 text-left">Unidad</th>
+                            <th class="px-5 py-3 text-center">Estado</th>
+                            <th class="px-5 py-3 text-right">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-body" class="text-sm divide-y divide-slate-100"></tbody>
+                    <tbody id="tabla-cuerpo">
+                        </tbody>
                 </table>
-            </div>
-        </div>
-
-        <div class="text-center pb-10">
-            <button onclick="volverAlDashboard()" class="bg-white border-2 border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-bold py-3 px-10 rounded-2xl shadow-sm transition transform hover:scale-105 flex items-center gap-2 mx-auto">
-                &larr; Volver al Inicio
-            </button>
-        </div>
-    </div>
-
-    <div id="modal-compras" class="fixed inset-0 bg-labse-dark bg-opacity-90 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative z-50">
-            <div class="bg-labse-dark p-6 text-white flex justify-between items-center shrink-0">
-                <div><h2 class="text-3xl font-black tracking-tight">Orden de Compra Global</h2></div>
-                <button onclick="cerrarOrdenCompra()" class="text-blue-200 hover:text-white text-4xl font-bold">&times;</button>
-            </div>
-            <div class="overflow-y-auto p-8 bg-slate-50 flex-1">
-                <div class="bg-white rounded-2xl shadow-sm border-2 border-blue-100 mb-8 overflow-hidden">
-                    <div class="bg-blue-100 p-4"><h3 class="text-labse-dark font-extrabold text-xl">INSUMOS</h3></div>
-                    <tbody id="lista-compra-insumos" class="divide-y divide-blue-50 text-slate-700 font-medium"></tbody>
-                    <div id="vacio-insumos" class="p-6 text-center text-blue-400 text-sm hidden">Stock OK.</div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm border-2 border-indigo-100 mb-8 overflow-hidden">
-                    <div class="bg-indigo-100 p-4"><h3 class="text-indigo-900 font-extrabold text-xl">HERRAMIENTAS</h3></div>
-                    <tbody id="lista-compra-herramientas" class="divide-y divide-indigo-50 text-slate-700 font-medium"></tbody>
-                    <div id="vacio-herramientas" class="p-6 text-center text-indigo-400 text-sm hidden">OK.</div>
+                <div id="empty-state" class="hidden p-12 text-center text-gray-400">
+                    <p>No hay ítems en esta categoría todavía.</p>
                 </div>
             </div>
-            <div class="p-5 bg-white border-t border-slate-200 text-right flex gap-3 justify-end">
-                <button onclick="window.print()" class="text-slate-500 font-bold px-4">IMPRIMIR</button>
-                <button onclick="abrirModalEmail()" class="bg-labse text-white px-6 py-2 rounded-xl font-bold">EMAIL</button>
-                <button onclick="cerrarOrdenCompra()" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold">CERRAR</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="modal-email" class="fixed inset-0 bg-labse-dark bg-opacity-90 hidden flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 border-4 border-blue-100 relative z-[70]">
-            <div class="flex justify-between mb-6"><h3 class="text-2xl font-black">Enviar Reporte</h3><button onclick="document.getElementById('modal-email').classList.add('hidden')" class="text-3xl">&times;</button></div>
-            <div class="space-y-3 mb-6">
-                <button onclick="enviarCorreoFinal('compras@labse.com')" class="w-full text-left p-4 border rounded font-bold hover:bg-blue-50">COMPRAS</button>
-                <button onclick="enviarCorreoFinal('administracion@labse.com')" class="w-full text-left p-4 border rounded font-bold hover:bg-blue-50">ADMINISTRACIÓN</button>
-            </div>
-            <div class="flex gap-2"><input type="email" id="email-custom" placeholder="email..." class="flex-1 p-3 border rounded"><button onclick="enviarCorreoCustom()" class="bg-labse-dark text-white px-4 rounded font-bold">ENVIAR</button></div>
         </div>
     </div>
 
-<script>
-    const DB_NAME = 'labse_stock_master'; 
-    let categoriaActual = ''; 
-    let editandoId = null;
-    let rolActual = ''; 
-    let usuarioActualNombre = '';
-
-    // ================================================================
-    // LISTA DE USUARIOS (¡EDITA AQUÍ PARA AGREGAR GENTE!)
-    // ================================================================
-    const USUARIOS_SISTEMA = [
-        // ADMINISTRADORES (Pueden editar CÓDIGOS, borrar todo y descargar backups)
-        { usuario: "camila",   pass: "admin123",  rol: "admin",    nombre: "Ing. Camila" },
-        { usuario: "laura",    pass: "laura2025", rol: "admin",    nombre: "Ing. Laura" },
-
-        // OPERADORES (Pueden editar STOCK y crear items, pero NO cambiar códigos existentes)
-        { usuario: "operario", pass: "stock",     rol: "operador", nombre: "Operario Gral" },
-        { usuario: "juan",     pass: "juan123",   rol: "operador", nombre: "Juan Perez" },
-
-        // VISITAS (Solo pueden ver, no tocar)
-        { usuario: "visita",   pass: "visita",    rol: "visita",   nombre: "Auditor Externo" }
-    ];
-    // ================================================================
-
-    // --- LOGIN ---
-    function intentarLogin() {
-        const userIn = document.getElementById('login-user').value.toLowerCase().trim();
-        const passIn = document.getElementById('login-pass').value;
-        const errorMsg = document.getElementById('login-error');
-
-        // Buscar usuario en la lista
-        const usuarioEncontrado = USUARIOS_SISTEMA.find(u => u.usuario === userIn && u.pass === passIn);
-
-        if (usuarioEncontrado) {
-            rolActual = usuarioEncontrado.rol;
-            usuarioActualNombre = usuarioEncontrado.nombre;
-            
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.remove('hidden');
-            configurarInterfazPorRol();
-        } else {
-            errorMsg.classList.remove('hidden');
-            const box = document.querySelector('#view-login > div');
-            box.classList.add('animate-bounce');
-            setTimeout(() => box.classList.remove('animate-bounce'), 500);
-        }
-    }
-
-    function cerrarSesion() { location.reload(); }
-
-    function configurarInterfazPorRol() {
-        const badge = document.getElementById('user-badge');
-        const adminZone = document.getElementById('admin-zone');
-        badge.innerText = `${usuarioActualNombre} (${rolActual.toUpperCase()})`;
-        if(rolActual === 'admin') adminZone.classList.remove('hidden');
-        else adminZone.classList.add('hidden');
-    }
-
-    // --- NAVEGACIÓN ---
-    function abrirModulo(cat) {
-        categoriaActual = cat;
-        document.getElementById('view-dashboard').classList.add('hidden');
-        document.getElementById('view-manager').classList.remove('hidden');
-        window.scrollTo(0, 0);
-        
-        const titulo = document.getElementById('titulo-modulo');
-        const panelEmpaque = document.getElementById('panel-empaque');
-        const panelVacio = document.getElementById('panel-vacio');
-        const formContainer = document.getElementById('form-container');
-        const colAcciones = document.getElementById('col-acciones');
-
-        if (cat === 'consumibles') {
-            titulo.innerText = "Insumos y Consumibles";
-            titulo.className = "text-2xl font-black text-labse uppercase tracking-wider";
-            panelEmpaque.classList.remove('hidden'); panelVacio.classList.add('hidden');
-        } else {
-            titulo.innerText = "Herramientas";
-            titulo.className = "text-2xl font-black text-indigo-900 uppercase tracking-wider";
-            panelEmpaque.classList.add('hidden'); panelVacio.classList.remove('hidden');
-        }
-
-        if (rolActual === 'visita') {
-            formContainer.classList.add('hidden'); 
-            colAcciones.classList.add('hidden');    
-        } else {
-            formContainer.classList.remove('hidden');
-            colAcciones.classList.remove('hidden');
-        }
-        renderTabla();
-    }
-
-    function volverAlDashboard() {
-        document.getElementById('view-manager').classList.add('hidden');
-        document.getElementById('view-dashboard').classList.remove('hidden');
-        window.scrollTo(0, 0);
-        limpiarFormulario();
-    }
-
-    // --- CRUD ---
-    function guardarItem() {
-        if(rolActual === 'visita') return;
-        try {
-            const codigo = document.getElementById('input-codigo').value.trim();
-            const desc = document.getElementById('input-desc').value.trim();
-            const stock = parseInt(document.getElementById('input-stock').value) || 0;
-            const limite = parseInt(document.getElementById('input-limite').value) || 0;
-            const prov = { nombre: document.getElementById('prov-nom').value, tel: document.getElementById('prov-tel').value, web: document.getElementById('prov-web').value, ubi: document.getElementById('prov-ubi').value };
-            if(!codigo || !desc) { alert("Faltan datos."); return; }
-            let empaque = null;
-            if (categoriaActual === 'consumibles') {
-                const contenidoVal = parseFloat(document.getElementById('input-contenido').value);
-                empaque = { tipo: document.getElementById('input-tipo-envase').value, contenido: isNaN(contenidoVal)||contenidoVal<=0?1:contenidoVal, unidad: document.getElementById('input-unidad').value };
-            }
-            let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-            const itemObj = { id: editandoId || Date.now(), categoria: categoriaActual, codigo, desc, stock, limite, prov, empaque };
-            
-            if (editandoId) {
-                // Validación de código duplicado
-                if (inventario.some(i => i.codigo === codigo && i.id !== editandoId)) { alert("Error: Ese Código ya existe en otro ítem."); return; }
-                const idx = inventario.findIndex(i => i.id === editandoId); 
-                inventario[idx] = itemObj;
-            } else {
-                if (inventario.some(i => i.codigo === codigo)) { alert("Error: Ese Código ya existe."); return; }
-                inventario.push(itemObj);
-            }
-            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-            cancelarEdicion();
-            renderTabla();
-        } catch (e) { alert("Error: " + e.message); }
-    }
-
-    function renderTabla() {
-        const tbody = document.getElementById('tabla-body');
-        const totalCounter = document.getElementById('total-items-modulo');
-        tbody.innerHTML = '';
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        const itemsFiltrados = inventario.filter(i => i.categoria === categoriaActual);
-        totalCounter.innerText = itemsFiltrados.length;
-
-        itemsFiltrados.forEach(item => {
-            let estadoHTML = '';
-            if (item.stock > item.limite) estadoHTML = '<span class="text-green-700 font-black text-xs bg-green-100 px-3 py-1 rounded-full border border-green-200">OK</span>';
-            else if (item.stock === item.limite) estadoHTML = '<span class="text-orange-700 font-black text-xs bg-orange-100 px-3 py-1 rounded-full border border-orange-200">ALERTA</span>';
-            else estadoHTML = '<span class="text-red-700 font-black text-xs bg-red-100 px-3 py-1 rounded-full border border-red-200 animate-pulse">CRÍTICO</span>';
-
-            let detalleHTML = '<span class="text-slate-400 font-medium">-</span>';
-            if (item.categoria === 'consumibles' && item.empaque) {
-                detalleHTML = `<span class="text-xs bg-white text-indigo-700 px-3 py-1 rounded-lg border-2 border-indigo-100 font-bold shadow-sm">${item.empaque.tipo} x ${item.empaque.contenido} ${item.empaque.unidad}</span>`;
-            } else {
-                detalleHTML = `<span class="text-xs bg-white text-slate-600 px-3 py-1 rounded-lg border-2 border-slate-200 font-bold shadow-sm">Unidad Física</span>`;
-            }
-
-            let botonesAccion = '';
-            if (rolActual !== 'visita') {
-                botonesAccion = `
-                    <button onclick="editarItem(${item.id})" class="text-blue-500 hover:text-labse bg-blue-50 p-2 rounded-lg mr-2 font-bold text-xs">EDITAR</button>
-                    <button onclick="eliminarItem(${item.id})" class="text-slate-400 hover:text-red-500 bg-slate-50 p-2 rounded-lg font-bold text-xs">BORRAR</button>
-                `;
-            }
-
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-blue-50 transition align-middle font-medium text-slate-700";
-            tr.innerHTML = `
-                <td class="p-5"><div class="font-extrabold text-labse-dark text-base">${item.desc}</div><div class="text-xs text-blue-400 font-mono font-bold mt-1">#${item.codigo}</div></td>
-                <td class="p-5">${detalleHTML}</td>
-                <td class="p-5 text-sm"><div class="font-bold text-slate-800">${item.prov.nombre || '-'}</div></td>
-                <td class="p-5 text-center text-xs font-black text-orange-700 bg-orange-50 rounded-lg mx-2">Min: ${item.limite}</td>
-                <td class="p-5 text-center">
-                    <div class="flex items-center justify-center gap-3 bg-white p-2 rounded-xl border border-blue-100 shadow-sm">
-                        ${rolActual !== 'visita' ? `<button onclick="cambiarStock(${item.id}, -1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-red-500 hover:text-white font-bold transition">-</button>` : ''}
-                        <span class="text-xl font-black w-12 text-center text-labse-dark">${item.stock}</span>
-                        ${rolActual !== 'visita' ? `<button onclick="cambiarStock(${item.id}, 1)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-green-500 hover:text-white font-bold transition">+</button>` : ''}
+    <div id="modal-form" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg w-96 p-6 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-gray-800">Gestionar Ítem</h3>
+            <form onsubmit="guardarItem(event)">
+                <input type="hidden" id="item-id">
+                <input type="hidden" id="item-categoria">
+                
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre</label>
+                <input type="text" id="nombre" required class="w-full border p-2 rounded mb-3">
+                
+                <div class="flex gap-2">
+                    <div class="w-1/2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cantidad</label>
+                        <input type="number" id="cantidad" required class="w-full border p-2 rounded mb-3">
                     </div>
-                </td>
-                <td class="p-5 text-center ${rolActual === 'visita' ? 'hidden' : ''}">${botonesAccion}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+                    <div class="w-1/2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Stock Min</label>
+                        <input type="number" id="minimo" required class="w-full border p-2 rounded mb-3">
+                    </div>
+                </div>
+                
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad (ej: Unid, Kg, Lts)</label>
+                <input type="text" id="unidad" value="Unid." class="w-full border p-2 rounded mb-6">
+                
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="cerrarModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    // --- UTILIDADES ---
-    function cambiarStock(id, delta) {
-        if(rolActual === 'visita') return;
+    <script>
+        // --- CONFIGURACIÓN ---
+        const DB_NAME = 'labse_stock_data';
         let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        const idx = inventario.findIndex(i => i.id === id);
-        if (idx !== -1) {
-            let nuevo = inventario[idx].stock + delta;
-            if (nuevo < 0) nuevo = 0;
-            inventario[idx].stock = nuevo;
-            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-            renderTabla();
-        }
-    }
-    function eliminarItem(id) {
-        if(rolActual === 'visita') return;
-        if(rolActual !== 'admin') { alert("Solo los Administradores pueden borrar ítems."); return; }
-        if(confirm("¿Seguro que quieres borrar este ítem permanentemente?")) {
-            let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-            inventario = inventario.filter(i => i.id !== id);
-            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-            renderTabla();
-            if(editandoId === id) cancelarEdicion();
-        }
-    }
-    
-    function editarItem(id) {
-        if(rolActual === 'visita') return;
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        const item = inventario.find(i => i.id === id);
-        if(item) {
-            editandoId = id;
-            const inputCodigo = document.getElementById('input-codigo');
+        let categoriaActual = '';
+
+        // --- SISTEMA LOGIN ---
+        function login() {
+            const u = document.getElementById('user-input').value;
+            const p = document.getElementById('pass-input').value;
             
-            // --- LÓGICA DE SEGURIDAD PARA CÓDIGOS ---
-            // Si es ADMIN: Puede editar el código.
-            // Si es OPERARIO: El código está BLOQUEADO (readOnly).
-            inputCodigo.value = item.codigo;
-            
-            if (rolActual === 'admin') {
-                inputCodigo.removeAttribute('readonly');
-                // Estilo normal
+            // Credenciales simples (puedes cambiarlas)
+            if((u === 'admin' && p === 'admin') || u === 'camila') {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('dashboard-view').classList.remove('hidden-view');
             } else {
-                inputCodigo.setAttribute('readonly', true);
+                alert('Credenciales incorrectas (Prueba: admin / admin)');
             }
-            // ------------------------------------------
-
-            document.getElementById('input-desc').value = item.desc;
-            document.getElementById('input-stock').value = item.stock;
-            document.getElementById('input-limite').value = item.limite;
-            document.getElementById('prov-nom').value = item.prov.nombre;
-            document.getElementById('prov-tel').value = item.prov.tel;
-            document.getElementById('prov-web').value = item.prov.web;
-            document.getElementById('prov-ubi').value = item.prov.ubi;
-            if(item.categoria === 'consumibles' && item.empaque) {
-                document.getElementById('input-tipo-envase').value = item.empaque.tipo;
-                document.getElementById('input-contenido').value = item.empaque.contenido;
-                document.getElementById('input-unidad').value = item.empaque.unidad;
-            }
-            document.getElementById('btn-guardar').innerText = "ACTUALIZAR";
-            document.getElementById('modo-edicion').classList.remove('hidden');
-            document.getElementById('btn-cancelar').classList.remove('hidden');
-            document.getElementById('view-manager').scrollIntoView({ behavior: 'smooth' });
         }
-    }
-    function cancelarEdicion() {
-        editandoId = null;
-        limpiarFormulario();
-        document.getElementById('btn-guardar').innerText = "GUARDAR";
-        document.getElementById('modo-edicion').classList.add('hidden');
-        document.getElementById('btn-cancelar').classList.add('hidden');
-    }
-    function limpiarFormulario() { 
-        document.querySelectorAll('input').forEach(i => i.value = ''); 
         
-        // Al cancelar o crear nuevo, desbloqueamos el input de código para que puedan escribir uno nuevo
-        const inputCodigo = document.getElementById('input-codigo');
-        inputCodigo.removeAttribute('readonly');
-    }
-
-    // --- REPORTE, EMAIL, BACKUP (Funciones estándar) ---
-    function verOrdenCompraGlobal() {
-        const modal = document.getElementById('modal-compras');
-        const listaInsumos = document.getElementById('lista-compra-insumos');
-        const listaHerramientas = document.getElementById('lista-compra-herramientas');
-        listaInsumos.innerHTML = ''; listaHerramientas.innerHTML = '';
-        
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        const faltantes = inventario.filter(i => i.stock <= i.limite);
-        let countInsumos = 0; let countHerramientas = 0;
-
-        faltantes.forEach(item => {
-            const row = document.createElement('tr');
-            let compraHTML = '';
-            if (item.categoria === 'consumibles') {
-                countInsumos++;
-                const faltanteTotal = (item.limite + 1) - item.stock;
-                const contenido = (item.empaque && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
-                const envases = Math.ceil(faltanteTotal / contenido);
-                compraHTML = `<div class="font-black text-labse text-xl">+ ${envases} ${item.empaque.tipo}<div class="text-[10px] text-blue-400 font-bold uppercase mt-1 tracking-wider">(Total: ${envases * contenido} ${item.empaque.unidad})</div></div>`;
-                row.className = "border-b border-blue-100 hover:bg-blue-50 transition";
-                row.innerHTML = `<td class="p-5 font-bold text-labse-dark text-lg">${item.desc}</td><td class="p-5 text-sm font-medium text-slate-600">${item.prov.nombre || '-'}</td><td class="p-5 text-right">${compraHTML}</td>`;
-                listaInsumos.appendChild(row);
-            } else {
-                countHerramientas++;
-                const reposicion = (item.limite + 1) - item.stock;
-                compraHTML = `<div class="font-black text-indigo-700 text-xl">+ ${reposicion} Unid.</div>`;
-                row.className = "border-b border-indigo-100 hover:bg-indigo-50 transition";
-                row.innerHTML = `<td class="p-5 font-bold text-indigo-900 text-lg">${item.desc}</td><td class="p-5 text-sm font-medium text-slate-600">${item.prov.nombre || '-'}</td><td class="p-5 text-right">${compraHTML}</td>`;
-                listaHerramientas.appendChild(row);
-            }
-        });
-        document.getElementById('vacio-insumos').classList.toggle('hidden', countInsumos > 0);
-        document.getElementById('vacio-herramientas').classList.toggle('hidden', countHerramientas > 0);
-        modal.classList.remove('hidden');
-    }
-    function cerrarOrdenCompra() { document.getElementById('modal-compras').classList.add('hidden'); }
-    function abrirModalEmail() { document.getElementById('modal-email').classList.remove('hidden'); }
-    function enviarCorreoCustom() {
-        const email = document.getElementById('email-custom').value;
-        if(email && email.includes('@')) enviarCorreoFinal(email);
-        else alert("Correo inválido.");
-    }
-    function enviarCorreoFinal(emailDestino) {
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        const faltantes = inventario.filter(i => i.stock <= i.limite);
-        if(faltantes.length === 0) { alert("Nada para comprar."); return; }
-        let cuerpo = "SOLICITUD DE COMPRA - LABSE\n\n";
-        const insumos = faltantes.filter(i => i.categoria === 'consumibles');
-        if (insumos.length > 0) {
-            cuerpo += "--- INSUMOS ---\n";
-            insumos.forEach(item => {
-                const faltanteTotal = (item.limite + 1) - item.stock;
-                const cont = (item.empaque && item.empaque.contenido > 0) ? item.empaque.contenido : 1;
-                const envases = Math.ceil(faltanteTotal / cont);
-                cuerpo += `- ${item.desc}: ${envases} ${item.empaque.tipo} (${item.prov.nombre || 'N/A'})\n`;
-            });
-            cuerpo += "\n";
+        function logout() {
+            location.reload();
         }
-        const herram = faltantes.filter(i => i.categoria === 'herramientas');
-        if (herram.length > 0) {
-            cuerpo += "--- HERRAMIENTAS ---\n";
-            herram.forEach(item => {
-                const rep = (item.limite + 1) - item.stock;
-                cuerpo += `- ${item.desc}: ${rep} Unidades (${item.prov.nombre || 'N/A'})\n`;
-            });
-        }
-        const asunto = encodeURIComponent("Orden de Compra LABSE");
-        const body = encodeURIComponent(cuerpo);
-        window.location.href = `mailto:${emailDestino}?subject=${asunto}&body=${body}`;
-        document.getElementById('modal-email').classList.add('hidden');
-    }
-    function descargarBackup() {
-        const datos = localStorage.getItem(DB_NAME);
-        if(!datos || datos === '[]') { alert("No hay datos."); return; }
-        const blob = new Blob([datos], {type: "application/json"});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `LABSE_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-    }
-    function cargarBackup(input) {
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const json = JSON.parse(e.target.result);
-                if(Array.isArray(json) && confirm("Se reemplazarán los datos. ¿Continuar?")) {
-                    localStorage.setItem(DB_NAME, JSON.stringify(json));
-                    alert("Restaurado."); location.reload();
-                }
-            } catch(err) { alert("Archivo inválido."); }
-        };
-        reader.readAsText(file);
-    }
-</script>
-</body>
-</html>
+
+        // --- NAVEGACIÓN ---
+        function volverAlDashboard() {
+            document.getElementById('inventory-view').classList.add('hidden-view
