@@ -3,320 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Stock LABSE</title>
+    <title>LABSE Stock V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* ESTILOS CRÍTICOS */
-        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        
-        /* El !important aquí es la clave para que no se superpongan las pantallas */
-        .hidden-view { display: none !important; } 
-        
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #f1f5f9; font-family: sans-serif; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col text-gray-800">
+<body class="h-screen w-screen overflow-hidden">
 
-    <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-blue-900 fade-in">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-96 text-center">
-            <h1 class="text-3xl font-black text-blue-900 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-gray-500 text-sm mb-6">Sistema de Control de Stock</p>
+    <div id="pantalla-login" style="display: flex;" class="fixed inset-0 z-50 items-center justify-center bg-blue-900 w-full h-full">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-96 text-center">
+            <h1 class="text-4xl font-black text-blue-900 mb-2">LABSE</h1>
+            <p class="text-gray-500 mb-6">Control de Inventario</p>
             
-            <form onsubmit="event.preventDefault(); login();">
-                <input type="text" id="user-input" placeholder="Usuario" class="w-full p-3 mb-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="password" id="pass-input" placeholder="Contraseña" class="w-full p-3 mb-6 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                
-                <button type="submit" class="w-full bg-blue-800 text-white font-bold py-3 rounded hover:bg-blue-900 transition shadow-lg">
-                    INGRESAR
+            <form onsubmit="event.preventDefault(); validarLogin();">
+                <input type="text" id="usuario" placeholder="Usuario" class="w-full p-3 mb-3 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="password" id="password" placeholder="Contraseña" class="w-full p-3 mb-6 border rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded transition">
+                    ENTRAR
                 </button>
             </form>
-            <p class="mt-4 text-xs text-gray-400">Prueba: admin / admin</p>
+            <p class="mt-4 text-xs text-gray-400">Usuarios habilitados: admin, camila, laura</p>
         </div>
     </div>
 
-    <div id="dashboard-view" class="hidden-view flex-1 flex flex-col items-center justify-center p-6 fade-in relative w-full h-full bg-gray-50">
-        
-        <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-center bg-white shadow-sm border-b">
-            <div class="font-bold text-blue-900 tracking-wider">LABSE V2.0</div>
-            <div class="flex items-center gap-4">
-                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">ING. CAMILA (ADMIN)</span>
-                <button onclick="logout()" class="text-red-500 text-sm hover:underline font-medium">Cerrar Sesión</button>
-            </div>
+    <div id="pantalla-dashboard" style="display: none;" class="w-full h-full flex-col bg-slate-50 relative">
+        <div class="bg-white p-4 shadow flex justify-between items-center">
+            <span class="font-bold text-blue-900 tracking-wider">SISTEMA LABSE</span>
+            <button onclick="cerrarSesion()" class="text-red-500 text-sm font-bold hover:underline">Cerrar Sesión</button>
         </div>
 
-        <div class="text-center w-full max-w-4xl mt-10">
-            <h2 class="text-4xl font-bold text-gray-700 mb-8">Panel de Control</h2>
+        <div class="flex-1 flex flex-col items-center justify-center p-6">
+            <h2 class="text-3xl font-bold text-gray-700 mb-8">Panel de Gestión</h2>
 
-            <button onclick="generarOrden()" class="w-full bg-gradient-to-r from-blue-700 to-blue-900 text-white font-bold py-5 rounded-xl shadow-xl hover:scale-[1.02] transition transform mb-10 flex items-center justify-center gap-3 text-lg">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                GENERAR ORDEN DE COMPRA GLOBAL
+            <button onclick="generarOrdenCompra()" class="bg-blue-800 hover:bg-blue-900 text-white text-lg font-bold py-4 px-8 rounded-xl shadow-lg mb-10 w-full max-w-lg flex items-center justify-center gap-3 transition transform hover:scale-105">
+                📄 GENERAR ORDEN DE COMPRA
             </button>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div onclick="abrirInventario('Insumos')" class="bg-white p-8 rounded-xl shadow-md cursor-pointer hover:shadow-xl transition border-l-8 border-blue-500 text-left group">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2 group-hover:text-blue-600">📦 Insumos</h3>
-                    <p class="text-gray-500">Gestionar cajas, litros, consumibles...</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                <div onclick="irAInventario('Insumos')" class="bg-white p-6 rounded-xl shadow cursor-pointer border-l-8 border-blue-500 hover:shadow-xl transition">
+                    <h3 class="text-xl font-bold text-gray-800">📦 Insumos</h3>
+                    <p class="text-gray-500 text-sm">Cajas, consumibles, materiales...</p>
                 </div>
-
-                <div onclick="abrirInventario('Herramientas')" class="bg-white p-8 rounded-xl shadow-md cursor-pointer hover:shadow-xl transition border-l-8 border-indigo-500 text-left group">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2 group-hover:text-indigo-600">🔧 Herramientas</h3>
-                    <p class="text-gray-500">Gestionar activos, máquinas, unidades...</p>
+                <div onclick="irAInventario('Herramientas')" class="bg-white p-6 rounded-xl shadow cursor-pointer border-l-8 border-indigo-500 hover:shadow-xl transition">
+                    <h3 class="text-xl font-bold text-gray-800">🔧 Herramientas</h3>
+                    <p class="text-gray-500 text-sm">Máquinas, activos fijos...</p>
                 </div>
             </div>
-        </div>
-
-        <div class="mt-auto py-6 flex gap-3 opacity-70 hover:opacity-100 transition">
-            <button onclick="descargarBackup()" class="text-xs bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">💾 Guardar Copia</button>
-            <input type="file" id="file-input" class="hidden" onchange="restaurarBackup(this)">
-            <button onclick="document.getElementById('file-input').click()" class="text-xs bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">📂 Cargar Copia</button>
         </div>
     </div>
 
-    <div id="inventory-view" class="hidden-view h-full flex flex-col bg-white fade-in">
-        <div class="bg-white border-b p-4 flex justify-between items-center shadow-sm z-20">
-            <div class="flex items-center gap-4">
-                <button onclick="volverAlDashboard()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded font-medium text-sm transition">
-                    ← Volver
-                </button>
-                <h2 id="titulo-categoria" class="text-xl font-bold text-blue-900">Categoría</h2>
+    <div id="pantalla-tabla" style="display: none;" class="w-full h-full flex-col bg-white">
+        <div class="p-4 border-b flex justify-between items-center bg-white shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="volverAlMenu()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-bold text-gray-700">← Volver</button>
+                <h2 id="titulo-tabla" class="text-xl font-bold text-blue-900">Inventario</h2>
             </div>
-            <button onclick="mostrarModalAgregar()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow font-bold text-sm flex items-center gap-2">
-                + NUEVO ÍTEM
-            </button>
+            <button onclick="abrirModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold shadow">+ NUEVO</button>
         </div>
 
-        <div class="flex-1 overflow-auto bg-gray-50 p-4">
+        <div class="flex-1 overflow-auto p-4 bg-slate-50">
             <div class="bg-white rounded shadow overflow-hidden">
                 <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold tracking-wider border-b">
-                            <th class="p-4">Nombre</th>
-                            <th class="p-4 text-center">Stock</th>
-                            <th class="p-4 text-center">Mínimo</th>
-                            <th class="p-4 text-center">Estado</th>
-                            <th class="p-4 text-right">Acción</th>
+                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                        <tr>
+                            <th class="p-4 border-b">Nombre</th>
+                            <th class="p-4 border-b text-center">Cant.</th>
+                            <th class="p-4 border-b text-center">Min.</th>
+                            <th class="p-4 border-b text-center">Estado</th>
+                            <th class="p-4 border-b text-right">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-cuerpo" class="text-sm">
+                    <tbody id="cuerpo-tabla" class="text-sm text-gray-700">
                         </tbody>
                 </table>
-                <div id="empty-state" class="hidden p-10 text-center text-gray-400">
-                    No hay ítems cargados aquí aún.
-                </div>
+                <p id="mensaje-vacio" class="text-center p-8 text-gray-400 hidden">No hay ítems cargados.</p>
             </div>
         </div>
     </div>
 
-    <div id="modal-form" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white rounded-lg w-full max-w-md p-6 shadow-2xl">
-            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Agregar / Editar Ítem</h3>
+    <div id="modal-carga" style="display: none;" class="fixed inset-0 z-[60] bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-full max-w-sm shadow-2xl">
+            <h3 class="text-lg font-bold mb-4">Agregar Ítem</h3>
             <form onsubmit="guardarItem(event)">
-                <input type="hidden" id="item-id">
-                
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre del Producto</label>
-                <input type="text" id="nombre" required class="w-full border border-gray-300 p-2 rounded mb-4 focus:border-blue-500 outline-none">
-                
-                <div class="flex gap-4 mb-4">
-                    <div class="w-1/2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cantidad Actual</label>
-                        <input type="number" id="cantidad" required class="w-full border border-gray-300 p-2 rounded focus:border-blue-500 outline-none">
-                    </div>
-                    <div class="w-1/2">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Stock Mínimo</label>
-                        <input type="number" id="minimo" required class="w-full border border-gray-300 p-2 rounded focus:border-blue-500 outline-none">
-                    </div>
+                <input type="text" id="input-nombre" placeholder="Nombre del producto" required class="w-full border p-2 rounded mb-3">
+                <div class="flex gap-2 mb-3">
+                    <input type="number" id="input-cantidad" placeholder="Cant. Actual" required class="w-1/2 border p-2 rounded">
+                    <input type="number" id="input-minimo" placeholder="Stock Mín." required class="w-1/2 border p-2 rounded">
                 </div>
-                
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad de Medida</label>
-                <input type="text" id="unidad" placeholder="ej. Unidades, Kg, Cajas" class="w-full border border-gray-300 p-2 rounded mb-6 focus:border-blue-500 outline-none">
-                
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="cerrarModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
-                    <button type="submit" class="px-6 py-2 bg-blue-700 text-white font-bold rounded hover:bg-blue-800">Guardar</button>
+                <input type="text" id="input-unidad" placeholder="Unidad (u, kg, lts)" class="w-full border p-2 rounded mb-4">
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="cerrarModal()" class="text-gray-500 hover:text-gray-700 px-3 py-1">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded font-bold">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const DB_NAME = 'labse_stock_db_v2';
-        let inventario = JSON.parse(localStorage.getItem(DB_NAME)) || [];
-        let categoriaActual = '';
+        // -- BASE DE DATOS --
+        const DB_KEY = 'labse_inventario_final';
+        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        let categoriaActiva = '';
 
-        // 1. LOGIN
-        function login() {
-            const u = document.getElementById('user-input').value.toLowerCase().trim();
-            const p = document.getElementById('pass-input').value;
-            
-            // Acepta "admin" o "camila" o "laura"
-            if(u === 'admin' || u === 'camila' || u === 'laura') {
-                document.getElementById('login-view').classList.add('hidden-view');
-                document.getElementById('dashboard-view').classList.remove('hidden-view');
+        // -- FUNCIONES DE NAVEGACIÓN (CAMBIAN EL STYLE DIRECTAMENTE) --
+        function mostrar(id) { document.getElementById(id).style.display = 'flex'; }
+        function ocultar(id) { document.getElementById(id).style.display = 'none'; }
+
+        function validarLogin() {
+            const u = document.getElementById('usuario').value.toLowerCase();
+            const pass = document.getElementById('password').value;
+            // Usuarios permitidos: admin, camila, laura
+            if (u === 'admin' || u === 'camila' || u === 'laura') {
+                ocultar('pantalla-login');
+                mostrar('pantalla-dashboard');
             } else {
-                alert('⚠️ Usuario no registrado. Intenta con: admin');
+                alert('⚠️ Usuario incorrecto. Prueba con: camila');
             }
         }
 
-        function logout() {
+        function cerrarSesion() {
             location.reload();
         }
 
-        // 2. NAVEGACIÓN
-        function volverAlDashboard() {
-            document.getElementById('inventory-view').classList.add('hidden-view');
-            document.getElementById('dashboard-view').classList.remove('hidden-view');
+        function volverAlMenu() {
+            ocultar('pantalla-tabla');
+            mostrar('pantalla-dashboard');
         }
 
-        function abrirInventario(categoria) {
-            categoriaActual = categoria;
-            document.getElementById('dashboard-view').classList.add('hidden-view');
-            document.getElementById('inventory-view').classList.remove('hidden-view');
-            document.getElementById('titulo-categoria').innerText = categoria === 'Insumos' ? '📦 INVENTARIO: INSUMOS' : '🔧 INVENTARIO: HERRAMIENTAS';
+        function irAInventario(cat) {
+            categoriaActiva = cat;
+            document.getElementById('titulo-tabla').innerText = 'Inventario: ' + cat;
+            ocultar('pantalla-dashboard');
+            mostrar('pantalla-tabla');
             renderizarTabla();
         }
 
-        // 3. GESTIÓN DE DATOS
+        // -- MODALES --
+        function abrirModal() {
+            document.getElementById('input-nombre').value = '';
+            document.getElementById('input-cantidad').value = '';
+            document.getElementById('input-minimo').value = '';
+            document.getElementById('input-unidad').value = '';
+            mostrar('modal-carga');
+        }
+        function cerrarModal() { ocultar('modal-carga'); }
+
+        // -- GESTIÓN DE DATOS --
+        function guardarItem(e) {
+            e.preventDefault();
+            const nuevo = {
+                id: Date.now(),
+                nombre: document.getElementById('input-nombre').value,
+                cantidad: parseInt(document.getElementById('input-cantidad').value),
+                minimo: parseInt(document.getElementById('input-minimo').value),
+                unidad: document.getElementById('input-unidad').value || 'u',
+                categoria: categoriaActiva
+            };
+            datos.push(nuevo);
+            localStorage.setItem(DB_KEY, JSON.stringify(datos));
+            cerrarModal();
+            renderizarTabla();
+        }
+
+        function borrarItem(id) {
+            if(confirm('¿Borrar este ítem?')) {
+                datos = datos.filter(d => d.id !== id);
+                localStorage.setItem(DB_KEY, JSON.stringify(datos));
+                renderizarTabla();
+            }
+        }
+
         function renderizarTabla() {
-            const tbody = document.getElementById('tabla-cuerpo');
+            const tbody = document.getElementById('cuerpo-tabla');
             tbody.innerHTML = '';
-            
-            const items = inventario.filter(i => i.categoria === categoriaActual);
-            
-            if(items.length === 0) {
-                document.getElementById('empty-state').classList.remove('hidden');
+            const filtrados = datos.filter(d => d.categoria === categoriaActiva);
+
+            if(filtrados.length === 0) {
+                document.getElementById('mensaje-vacio').style.display = 'block';
             } else {
-                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('mensaje-vacio').style.display = 'none';
             }
 
-            items.forEach(item => {
-                const stock = parseInt(item.cantidad);
-                const min = parseInt(item.minimo);
-                const critico = stock <= min;
-                
+            filtrados.forEach(item => {
+                const alerta = item.cantidad <= item.minimo;
                 const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-blue-50 transition";
+                tr.className = "border-b hover:bg-blue-50";
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-gray-900">${item.nombre}</td>
-                    <td class="p-4 text-center font-bold ${critico ? 'text-red-600' : 'text-green-600'}">${stock} ${item.unidad}</td>
-                    <td class="p-4 text-center text-gray-500">${min} ${item.unidad}</td>
+                    <td class="p-4 font-medium">${item.nombre}</td>
+                    <td class="p-4 text-center font-bold ${alerta ? 'text-red-600' : 'text-green-600'}">${item.cantidad} ${item.unidad}</td>
+                    <td class="p-4 text-center text-gray-500">${item.minimo}</td>
                     <td class="p-4 text-center">
-                        <span class="px-2 py-1 text-xs rounded-full font-bold ${critico ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
-                            ${critico ? 'REPONER' : 'OK'}
+                        <span class="px-2 py-1 rounded text-xs font-bold ${alerta ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                            ${alerta ? 'REPONER' : 'OK'}
                         </span>
                     </td>
                     <td class="p-4 text-right">
-                        <button onclick="borrarItem(${item.id})" class="text-red-500 hover:text-red-700 font-bold text-xs uppercase">Eliminar</button>
+                        <button onclick="borrarItem(${item.id})" class="text-red-500 hover:text-red-700 font-bold text-xs">ELIMINAR</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function mostrarModalAgregar() {
-            document.getElementById('modal-form').classList.remove('hidden');
-            document.getElementById('item-id').value = Date.now();
-            document.getElementById('nombre').value = '';
-            document.getElementById('cantidad').value = '';
-            document.getElementById('minimo').value = '';
-            document.getElementById('unidad').value = '';
-            document.getElementById('nombre').focus();
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal-form').classList.add('hidden');
-        }
-
-        function guardarItem(e) {
-            e.preventDefault();
-            const nuevo = {
-                id: parseInt(document.getElementById('item-id').value),
-                nombre: document.getElementById('nombre').value,
-                cantidad: document.getElementById('cantidad').value,
-                minimo: document.getElementById('minimo').value,
-                unidad: document.getElementById('unidad').value || 'u.',
-                categoria: categoriaActual
-            };
-            inventario.push(nuevo);
-            localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-            cerrarModal();
-            renderizarTabla();
-        }
-
-        function borrarItem(id) {
-            if(confirm('¿Eliminar este ítem?')) {
-                inventario = inventario.filter(i => i.id !== id);
-                localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-                renderizarTabla();
-            }
-        }
-
-        // 4. GENERAR ORDEN DE COMPRA (PDF)
-        function generarOrden() {
-            const faltantes = inventario.filter(item => parseInt(item.cantidad) <= parseInt(item.minimo));
-            
+        function generarOrdenCompra() {
+            const faltantes = datos.filter(d => d.cantidad <= d.minimo);
             if(faltantes.length === 0) {
-                alert('✅ Todo está bien. No hay stock crítico.');
+                alert('✅ Todo el stock está correcto. No hace falta comprar nada.');
                 return;
             }
-
-            const fecha = new Date().toLocaleDateString();
-            let html = `
-                <div style="font-family: Arial; padding: 40px; max-width: 800px; margin: auto;">
-                    <div style="border-bottom: 3px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px;">
-                        <h1 style="color: #1e3a8a; margin: 0;">ORDEN DE REPOSICIÓN</h1>
-                        <p style="color: #666; margin: 5px 0;">LABSE - Gestión de Procesos Industriales</p>
-                    </div>
-                    <p><strong>Fecha:</strong> ${fecha} &nbsp;|&nbsp; <strong>Solicita:</strong> Ing. Camila Paniz</p>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                        <tr style="background: #f1f5f9; text-align: left;">
-                            <th style="padding: 10px; border-bottom: 2px solid #ccc;">Ítem</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #ccc;">Stock Actual</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #ccc;">Mínimo</th>
-                            <th style="padding: 10px; border-bottom: 2px solid #ccc;">Prioridad</th>
-                        </tr>
-            `;
-
-            faltantes.forEach(item => {
-                html += `
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.nombre}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; color: red; font-weight: bold;">${item.cantidad} ${item.unidad}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.minimo} ${item.unidad}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; color: #1e3a8a; font-weight: bold;">ALTA</td>
-                    </tr>
-                `;
-            });
-
-            html += `</table><br><button onclick="window.print()" style="padding: 10px 20px; background: #1e3a8a; color: white; border: none; cursor: pointer;">🖨️ IMPRIMIR / PDF</button></div>`;
             
-            const win = window.open('', '_blank');
-            win.document.write(html);
-        }
-
-        // 5. BACKUP
-        function descargarBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventario));
-            const a = document.createElement('a');
-            a.href = dataStr;
-            a.download = "labse_stock_" + new Date().toISOString().slice(0,10) + ".json";
-            a.click();
-        }
-
-        function restaurarBackup(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    inventario = JSON.parse(e.target.result);
-                    localStorage.setItem(DB_NAME, JSON.stringify(inventario));
-                    alert('Base de datos restaurada.');
-                    location.reload();
-                } catch(err) { alert('Error en el archivo.'); }
-            };
-            reader.readAsText(file);
+            let html = `<h1 style="font-family:sans-serif; color:#1e3a8a;">Orden de Compra LABSE</h1><hr>`;
+            html += `<table style="width:100%; text-align:left; border-collapse:collapse; font-family:sans-serif;">
+                     <tr style="background:#eee;">
+                        <th style="padding:10px;">Producto</th>
+                        <th style="padding:10px;">Stock Actual</th>
+                        <th style="padding:10px;">Mínimo Requerido</th>
+                     </tr>`;
+            
+            faltantes.forEach(f => {
+                html += `<tr>
+                            <td style="padding:10px; border-bottom:1px solid #ddd;">${f.nombre}</td>
+                            <td style="padding:10px; border-bottom:1px solid #ddd; color:red; font-weight:bold;">${f.cantidad} ${f.unidad}</td>
+                            <td style="padding:10px; border-bottom:1px solid #ddd;">${f.minimo} ${f.unidad}</td>
+                         </tr>`;
+            });
+            html += `</table><br><button onclick="window.print()">IMPRIMIR</button>`;
+            
+            const ventana = window.open('', '_blank');
+            ventana.document.write(html);
         }
     </script>
 </body>
