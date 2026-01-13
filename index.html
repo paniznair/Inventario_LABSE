@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V10</title>
+    <title>LABSE SYSTEM V10.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -21,7 +21,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Gestión V10 (Perfiles)</p>
+            <p class="text-slate-400 text-sm mb-8">Gestión V10.1 (Accesos)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none uppercase text-center font-bold tracking-wider">
                 <input type="password" id="pass" placeholder="••••••" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none text-center">
@@ -163,9 +163,8 @@
         let catActual = '';
         let proveedoresTemporales = [];
         let currentUser = '';
-        let esAdmin = false; // Variable clave para controlar permisos
+        let esAdmin = false;
 
-        // --- NAVEGACION ---
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
                 const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
@@ -173,7 +172,6 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // --- LOGIN CON ROLES ---
         function login() {
             const input = document.getElementById('user').value.trim().toLowerCase();
             
@@ -195,17 +193,17 @@
         function aplicarPermisos() {
             document.getElementById('user-display').innerText = currentUser;
 
-            // 1. Botón Reset Database (Dashboard)
+            // 1. Reset Database (Solo Admin)
             const btnReset = document.getElementById('btn-reset-db');
             if (esAdmin) btnReset.classList.remove('hidden');
             else btnReset.classList.add('hidden');
 
-            // 2. Botón Nuevo Item (Tabla)
+            // 2. Nuevo Item (Solo Admin)
             const btnNuevo = document.getElementById('btn-nuevo-item');
             if (esAdmin) btnNuevo.classList.remove('hidden');
             else btnNuevo.classList.add('hidden');
 
-            // 3. Columna Acción (Tabla)
+            // 3. Columna Acción (Borrar) - Solo Admin
             const colAccion = document.getElementById('col-accion');
             if (esAdmin) colAccion.classList.remove('hidden');
             else colAccion.classList.add('hidden');
@@ -246,7 +244,7 @@
                 if (esAdmin) {
                     botonBorrar = `<td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button></td>`;
                 } else {
-                    botonBorrar = `<td class="p-4 text-right hidden"></td>`; // Columna oculta
+                    botonBorrar = `<td class="p-4 text-right hidden"></td>`;
                 }
 
                 const tr = document.createElement('tr');
@@ -265,7 +263,7 @@
 
         // GESTION
         function mostrarModal() {
-            if(!esAdmin) return; // Seguridad extra
+            if(!esAdmin) return;
             document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
             document.getElementById('m-cod').value = ''; document.getElementById('m-nombre').value = ''; 
             document.getElementById('m-cant').value = ''; document.getElementById('m-min').value = ''; 
@@ -332,14 +330,12 @@
             const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
 
-            // EMAIL
             let cuerpoEmail = `ORDEN DE COMPRA - LABSE\nFecha: ${fecha}\nResponsable: ${currentUser}\n\n`;
             if(insumos.length > 0) { cuerpoEmail += `--- INSUMOS ---\n`; insumos.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); cuerpoEmail += `\n`; }
             if(herramientas.length > 0) { cuerpoEmail += `--- HERRAMIENTAS ---\n`; herramientas.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); }
             const mailtoLink = `mailto:?subject=${encodeURIComponent("Orden LABSE - " + fecha)}&body=${encodeURIComponent(cuerpoEmail)}`;
             const textoScript = JSON.stringify(cuerpoEmail);
 
-            // HTML
             let html = `<!DOCTYPE html><html><head><title>Orden LABSE</title><style>
                 body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
                 .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
