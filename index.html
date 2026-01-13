@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V7 - REPORTE FINAL</title>
+    <title>LABSE V7.1 - REPORTE FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -20,7 +20,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-6">Gestión V7 (Reporte Separado)</p>
+            <p class="text-slate-400 text-sm mb-6">Gestión V7.1 (Reporte Tabla)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
@@ -43,7 +43,7 @@
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-8">Panel de Control</h2>
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl border border-blue-400/30 mb-10 flex items-center justify-center gap-3 transition transform hover:scale-105">
-                📄 GENERAR ORDEN DE COMPRA (Separada)
+                📄 GENERAR ORDEN DE COMPRA (Formato Tabla)
             </button>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
@@ -137,244 +137,5 @@
                     </div>
                     
                     <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-700 hover:bg-slate-600 text-emerald-400 border border-emerald-900/50 font-bold py-2 rounded text-sm mb-4 transition">
-                        ▼ AGREGAR A LA LISTA (Click aquí para sumar)
-                    </button>
-
-                    <div class="bg-slate-950 p-3 rounded border border-slate-800 min-h-[60px]">
-                        <ul id="lista-proveedores-temp" class="space-y-2 text-sm text-slate-300 max-h-32 overflow-y-auto scroll-fino"></ul>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-2 border-t border-slate-700">
-                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-4 py-2 transition">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded font-bold transition shadow-lg">
-                        GUARDAR TODO
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const DB_KEY = 'labse_db_v6';
-        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        let catActual = '';
-        let proveedoresTemporales = [];
-        let currentUser = 'Admin'; // Variable global para guardar el usuario
-
-        function irA(id) {
-            ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
-                const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
-            });
-            const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
-        }
-
-        function login() {
-            const userInput = document.getElementById('user').value.trim();
-            if(userInput !== '') {
-                // Capitalizar primera letra
-                currentUser = userInput.charAt(0).toUpperCase() + userInput.slice(1);
-            }
-            document.getElementById('user-display').innerText = 'Usuario: ' + currentUser;
-            irA('vista-dashboard');
-        }
-
-        function logout() { location.reload(); }
-        function volver() { irA('vista-dashboard'); }
-
-        function abrirInventario(cat) {
-            catActual = cat;
-            document.getElementById('titulo-cat').innerText = (cat === 'Insumos' ? '📦 ' : '🔧 ') + cat;
-            renderTabla(); irA('vista-tabla');
-        }
-
-        function renderTabla() {
-            const tbody = document.getElementById('tabla-body');
-            tbody.innerHTML = '';
-            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => a.cod > b.cod ? 1 : -1);
-            
-            if(filtrados.length === 0) document.getElementById('vacio-msg').classList.remove('hidden');
-            else document.getElementById('vacio-msg').classList.add('hidden');
-
-            filtrados.forEach(item => {
-                const critico = parseInt(item.cant) <= parseInt(item.min);
-                const provStr = (item.proveedores && item.proveedores.length > 0) 
-                    ? item.proveedores.map(p => p.nombre).join(', ') 
-                    : '<span class="text-slate-600 italic">Sin asignar</span>';
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800 transition border-b border-slate-800 group";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod}</td>
-                    <td class="p-4 font-medium text-slate-200">${item.nom}</td>
-                    <td class="p-4 text-slate-400 text-xs">${provStr}</td>
-                    <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs text-slate-500">${item.uni}</span></td>
-                    <td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">${critico ? 'REPONER' : 'OK'}</span></td>
-                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition font-bold px-2">×</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function mostrarModal() {
-            document.getElementById('modal').classList.remove('oculto');
-            document.getElementById('modal').classList.add('visible');
-            document.getElementById('m-cod').value = '';
-            document.getElementById('m-nombre').value = '';
-            document.getElementById('m-cant').value = '';
-            document.getElementById('m-min').value = '';
-            document.getElementById('m-uni').value = '';
-            proveedoresTemporales = [];
-            limpiarInputsProveedor();
-            renderProveedoresTemp();
-        }
-
-        function cerrarModal() {
-            document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto');
-        }
-
-        function limpiarInputsProveedor() {
-            ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = '');
-        }
-
-        function agregarProveedorTemporal() {
-            const nombre = document.getElementById('p-nombre').value.trim();
-            if(!nombre) return;
-            proveedoresTemporales.push({
-                id: Date.now(),
-                nombre: nombre,
-                tel: document.getElementById('p-tel').value.trim(),
-                mail: document.getElementById('p-mail').value.trim(),
-                web: document.getElementById('p-web').value.trim(),
-                loc: document.getElementById('p-loc').value.trim()
-            });
-            limpiarInputsProveedor();
-            renderProveedoresTemp();
-        }
-
-        function eliminarProveedorTemp(id) {
-            proveedoresTemporales = proveedoresTemporales.filter(p => p.id !== id);
-            renderProveedoresTemp();
-        }
-
-        function renderProveedoresTemp() {
-            const ul = document.getElementById('lista-proveedores-temp');
-            ul.innerHTML = '';
-            if(proveedoresTemporales.length === 0) {
-                ul.innerHTML = '<li class="text-slate-600 italic pl-2">- Ninguno en lista -</li>'; return;
-            }
-            proveedoresTemporales.forEach(p => {
-                const li = document.createElement('li');
-                li.className = "flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700";
-                li.innerHTML = `<div><span class="font-bold text-emerald-300 block">${p.nombre}</span><span class="text-xs text-slate-400">${p.tel}</span></div><button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-red-300 text-xs font-bold px-2">Quitar</button>`;
-                ul.appendChild(li);
-            });
-        }
-
-        function guardarProducto(e) {
-            e.preventDefault();
-            const cod = document.getElementById('m-cod').value.trim();
-            if(datos.some(d => d.cod === cod)) return alert('⛔ El código ya existe.');
-
-            const nombrePendiente = document.getElementById('p-nombre').value.trim();
-            if(nombrePendiente !== "") agregarProveedorTemporal();
-
-            datos.push({
-                id: Date.now(),
-                cod: cod,
-                nom: document.getElementById('m-nombre').value.trim(),
-                cant: parseInt(document.getElementById('m-cant').value),
-                min: parseInt(document.getElementById('m-min').value),
-                uni: document.getElementById('m-uni').value.trim() || 'u.',
-                proveedores: [...proveedoresTemporales],
-                cat: catActual
-            });
-            localStorage.setItem(DB_KEY, JSON.stringify(datos));
-            cerrarModal(); renderTabla();
-        }
-
-        function borrar(id) {
-            if(confirm('¿Eliminar?')) {
-                datos = datos.filter(d => d.id !== id);
-                localStorage.setItem(DB_KEY, JSON.stringify(datos));
-                renderTabla();
-            }
-        }
-        function borrarBaseDatos() { if(confirm('⚠️ ¿Borrar TODOS?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
-
-        // --- REPORTE PDF SEPARADO Y DETALLADO ---
-        function generarOrden() {
-            // Filtrar todos los faltantes
-            const todosFaltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
-            
-            if(todosFaltantes.length === 0) return alert('✅ No hay faltantes en ninguna categoría.');
-            
-            // Separar por categoría
-            const insumos = todosFaltantes.filter(d => d.cat === 'Insumos');
-            const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
-
-            let html = `
-            <body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
-                <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
-                    <div>
-                        <h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1>
-                        <p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p>
-                    </div>
-                    <div style="text-align:right;">
-                        <strong>Fecha:</strong> ${new Date().toLocaleDateString()}<br>
-                        <strong>Generado por:</strong> ${currentUser}
-                    </div>
-                </div>`;
-
-            // Función auxiliar para generar tabla de items
-            function generarSeccion(titulo, lista, colorHeader) {
-                if(lista.length === 0) return '';
-                
-                let sectionHtml = `<h2 style="background:${colorHeader}; color:white; padding:10px; border-radius:5px; margin-top:30px; font-size:16px;">${titulo}</h2>`;
-                
-                lista.forEach(f => {
-                    let htmlProv = '<em style="color:#999">Sin proveedor asignado</em>';
-                    if(f.proveedores && f.proveedores.length > 0) {
-                        htmlProv = `<table style="width:100%; font-size:12px; margin-top:5px; border:1px solid #ddd; background:#f9fafb;">`;
-                        f.proveedores.forEach(p => {
-                            htmlProv += `<tr><td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td><td style="padding:4px;">📞 ${p.tel || '-'}</td><td style="padding:4px;">📧 ${p.mail || '-'}</td><td style="padding:4px;">📍 ${p.loc || '-'}</td></tr>`;
-                        });
-                        htmlProv += `</table>`;
-                    }
-
-                    sectionHtml += `
-                    <div style="margin-bottom:15px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
-                        <div style="background:#f8fafc; padding:10px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <span style="background:#475569; color:white; padding:3px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-right:10px;">${f.cod}</span>
-                                <strong style="font-size:15px;">${f.nom}</strong>
-                            </div>
-                            <div style="color:#dc2626; font-weight:bold; font-size:13px;">
-                                REQUERIDO: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} <span style="color:#666; font-weight:normal;">(Stock Actual: ${f.cant})</span>
-                            </div>
-                        </div>
-                        <div style="padding:10px;">
-                            <strong style="font-size:11px; text-transform:uppercase; color:#666;">Proveedores:</strong>
-                            ${htmlProv}
-                        </div>
-                    </div>`;
-                });
-                return sectionHtml;
-            }
-
-            // Agregar Insumos
-            html += generarSeccion('📦 INSUMOS', insumos, '#2563eb'); // Azul
-            
-            // Agregar Herramientas
-            html += generarSeccion('🔧 HERRAMIENTAS', herramientas, '#4f46e5'); // Indigo
-
-            html += `<div style="text-align:center; margin-top:40px; border-top:1px solid #eee; padding-top:20px;">
-                <p style="color:#999; font-size:12px;">Documento interno de uso exclusivo.</p>
-                <button onclick="window.print()" style="padding:12px 24px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">🖨️ IMPRIMIR ORDEN COMPLETA</button>
-            </div></body>`;
-
-            const w = window.open('', '_blank'); w.document.write(html); w.document.close();
-        }
-    </script>
-</body>
-</html>
+                        ▼ AGREGAR A LA LISTA
+                    </
