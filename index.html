@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V6.1 - FINAL</title>
+    <title>LABSE V7 - REPORTE FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -20,7 +20,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-6">Gestión V6.1 (Auto-Guardado)</p>
+            <p class="text-slate-400 text-sm mb-6">Gestión V7 (Reporte Separado)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
@@ -28,18 +28,22 @@
                     INICIAR SISTEMA
                 </button>
             </div>
+            <p class="mt-4 text-xs text-slate-500">Usuarios: admin, camila</p>
         </div>
     </div>
 
     <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-900 fade-in">
         <div class="w-full p-4 flex justify-between items-center bg-slate-800 border-b border-slate-700">
             <div class="font-bold text-blue-400 tracking-wider">LABSE SYSTEM</div>
-            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">✕ Salir</button>
+            <div class="flex items-center gap-4">
+                <span id="user-display" class="text-slate-400 text-sm font-bold border-r border-slate-600 pr-4">Usuario: Admin</span>
+                <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">✕ Salir</button>
+            </div>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-8">Panel de Control</h2>
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl border border-blue-400/30 mb-10 flex items-center justify-center gap-3 transition transform hover:scale-105">
-                📄 GENERAR ORDEN DE COMPRA CON DETALLES
+                📄 GENERAR ORDEN DE COMPRA (Separada)
             </button>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
@@ -133,7 +137,7 @@
                     </div>
                     
                     <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-700 hover:bg-slate-600 text-emerald-400 border border-emerald-900/50 font-bold py-2 rounded text-sm mb-4 transition">
-                        ▼ AGREGAR A LA LISTA (Click aquí si cargas varios)
+                        ▼ AGREGAR A LA LISTA (Click aquí para sumar)
                     </button>
 
                     <div class="bg-slate-950 p-3 rounded border border-slate-800 min-h-[60px]">
@@ -156,6 +160,7 @@
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
+        let currentUser = 'Admin'; // Variable global para guardar el usuario
 
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
@@ -164,7 +169,16 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        function login() { irA('vista-dashboard'); }
+        function login() {
+            const userInput = document.getElementById('user').value.trim();
+            if(userInput !== '') {
+                // Capitalizar primera letra
+                currentUser = userInput.charAt(0).toUpperCase() + userInput.slice(1);
+            }
+            document.getElementById('user-display').innerText = 'Usuario: ' + currentUser;
+            irA('vista-dashboard');
+        }
+
         function logout() { location.reload(); }
         function volver() { irA('vista-dashboard'); }
 
@@ -225,7 +239,7 @@
 
         function agregarProveedorTemporal() {
             const nombre = document.getElementById('p-nombre').value.trim();
-            if(!nombre) return; // No agrega vacíos
+            if(!nombre) return;
             proveedoresTemporales.push({
                 id: Date.now(),
                 nombre: nombre,
@@ -262,12 +276,8 @@
             const cod = document.getElementById('m-cod').value.trim();
             if(datos.some(d => d.cod === cod)) return alert('⛔ El código ya existe.');
 
-            // === MAGIA DE AUTOGUARDADO ===
-            // Si el usuario escribió un proveedor pero no le dio a "Agregar", lo agregamos ahora.
             const nombrePendiente = document.getElementById('p-nombre').value.trim();
-            if(nombrePendiente !== "") {
-                agregarProveedorTemporal();
-            }
+            if(nombrePendiente !== "") agregarProveedorTemporal();
 
             datos.push({
                 id: Date.now(),
@@ -292,34 +302,77 @@
         }
         function borrarBaseDatos() { if(confirm('⚠️ ¿Borrar TODOS?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
+        // --- REPORTE PDF SEPARADO Y DETALLADO ---
         function generarOrden() {
-            const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
-            if(faltantes.length === 0) return alert('✅ Todo OK.');
+            // Filtrar todos los faltantes
+            const todosFaltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
             
-            let html = `<body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
+            if(todosFaltantes.length === 0) return alert('✅ No hay faltantes en ninguna categoría.');
+            
+            // Separar por categoría
+            const insumos = todosFaltantes.filter(d => d.cat === 'Insumos');
+            const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
+
+            let html = `
+            <body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
                 <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
-                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p></div>
-                    <div style="text-align:right;"><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
+                    <div>
+                        <h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1>
+                        <p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>Fecha:</strong> ${new Date().toLocaleDateString()}<br>
+                        <strong>Generado por:</strong> ${currentUser}
+                    </div>
                 </div>`;
 
-            faltantes.forEach(f => {
-                let htmlProv = '<em style="color:#999">Sin proveedor asignado</em>';
-                if(f.proveedores && f.proveedores.length > 0) {
-                    htmlProv = `<table style="width:100%; font-size:12px; margin-top:5px; border:1px solid #ddd; background:#f9fafb;">`;
-                    f.proveedores.forEach(p => {
-                        htmlProv += `<tr><td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td><td style="padding:4px;">📞 ${p.tel || '-'}</td><td style="padding:4px;">📧 ${p.mail || '-'}</td><td style="padding:4px;">📍 ${p.loc || '-'}</td></tr>`;
-                    });
-                    htmlProv += `</table>`;
-                }
-                html += `<div style="margin-bottom:20px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
-                    <div style="background:#eef2ff; padding:10px; border-bottom:1px solid #ccc; display:flex; justify-content:space-between; align-items:center;">
-                        <div><span style="background:#2563eb; color:white; padding:3px 6px; border-radius:4px; font-size:12px; font-weight:bold; margin-right:10px;">${f.cod}</span><strong style="font-size:16px;">${f.nom}</strong></div>
-                        <div style="color:#dc2626; font-weight:bold;">FALTAN: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} (Stock: ${f.cant})</div>
-                    </div>
-                    <div style="padding:10px;"><strong style="font-size:12px; text-transform:uppercase; color:#666;">Contactar a:</strong>${htmlProv}</div>
-                </div>`;
-            });
-            html += `<div style="text-align:center; margin-top:30px;"><button onclick="window.print()" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">🖨️ IMPRIMIR</button></div></body>`;
+            // Función auxiliar para generar tabla de items
+            function generarSeccion(titulo, lista, colorHeader) {
+                if(lista.length === 0) return '';
+                
+                let sectionHtml = `<h2 style="background:${colorHeader}; color:white; padding:10px; border-radius:5px; margin-top:30px; font-size:16px;">${titulo}</h2>`;
+                
+                lista.forEach(f => {
+                    let htmlProv = '<em style="color:#999">Sin proveedor asignado</em>';
+                    if(f.proveedores && f.proveedores.length > 0) {
+                        htmlProv = `<table style="width:100%; font-size:12px; margin-top:5px; border:1px solid #ddd; background:#f9fafb;">`;
+                        f.proveedores.forEach(p => {
+                            htmlProv += `<tr><td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td><td style="padding:4px;">📞 ${p.tel || '-'}</td><td style="padding:4px;">📧 ${p.mail || '-'}</td><td style="padding:4px;">📍 ${p.loc || '-'}</td></tr>`;
+                        });
+                        htmlProv += `</table>`;
+                    }
+
+                    sectionHtml += `
+                    <div style="margin-bottom:15px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
+                        <div style="background:#f8fafc; padding:10px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="background:#475569; color:white; padding:3px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-right:10px;">${f.cod}</span>
+                                <strong style="font-size:15px;">${f.nom}</strong>
+                            </div>
+                            <div style="color:#dc2626; font-weight:bold; font-size:13px;">
+                                REQUERIDO: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} <span style="color:#666; font-weight:normal;">(Stock Actual: ${f.cant})</span>
+                            </div>
+                        </div>
+                        <div style="padding:10px;">
+                            <strong style="font-size:11px; text-transform:uppercase; color:#666;">Proveedores:</strong>
+                            ${htmlProv}
+                        </div>
+                    </div>`;
+                });
+                return sectionHtml;
+            }
+
+            // Agregar Insumos
+            html += generarSeccion('📦 INSUMOS', insumos, '#2563eb'); // Azul
+            
+            // Agregar Herramientas
+            html += generarSeccion('🔧 HERRAMIENTAS', herramientas, '#4f46e5'); // Indigo
+
+            html += `<div style="text-align:center; margin-top:40px; border-top:1px solid #eee; padding-top:20px;">
+                <p style="color:#999; font-size:12px;">Documento interno de uso exclusivo.</p>
+                <button onclick="window.print()" style="padding:12px 24px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;">🖨️ IMPRIMIR ORDEN COMPLETA</button>
+            </div></body>`;
+
             const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
