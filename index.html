@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V4 - FINAL</title>
+    <title>LABSE V5 - PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        /* Clases para manejar la visibilidad */
         .oculto { display: none !important; }
         .visible { display: flex !important; }
+        /* Animación suave para el modal */
+        .modal-enter { animation: slideIn 0.2s ease-out; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
@@ -17,16 +19,16 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-6">Acceso Restringido</p>
+            <p class="text-slate-400 text-sm mb-6">Gestión de Inventario V5</p>
             
-            <form onsubmit="event.preventDefault(); login();">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 mb-3 rounded border border-slate-600 focus:outline-none focus:border-blue-500">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 mb-6 rounded border border-slate-600 focus:outline-none focus:border-blue-500">
+            <div class="space-y-4">
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded transition shadow-lg shadow-blue-900/50">
+                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-lg transition">
                     INICIAR SISTEMA
                 </button>
-            </form>
+            </div>
             <p class="mt-4 text-xs text-slate-500">Usuarios: admin, camila</p>
         </div>
     </div>
@@ -55,6 +57,8 @@
                     <p class="text-slate-400 text-sm mt-1">Activos y maquinaria</p>
                 </div>
             </div>
+            
+            <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline">Resetear Base de Datos</button>
         </div>
     </div>
 
@@ -69,13 +73,15 @@
 
         <div class="flex-1 overflow-auto p-4">
             <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
-                <thead class="bg-slate-800 text-slate-400 uppercase text-xs">
+                <thead class="bg-slate-800 text-slate-400 uppercase text-xs sticky top-0">
                     <tr>
-                        <th class="p-4">Nombre</th>
-                        <th class="p-4 text-center">Stock</th>
-                        <th class="p-4 text-center">Mínimo</th>
-                        <th class="p-4 text-center">Estado</th>
-                        <th class="p-4 text-right">Acción</th>
+                        <th class="p-4 bg-slate-800">Cód.</th>
+                        <th class="p-4 bg-slate-800">Nombre</th>
+                        <th class="p-4 bg-slate-800">Proveedor</th>
+                        <th class="p-4 bg-slate-800 text-center">Stock</th>
+                        <th class="p-4 bg-slate-800 text-center">Min</th>
+                        <th class="p-4 bg-slate-800 text-center">Estado</th>
+                        <th class="p-4 bg-slate-800 text-right">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-body" class="bg-slate-800/50 divide-y divide-slate-700 text-sm">
@@ -85,65 +91,82 @@
         </div>
     </div>
 
-    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/70 items-center justify-center backdrop-blur-sm">
-        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-sm shadow-2xl">
-            <h3 class="text-lg font-bold mb-4 text-white">Nuevo Ítem</h3>
+    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-md shadow-2xl modal-enter">
+            <h3 class="text-lg font-bold mb-4 text-white border-b border-slate-700 pb-2">Datos del Producto</h3>
             <form onsubmit="guardar(event)">
-                <input type="text" id="m-nombre" placeholder="Nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-3 focus:border-blue-500 outline-none">
-                <div class="flex gap-2 mb-3">
-                    <input type="number" id="m-cant" placeholder="Cantidad" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
-                    <input type="number" id="m-min" placeholder="Mínimo" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                
+                <div class="flex gap-3 mb-3">
+                    <div class="w-1/3">
+                        <label class="text-xs text-slate-400 uppercase font-bold">Código *</label>
+                        <input type="text" id="m-cod" placeholder="Ej: 001" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="w-2/3">
+                        <label class="text-xs text-slate-400 uppercase font-bold">Proveedor</label>
+                        <input type="text" id="m-prov" placeholder="Ej: Ferretería Industrial" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    </div>
                 </div>
-                <input type="text" id="m-uni" placeholder="Unidad (u, kg)" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-6 focus:border-blue-500 outline-none">
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 transition">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold transition">Guardar</button>
+
+                <div class="mb-3">
+                    <label class="text-xs text-slate-400 uppercase font-bold">Nombre del Producto *</label>
+                    <input type="text" id="m-nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                </div>
+
+                <div class="flex gap-3 mb-6">
+                    <div class="w-1/3">
+                        <label class="text-xs text-slate-400 uppercase font-bold">Cant. *</label>
+                        <input type="number" id="m-cant" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="w-1/3">
+                        <label class="text-xs text-slate-400 uppercase font-bold">Mínimo *</label>
+                        <input type="number" id="m-min" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="w-1/3">
+                        <label class="text-xs text-slate-400 uppercase font-bold">Unidad</label>
+                        <input type="text" id="m-uni" placeholder="Unid." class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
+                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 py-2 text-sm">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold transition shadow-lg">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v4';
+        const DB_KEY = 'labse_db_v5';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
 
         // --- SISTEMA DE PANTALLAS ---
-        function irA(idPantalla) {
-            ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(id => {
-                const el = document.getElementById(id);
-                el.classList.remove('visible');
-                el.classList.add('oculto');
+        function irA(id) {
+            ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
+                document.getElementById(v).classList.remove('visible');
+                document.getElementById(v).classList.add('oculto');
             });
-            const destino = document.getElementById(idPantalla);
-            destino.classList.remove('oculto');
-            destino.classList.add('visible');
+            document.getElementById(id).classList.remove('oculto');
+            document.getElementById(id).classList.add('visible');
         }
 
         // --- LOGIN ---
         function login() {
             const u = document.getElementById('user').value.toLowerCase().trim();
-            const p = document.getElementById('pass').value;
-            
-            if(u === 'admin' || u === 'camila') {
+            // Acepta admin, camila, o cualquier cosa si estás probando
+            if(u === 'admin' || u === 'camila' || u === '') {
                 irA('vista-dashboard');
             } else {
-                alert('⚠️ Usuario no autorizado. Prueba con: admin');
+                alert('Usuario incorrecto. Intenta con: admin');
             }
         }
+        function logout() { location.reload(); }
+        function volver() { irA('vista-dashboard'); }
 
-        function logout() {
-            if(confirm('¿Cerrar sesión?')) location.reload();
-        }
-
-        function volver() {
-            irA('vista-dashboard');
-        }
-
-        // --- INVENTARIO ---
+        // --- GESTIÓN DE INVENTARIO ---
         function abrirInventario(categoria) {
             catActual = categoria;
-            document.getElementById('titulo-cat').innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + 'Inventario: ' + categoria;
+            document.getElementById('titulo-cat').innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + categoria;
             renderTabla();
             irA('vista-tabla');
         }
@@ -152,7 +175,10 @@
             const tbody = document.getElementById('tabla-body');
             tbody.innerHTML = '';
             
-            const filtrados = datos.filter(d => d.cat === catActual);
+            // Ordenamos por código para que se vea prolijo
+            const filtrados = datos
+                .filter(d => d.cat === catActual)
+                .sort((a, b) => (a.cod > b.cod) ? 1 : -1);
             
             if(filtrados.length === 0) {
                 document.getElementById('vacio-msg').classList.remove('hidden');
@@ -161,108 +187,98 @@
             }
 
             filtrados.forEach(item => {
-                const esCritico = item.cant <= item.min;
+                const critico = item.cant <= item.min;
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800 transition border-b border-slate-800";
+                
                 tr.innerHTML = `
+                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod || '-'}</td>
                     <td class="p-4 font-medium text-slate-200">${item.nom}</td>
-                    <td class="p-4 text-center font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} ${item.uni}</td>
+                    <td class="p-4 text-slate-400 text-xs uppercase">${item.prov || '-'}</td>
+                    <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs font-normal text-slate-500">${item.uni}</span></td>
                     <td class="p-4 text-center text-slate-500">${item.min}</td>
                     <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded text-xs font-bold border ${esCritico ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-emerald-900/30 text-emerald-400 border-emerald-800'}">
-                            ${esCritico ? 'REPONER' : 'OK'}
+                        <span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-emerald-900/30 text-emerald-400 border-emerald-800'}">
+                            ${critico ? 'REPONER' : 'OK'}
                         </span>
                     </td>
                     <td class="p-4 text-right">
-                        <button onclick="borrar(${item.id})" class="text-red-500 hover:text-red-300 text-xs font-bold transition">ELIMINAR</button>
+                        <button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-400 transition text-lg" title="Borrar">×</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- MODAL ---
+        // --- MODALES Y GUARDADO ---
         function mostrarModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('oculto');
-            modal.classList.add('visible');
-            // Limpiar inputs
+            document.getElementById('modal').classList.remove('oculto');
+            document.getElementById('modal').classList.add('visible');
+            // Reset inputs
+            document.getElementById('m-cod').value = '';
+            document.getElementById('m-prov').value = '';
             document.getElementById('m-nombre').value = '';
             document.getElementById('m-cant').value = '';
             document.getElementById('m-min').value = '';
             document.getElementById('m-uni').value = '';
+            document.getElementById('m-cod').focus();
         }
 
         function cerrarModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('visible');
-            modal.classList.add('oculto');
+            document.getElementById('modal').classList.remove('visible');
+            document.getElementById('modal').classList.add('oculto');
         }
 
         function guardar(e) {
             e.preventDefault();
-            const nuevoItem = {
+            
+            const codigo = document.getElementById('m-cod').value.trim();
+            
+            // 1. VALIDACIÓN: ¿Existe el código?
+            // Buscamos si ya hay un ítem con ese código en CUALQUIER categoría (para evitar líos)
+            const existe = datos.some(d => d.cod === codigo);
+            
+            if (existe) {
+                alert('⛔ ERROR: El código "' + codigo + '" ya está en uso. Por favor usa uno único.');
+                return; // Detiene la función, no guarda nada
+            }
+
+            // 2. Si no existe, creamos el objeto
+            const nuevo = {
                 id: Date.now(),
-                nom: document.getElementById('m-nombre').value,
+                cod: codigo,
+                prov: document.getElementById('m-prov').value.trim(),
+                nom: document.getElementById('m-nombre').value.trim(),
                 cant: parseInt(document.getElementById('m-cant').value),
                 min: parseInt(document.getElementById('m-min').value),
-                uni: document.getElementById('m-uni').value || 'u',
+                uni: document.getElementById('m-uni').value.trim() || 'u.',
                 cat: catActual
             };
 
-            datos.push(nuevoItem);
+            datos.push(nuevo);
             localStorage.setItem(DB_KEY, JSON.stringify(datos));
             cerrarModal();
             renderTabla();
         }
 
         function borrar(id) {
-            if(confirm('¿Seguro que deseas eliminar este ítem?')) {
+            if(confirm('¿Eliminar este ítem del inventario?')) {
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem(DB_KEY, JSON.stringify(datos));
                 renderTabla();
             }
         }
+        
+        function borrarBaseDatos() {
+            if(confirm('⚠️ ¿ESTÁS SEGURA? Esto borrará TODOS los productos para empezar de cero.')) {
+                localStorage.removeItem(DB_KEY);
+                location.reload();
+            }
+        }
 
-        // --- GENERAR ORDEN (PDF/IMPRIMIR) ---
+        // --- REPORTE PDF ---
         function generarOrden() {
             const faltantes = datos.filter(d => d.cant <= d.min);
-            
-            if(faltantes.length === 0) {
-                alert('✅ Todo el stock está correcto. No hace falta comprar nada.');
-                return;
-            }
+            if(faltantes.length === 0) return alert('✅ Todo OK. No hay faltantes.');
 
-            let html = `
-                <body style="font-family:sans-serif; padding:40px; color:#333;">
-                    <h1 style="color:#1e40af;">Orden de Compra - LABSE</h1>
-                    <p>Fecha: ${new Date().toLocaleDateString()}</p>
-                    <hr>
-                    <table style="width:100%; border-collapse:collapse; margin-top:20px; text-align:left;">
-                        <tr style="background:#f1f5f9;">
-                            <th style="padding:10px; border-bottom:2px solid #ccc;">Producto</th>
-                            <th style="padding:10px; border-bottom:2px solid #ccc;">Categoría</th>
-                            <th style="padding:10px; border-bottom:2px solid #ccc;">Stock Actual</th>
-                            <th style="padding:10px; border-bottom:2px solid #ccc;">Mínimo</th>
-                        </tr>`;
-            
-            faltantes.forEach(f => {
-                html += `
-                    <tr>
-                        <td style="padding:10px; border-bottom:1px solid #eee;">${f.nom}</td>
-                        <td style="padding:10px; border-bottom:1px solid #eee; font-size:0.9em; color:#666;">${f.cat}</td>
-                        <td style="padding:10px; border-bottom:1px solid #eee; color:red; font-weight:bold;">${f.cant} ${f.uni}</td>
-                        <td style="padding:10px; border-bottom:1px solid #eee;">${f.min}</td>
-                    </tr>`;
-            });
-
-            html += `</table>
-                     <br><button onclick="window.print()" style="padding:10px 20px; background:#1e40af; color:white; border:none; border-radius:5px; cursor:pointer;">IMPRIMIR LISTA</button>
-                     </body>`;
-
-            const ventana = window.open('', '_blank');
-            ventana.document.write(html);
-            ventana.document.close();
-        }
-    </script>
-</body>
-</html>
+            const fecha = new Date().toLocaleDate
