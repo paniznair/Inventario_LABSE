@@ -9,7 +9,6 @@
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .oculto { display: none !important; }
         .visible { display: flex !important; }
-        /* Animación suave para ventanas */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -20,11 +19,9 @@
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
             <p class="text-slate-400 text-sm mb-6">Gestión de Inventario V5</p>
-            
             <div class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none placeholder-slate-500">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none placeholder-slate-500">
-                
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-lg transition transform active:scale-95">
                     INICIAR SISTEMA
                 </button>
@@ -36,35 +33,26 @@
     <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-900 fade-in">
         <div class="w-full p-4 flex justify-between items-center bg-slate-800 border-b border-slate-700">
             <div class="font-bold text-blue-400 tracking-wider">LABSE SYSTEM</div>
-            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">
-                <span>✕</span> Cerrar Sesión
-            </button>
+            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">✕ Cerrar Sesión</button>
         </div>
-
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-8">Panel de Control</h2>
-
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl border border-blue-400/30 mb-10 flex items-center justify-center gap-3 transition transform hover:scale-105">
                 📄 GENERAR ORDEN DE COMPRA
             </button>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">📦</div>
                     <h3 class="text-xl font-bold text-blue-200 group-hover:text-blue-400">Insumos</h3>
                     <p class="text-slate-400 text-sm mt-1">Materiales consumibles</p>
                 </div>
-
                 <div onclick="abrirInventario('Herramientas')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">🔧</div>
                     <h3 class="text-xl font-bold text-indigo-200 group-hover:text-indigo-400">Herramientas</h3>
                     <p class="text-slate-400 text-sm mt-1">Activos y maquinaria</p>
                 </div>
             </div>
-            
-            <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline opacity-50 hover:opacity-100 transition">
-                Resetear Base de Datos (Borrar todo)
-            </button>
+            <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline opacity-50 hover:opacity-100 transition">Resetear Base de Datos</button>
         </div>
     </div>
 
@@ -74,11 +62,8 @@
                 <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm text-white border border-slate-600">← Volver</button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-blue-400">Inventario</h2>
             </div>
-            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2">
-                + NUEVO ÍTEM
-            </button>
+            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2">+ NUEVO ÍTEM</button>
         </div>
-
         <div class="flex-1 overflow-auto p-4">
             <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
                 <table class="w-full text-left border-collapse">
@@ -93,8 +78,7 @@
                             <th class="p-4 border-b border-slate-700 text-right font-bold">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm">
-                        </tbody>
+                    <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm"></tbody>
                 </table>
                 <div id="vacio-msg" class="text-center p-12 text-slate-500 hidden">
                     <p class="text-lg mb-2">📭</p>
@@ -110,7 +94,6 @@
                 <h3 class="text-lg font-bold text-white">Datos del Producto</h3>
                 <button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button>
             </div>
-            
             <form onsubmit="guardar(event)">
                 <div class="flex gap-3 mb-3">
                     <div class="w-1/3">
@@ -122,12 +105,10 @@
                         <input type="text" id="m-prov" placeholder="Ej: Ferretería Norte" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Nombre del Producto *</label>
                     <input type="text" id="m-nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                 </div>
-
                 <div class="flex gap-3 mb-6">
                     <div class="w-1/3">
                         <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Stock *</label>
@@ -142,7 +123,6 @@
                         <input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                 </div>
-
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
                     <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 py-2 text-sm transition">Cancelar</button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold transition shadow-lg">Guardar</button>
@@ -152,35 +132,21 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
         const DB_KEY = 'labse_db_v5_final';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
 
-        // --- SISTEMA DE PANTALLAS (NAVEGACIÓN) ---
         function irA(id) {
-            // Ocultar todas
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
                 const el = document.getElementById(v);
-                if(el) {
-                    el.classList.remove('visible');
-                    el.classList.add('oculto');
-                }
+                if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
             });
-            // Mostrar destino
-            const destino = document.getElementById(id);
-            if(destino) {
-                destino.classList.remove('oculto');
-                destino.classList.add('visible');
-            }
+            const dest = document.getElementById(id);
+            if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // --- FUNCIONES DE LOGIN ---
         function login() {
-            const userField = document.getElementById('user');
-            const u = userField ? userField.value.toLowerCase().trim() : '';
-            
-            // Verificación simple
+            const u = document.getElementById('user').value.toLowerCase().trim();
             if(u === 'admin' || u === 'camila' || u === '') {
                 irA('vista-dashboard');
             } else {
@@ -188,19 +154,12 @@
             }
         }
         
-        function logout() { 
-            if(confirm('¿Cerrar sesión?')) location.reload(); 
-        }
-        
-        function volver() { 
-            irA('vista-dashboard'); 
-        }
+        function logout() { if(confirm('¿Cerrar sesión?')) location.reload(); }
+        function volver() { irA('vista-dashboard'); }
 
-        // --- FUNCIONES DE INVENTARIO ---
-        function abrirInventario(categoria) {
-            catActual = categoria;
-            const titulo = document.getElementById('titulo-cat');
-            if(titulo) titulo.innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + categoria;
+        function abrirInventario(cat) {
+            catActual = cat;
+            document.getElementById('titulo-cat').innerText = (cat === 'Insumos' ? '📦 ' : '🔧 ') + cat;
             renderTabla();
             irA('vista-tabla');
         }
@@ -208,58 +167,38 @@
         function renderTabla() {
             const tbody = document.getElementById('tabla-body');
             const vacioMsg = document.getElementById('vacio-msg');
-            if(!tbody) return;
-            
             tbody.innerHTML = '';
             
-            // Filtramos y ordenamos por Código
-            const filtrados = datos
-                .filter(d => d.cat === catActual)
-                .sort((a, b) => {
-                    // Intenta ordenar numéricamente si son números, sino alfabéticamente
-                    const numA = parseInt(a.cod);
-                    const numB = parseInt(b.cod);
-                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                    return a.cod > b.cod ? 1 : -1;
-                });
+            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
+                const numA = parseInt(a.cod);
+                const numB = parseInt(b.cod);
+                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                return a.cod > b.cod ? 1 : -1;
+            });
             
-            if(filtrados.length === 0) {
-                vacioMsg.classList.remove('hidden');
-            } else {
-                vacioMsg.classList.add('hidden');
-            }
+            if(filtrados.length === 0) vacioMsg.classList.remove('hidden');
+            else vacioMsg.classList.add('hidden');
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) <= parseInt(item.min);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800 transition border-b border-slate-800 group";
-                
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-blue-300 font-bold">${item.cod || 'N/A'}</td>
                     <td class="p-4 font-medium text-slate-200">${item.nom}</td>
                     <td class="p-4 text-slate-400 text-xs uppercase tracking-wide">${item.prov || '-'}</td>
                     <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs font-normal text-slate-500">${item.uni}</span></td>
                     <td class="p-4 text-center text-slate-500">${item.min}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">
-                            ${critico ? 'REPONER' : 'OK'}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right">
-                        <button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition text-lg font-bold px-2 py-1 rounded hover:bg-slate-700">×</button>
-                    </td>
+                    <td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">${critico ? 'REPONER' : 'OK'}</span></td>
+                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition text-lg font-bold px-2 py-1 rounded hover:bg-slate-700">×</button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- FUNCIONES DEL MODAL (GUARDAR) ---
         function mostrarModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('oculto');
-            modal.classList.add('visible');
-            
-            // Limpiar campos
+            const m = document.getElementById('modal');
+            m.classList.remove('oculto'); m.classList.add('visible');
             document.getElementById('m-cod').value = '';
             document.getElementById('m-prov').value = '';
             document.getElementById('m-nombre').value = '';
@@ -270,24 +209,16 @@
         }
 
         function cerrarModal() {
-            const modal = document.getElementById('modal');
-            modal.classList.remove('visible');
-            modal.classList.add('oculto');
+            const m = document.getElementById('modal');
+            m.classList.remove('visible'); m.classList.add('oculto');
         }
 
         function guardar(e) {
             e.preventDefault();
-            
             const codigo = document.getElementById('m-cod').value.trim();
-            
-            // VALIDACIÓN: Código único
-            const existe = datos.some(d => d.cod === codigo);
-            if (existe) {
-                alert('⛔ ERROR: El código "' + codigo + '" ya existe en el sistema. Usa otro.');
-                return;
-            }
+            if (datos.some(d => d.cod === codigo)) return alert('⛔ ERROR: El código "' + codigo + '" ya existe.');
 
-            const nuevoItem = {
+            datos.push({
                 id: Date.now(),
                 cod: codigo,
                 prov: document.getElementById('m-prov').value.trim(),
@@ -296,16 +227,13 @@
                 min: parseInt(document.getElementById('m-min').value),
                 uni: document.getElementById('m-uni').value.trim() || 'u.',
                 cat: catActual
-            };
-
-            datos.push(nuevoItem);
+            });
             localStorage.setItem(DB_KEY, JSON.stringify(datos));
-            cerrarModal();
-            renderTabla();
+            cerrarModal(); renderTabla();
         }
 
         function borrar(id) {
-            if(confirm('¿Seguro que deseas eliminar este ítem permanentemente?')) {
+            if(confirm('¿Borrar ítem?')) {
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem(DB_KEY, JSON.stringify(datos));
                 renderTabla();
@@ -313,70 +241,36 @@
         }
         
         function borrarBaseDatos() {
-            if(confirm('⚠️ PELIGRO: Esto borrará TODOS los productos y no se pueden recuperar.\n\n¿Estás segura?')) {
-                localStorage.removeItem(DB_KEY);
-                location.reload();
-            }
+            if(confirm('⚠️ ¿Borrar TODOS los datos?')) { localStorage.removeItem(DB_KEY); location.reload(); }
         }
 
-        // --- FUNCIONES DE REPORTE (PDF) ---
         function generarOrden() {
             const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
-            if(faltantes.length === 0) return alert('✅ Inventario saludable. No hay ítems por debajo del mínimo.');
-
+            if(faltantes.length === 0) return alert('✅ Inventario saludable.');
             const fecha = new Date().toLocaleDateString();
-            let html = `
-                <body style="font-family: Arial, sans-serif; padding: 40px; color: #333;">
-                    <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
-                        <div>
-                            <h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1>
-                            <p style="margin:5px 0 0 0; color:#666;">Sistema de Gestión LABSE</p>
-                        </div>
-                        <div style="text-align:right;">
-                            <strong>Fecha:</strong> ${fecha}<br>
-                            <strong>Solicitante:</strong> Admin
-                        </div>
-                    </div>
-
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                        <thead>
-                            <tr style="background-color: #f1f5f9; text-transform:uppercase; font-size:12px;">
-                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Cód</th>
-                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Producto</th>
-                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Proveedor</th>
-                                <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Stock Actual</th>
-                                <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Mínimo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
+            let html = `<body style="font-family: Arial, sans-serif; padding: 40px; color: #333;">
+                <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
+                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p></div>
+                    <div style="text-align:right;"><strong>Fecha:</strong> ${fecha}</div>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead><tr style="background-color: #f1f5f9; text-transform:uppercase; font-size:12px;">
+                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Cód</th>
+                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Producto</th>
+                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Proveedor</th>
+                        <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Faltante</th>
+                    </tr></thead><tbody>`;
             faltantes.forEach(f => {
-                html += `
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight:bold;">${f.cod}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${f.nom}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; font-size:0.9em; color:#555;">${f.prov || '-'}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: red; font-weight: bold;">${f.cant} ${f.uni}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${f.min}</td>
-                    </tr>
-                `;
+                html += `<tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight:bold;">${f.cod}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${f.nom}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; font-size:0.9em; color:#555;">${f.prov || '-'}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: red; font-weight: bold;">${f.cant} ${f.uni}</td>
+                </tr>`;
             });
-
-            html += `
-                        </tbody>
-                    </table>
-                    <div style="margin-top:30px; text-align:center;">
-                        <button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">🖨️ IMPRIMIR REPORTE</button>
-                    </div>
-                </body>
-            `;
-
-            const w = window.open('', '_blank');
-            w.document.write(html);
-            w.document.close();
+            html += `</tbody></table><br><div style="text-align:center;"><button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer;">🖨️ IMPRIMIR</button></div></body>`;
+            const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
 </body>
 </html>
-
