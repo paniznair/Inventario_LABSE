@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        /* Forzamos ocultar elementos */
+        /* Clases para manejar la visibilidad */
         .oculto { display: none !important; }
         .visible { display: flex !important; }
     </style>
@@ -89,14 +89,180 @@
         <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-sm shadow-2xl">
             <h3 class="text-lg font-bold mb-4 text-white">Nuevo Ítem</h3>
             <form onsubmit="guardar(event)">
-                <input type="text" id="m-nombre" placeholder="Nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-3">
+                <input type="text" id="m-nombre" placeholder="Nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-3 focus:border-blue-500 outline-none">
                 <div class="flex gap-2 mb-3">
-                    <input type="number" id="m-cant" placeholder="Cantidad" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded">
-                    <input type="number" id="m-min" placeholder="Mínimo" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded">
+                    <input type="number" id="m-cant" placeholder="Cantidad" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    <input type="number" id="m-min" placeholder="Mínimo" required class="w-1/2 bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                 </div>
-                <input type="text" id="m-uni" placeholder="Unidad (u, kg)" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-6">
+                <input type="text" id="m-uni" placeholder="Unidad (u, kg)" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded mb-6 focus:border-blue-500 outline-none">
                 <div class="flex justify-end gap-2">
-                    <button type="button" onclick="cerrarModal()" class
+                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 transition">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded font-bold transition">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const DB_KEY = 'labse_db_v4';
+        let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        let catActual = '';
+
+        // --- SISTEMA DE PANTALLAS ---
+        function irA(idPantalla) {
+            ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('visible');
+                el.classList.add('oculto');
+            });
+            const destino = document.getElementById(idPantalla);
+            destino.classList.remove('oculto');
+            destino.classList.add('visible');
+        }
+
+        // --- LOGIN ---
+        function login() {
+            const u = document.getElementById('user').value.toLowerCase().trim();
+            const p = document.getElementById('pass').value;
+            
+            if(u === 'admin' || u === 'camila') {
+                irA('vista-dashboard');
+            } else {
+                alert('⚠️ Usuario no autorizado. Prueba con: admin');
+            }
+        }
+
+        function logout() {
+            if(confirm('¿Cerrar sesión?')) location.reload();
+        }
+
+        function volver() {
+            irA('vista-dashboard');
+        }
+
+        // --- INVENTARIO ---
+        function abrirInventario(categoria) {
+            catActual = categoria;
+            document.getElementById('titulo-cat').innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + 'Inventario: ' + categoria;
+            renderTabla();
+            irA('vista-tabla');
+        }
+
+        function renderTabla() {
+            const tbody = document.getElementById('tabla-body');
+            tbody.innerHTML = '';
+            
+            const filtrados = datos.filter(d => d.cat === catActual);
+            
+            if(filtrados.length === 0) {
+                document.getElementById('vacio-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('vacio-msg').classList.add('hidden');
+            }
+
+            filtrados.forEach(item => {
+                const esCritico = item.cant <= item.min;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-slate-200">${item.nom}</td>
+                    <td class="p-4 text-center font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} ${item.uni}</td>
+                    <td class="p-4 text-center text-slate-500">${item.min}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2 py-1 rounded text-xs font-bold border ${esCritico ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-emerald-900/30 text-emerald-400 border-emerald-800'}">
+                            ${esCritico ? 'REPONER' : 'OK'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="borrar(${item.id})" class="text-red-500 hover:text-red-300 text-xs font-bold transition">ELIMINAR</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- MODAL ---
+        function mostrarModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('oculto');
+            modal.classList.add('visible');
+            // Limpiar inputs
+            document.getElementById('m-nombre').value = '';
+            document.getElementById('m-cant').value = '';
+            document.getElementById('m-min').value = '';
+            document.getElementById('m-uni').value = '';
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('visible');
+            modal.classList.add('oculto');
+        }
+
+        function guardar(e) {
+            e.preventDefault();
+            const nuevoItem = {
+                id: Date.now(),
+                nom: document.getElementById('m-nombre').value,
+                cant: parseInt(document.getElementById('m-cant').value),
+                min: parseInt(document.getElementById('m-min').value),
+                uni: document.getElementById('m-uni').value || 'u',
+                cat: catActual
+            };
+
+            datos.push(nuevoItem);
+            localStorage.setItem(DB_KEY, JSON.stringify(datos));
+            cerrarModal();
+            renderTabla();
+        }
+
+        function borrar(id) {
+            if(confirm('¿Seguro que deseas eliminar este ítem?')) {
+                datos = datos.filter(d => d.id !== id);
+                localStorage.setItem(DB_KEY, JSON.stringify(datos));
+                renderTabla();
+            }
+        }
+
+        // --- GENERAR ORDEN (PDF/IMPRIMIR) ---
+        function generarOrden() {
+            const faltantes = datos.filter(d => d.cant <= d.min);
+            
+            if(faltantes.length === 0) {
+                alert('✅ Todo el stock está correcto. No hace falta comprar nada.');
+                return;
+            }
+
+            let html = `
+                <body style="font-family:sans-serif; padding:40px; color:#333;">
+                    <h1 style="color:#1e40af;">Orden de Compra - LABSE</h1>
+                    <p>Fecha: ${new Date().toLocaleDateString()}</p>
+                    <hr>
+                    <table style="width:100%; border-collapse:collapse; margin-top:20px; text-align:left;">
+                        <tr style="background:#f1f5f9;">
+                            <th style="padding:10px; border-bottom:2px solid #ccc;">Producto</th>
+                            <th style="padding:10px; border-bottom:2px solid #ccc;">Categoría</th>
+                            <th style="padding:10px; border-bottom:2px solid #ccc;">Stock Actual</th>
+                            <th style="padding:10px; border-bottom:2px solid #ccc;">Mínimo</th>
+                        </tr>`;
+            
+            faltantes.forEach(f => {
+                html += `
+                    <tr>
+                        <td style="padding:10px; border-bottom:1px solid #eee;">${f.nom}</td>
+                        <td style="padding:10px; border-bottom:1px solid #eee; font-size:0.9em; color:#666;">${f.cat}</td>
+                        <td style="padding:10px; border-bottom:1px solid #eee; color:red; font-weight:bold;">${f.cant} ${f.uni}</td>
+                        <td style="padding:10px; border-bottom:1px solid #eee;">${f.min}</td>
+                    </tr>`;
+            });
+
+            html += `</table>
+                     <br><button onclick="window.print()" style="padding:10px 20px; background:#1e40af; color:white; border:none; border-radius:5px; cursor:pointer;">IMPRIMIR LISTA</button>
+                     </body>`;
+
+            const ventana = window.open('', '_blank');
+            ventana.document.write(html);
+            ventana.document.close();
+        }
+    </script>
+</body>
 </html>
-
-
