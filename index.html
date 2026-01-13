@@ -3,40 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V5 - PRO</title>
+    <title>LABSE V5 - FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .oculto { display: none !important; }
         .visible { display: flex !important; }
-        /* Animación suave para el modal */
-        .modal-enter { animation: slideIn 0.2s ease-out; }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* Animación suave para ventanas */
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
 
-    <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center">
+    <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
             <p class="text-slate-400 text-sm mb-6">Gestión de Inventario V5</p>
             
             <div class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none placeholder-slate-500">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none placeholder-slate-500">
                 
-                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-lg transition">
+                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded shadow-lg transition transform active:scale-95">
                     INICIAR SISTEMA
                 </button>
             </div>
-            <p class="mt-4 text-xs text-slate-500">Usuarios: admin, camila</p>
+            <p class="mt-4 text-xs text-slate-500">Usuarios habilitados: admin, camila</p>
         </div>
     </div>
 
-    <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-900">
+    <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-900 fade-in">
         <div class="w-full p-4 flex justify-between items-center bg-slate-800 border-b border-slate-700">
             <div class="font-bold text-blue-400 tracking-wider">LABSE SYSTEM</div>
-            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition">Cerrar Sesión</button>
+            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">
+                <span>✕</span> Cerrar Sesión
+            </button>
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center p-6">
@@ -47,88 +49,102 @@
             </button>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-                <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group">
-                    <h3 class="text-xl font-bold text-blue-200 group-hover:text-blue-400">📦 Insumos</h3>
+                <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">📦</div>
+                    <h3 class="text-xl font-bold text-blue-200 group-hover:text-blue-400">Insumos</h3>
                     <p class="text-slate-400 text-sm mt-1">Materiales consumibles</p>
                 </div>
 
-                <div onclick="abrirInventario('Herramientas')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition hover:bg-slate-750 group">
-                    <h3 class="text-xl font-bold text-indigo-200 group-hover:text-indigo-400">🔧 Herramientas</h3>
+                <div onclick="abrirInventario('Herramientas')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">🔧</div>
+                    <h3 class="text-xl font-bold text-indigo-200 group-hover:text-indigo-400">Herramientas</h3>
                     <p class="text-slate-400 text-sm mt-1">Activos y maquinaria</p>
                 </div>
             </div>
             
-            <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline">Resetear Base de Datos</button>
+            <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline opacity-50 hover:opacity-100 transition">
+                Resetear Base de Datos (Borrar todo)
+            </button>
         </div>
     </div>
 
-    <div id="vista-tabla" class="oculto w-full h-full flex-col bg-slate-900">
+    <div id="vista-tabla" class="oculto w-full h-full flex-col bg-slate-900 fade-in">
         <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center shadow-lg z-10">
             <div class="flex items-center gap-4">
-                <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm text-white">← Volver</button>
+                <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm text-white border border-slate-600">← Volver</button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-blue-400">Inventario</h2>
             </div>
-            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm shadow-lg shadow-emerald-900/20">+ NUEVO ÍTEM</button>
+            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                + NUEVO ÍTEM
+            </button>
         </div>
 
         <div class="flex-1 overflow-auto p-4">
-            <table class="w-full text-left border-collapse rounded-lg overflow-hidden">
-                <thead class="bg-slate-800 text-slate-400 uppercase text-xs sticky top-0">
-                    <tr>
-                        <th class="p-4 bg-slate-800">Cód.</th>
-                        <th class="p-4 bg-slate-800">Nombre</th>
-                        <th class="p-4 bg-slate-800">Proveedor</th>
-                        <th class="p-4 bg-slate-800 text-center">Stock</th>
-                        <th class="p-4 bg-slate-800 text-center">Min</th>
-                        <th class="p-4 bg-slate-800 text-center">Estado</th>
-                        <th class="p-4 bg-slate-800 text-right">Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-body" class="bg-slate-800/50 divide-y divide-slate-700 text-sm">
-                    </tbody>
-            </table>
-            <div id="vacio-msg" class="text-center p-10 text-slate-500 hidden">No hay datos registrados.</div>
+            <div class="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900 text-slate-400 uppercase text-xs sticky top-0 z-10">
+                        <tr>
+                            <th class="p-4 border-b border-slate-700 font-bold">Cód.</th>
+                            <th class="p-4 border-b border-slate-700 font-bold">Nombre</th>
+                            <th class="p-4 border-b border-slate-700 font-bold">Proveedor</th>
+                            <th class="p-4 border-b border-slate-700 text-center font-bold">Stock</th>
+                            <th class="p-4 border-b border-slate-700 text-center font-bold">Mín</th>
+                            <th class="p-4 border-b border-slate-700 text-center font-bold">Estado</th>
+                            <th class="p-4 border-b border-slate-700 text-right font-bold">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm">
+                        </tbody>
+                </table>
+                <div id="vacio-msg" class="text-center p-12 text-slate-500 hidden">
+                    <p class="text-lg mb-2">📭</p>
+                    <p>No hay productos en esta categoría.</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center backdrop-blur-sm">
-        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-md shadow-2xl modal-enter">
-            <h3 class="text-lg font-bold mb-4 text-white border-b border-slate-700 pb-2">Datos del Producto</h3>
+    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center backdrop-blur-sm fade-in">
+        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-md shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h3 class="text-lg font-bold text-white">Datos del Producto</h3>
+                <button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button>
+            </div>
+            
             <form onsubmit="guardar(event)">
-                
                 <div class="flex gap-3 mb-3">
                     <div class="w-1/3">
-                        <label class="text-xs text-slate-400 uppercase font-bold">Código *</label>
+                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Código *</label>
                         <input type="text" id="m-cod" placeholder="Ej: 001" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                     <div class="w-2/3">
-                        <label class="text-xs text-slate-400 uppercase font-bold">Proveedor</label>
-                        <input type="text" id="m-prov" placeholder="Ej: Ferretería Industrial" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Proveedor</label>
+                        <input type="text" id="m-prov" placeholder="Ej: Ferretería Norte" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="text-xs text-slate-400 uppercase font-bold">Nombre del Producto *</label>
+                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Nombre del Producto *</label>
                     <input type="text" id="m-nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                 </div>
 
                 <div class="flex gap-3 mb-6">
                     <div class="w-1/3">
-                        <label class="text-xs text-slate-400 uppercase font-bold">Cant. *</label>
+                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Stock *</label>
                         <input type="number" id="m-cant" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                     <div class="w-1/3">
-                        <label class="text-xs text-slate-400 uppercase font-bold">Mínimo *</label>
+                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Mínimo *</label>
                         <input type="number" id="m-min" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                     <div class="w-1/3">
-                        <label class="text-xs text-slate-400 uppercase font-bold">Unidad</label>
-                        <input type="text" id="m-uni" placeholder="Unid." class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Unidad</label>
+                        <input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
-                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 py-2 text-sm">Cancelar</button>
+                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 py-2 text-sm transition">Cancelar</button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold transition shadow-lg">Guardar</button>
                 </div>
             </form>
@@ -136,85 +152,114 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v5';
+        // --- CONFIGURACIÓN ---
+        const DB_KEY = 'labse_db_v5_final';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
 
-        // --- SISTEMA DE PANTALLAS ---
+        // --- SISTEMA DE PANTALLAS (NAVEGACIÓN) ---
         function irA(id) {
+            // Ocultar todas
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
-                document.getElementById(v).classList.remove('visible');
-                document.getElementById(v).classList.add('oculto');
+                const el = document.getElementById(v);
+                if(el) {
+                    el.classList.remove('visible');
+                    el.classList.add('oculto');
+                }
             });
-            document.getElementById(id).classList.remove('oculto');
-            document.getElementById(id).classList.add('visible');
+            // Mostrar destino
+            const destino = document.getElementById(id);
+            if(destino) {
+                destino.classList.remove('oculto');
+                destino.classList.add('visible');
+            }
         }
 
-        // --- LOGIN ---
+        // --- FUNCIONES DE LOGIN ---
         function login() {
-            const u = document.getElementById('user').value.toLowerCase().trim();
-            // Acepta admin, camila, o cualquier cosa si estás probando
+            const userField = document.getElementById('user');
+            const u = userField ? userField.value.toLowerCase().trim() : '';
+            
+            // Verificación simple
             if(u === 'admin' || u === 'camila' || u === '') {
                 irA('vista-dashboard');
             } else {
-                alert('Usuario incorrecto. Intenta con: admin');
+                alert('⚠️ Usuario incorrecto. Prueba con: admin');
             }
         }
-        function logout() { location.reload(); }
-        function volver() { irA('vista-dashboard'); }
+        
+        function logout() { 
+            if(confirm('¿Cerrar sesión?')) location.reload(); 
+        }
+        
+        function volver() { 
+            irA('vista-dashboard'); 
+        }
 
-        // --- GESTIÓN DE INVENTARIO ---
+        // --- FUNCIONES DE INVENTARIO ---
         function abrirInventario(categoria) {
             catActual = categoria;
-            document.getElementById('titulo-cat').innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + categoria;
+            const titulo = document.getElementById('titulo-cat');
+            if(titulo) titulo.innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + categoria;
             renderTabla();
             irA('vista-tabla');
         }
 
         function renderTabla() {
             const tbody = document.getElementById('tabla-body');
+            const vacioMsg = document.getElementById('vacio-msg');
+            if(!tbody) return;
+            
             tbody.innerHTML = '';
             
-            // Ordenamos por código para que se vea prolijo
+            // Filtramos y ordenamos por Código
             const filtrados = datos
                 .filter(d => d.cat === catActual)
-                .sort((a, b) => (a.cod > b.cod) ? 1 : -1);
+                .sort((a, b) => {
+                    // Intenta ordenar numéricamente si son números, sino alfabéticamente
+                    const numA = parseInt(a.cod);
+                    const numB = parseInt(b.cod);
+                    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                    return a.cod > b.cod ? 1 : -1;
+                });
             
             if(filtrados.length === 0) {
-                document.getElementById('vacio-msg').classList.remove('hidden');
+                vacioMsg.classList.remove('hidden');
             } else {
-                document.getElementById('vacio-msg').classList.add('hidden');
+                vacioMsg.classList.add('hidden');
             }
 
             filtrados.forEach(item => {
-                const critico = item.cant <= item.min;
+                const critico = parseInt(item.cant) <= parseInt(item.min);
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800 transition border-b border-slate-800";
+                tr.className = "hover:bg-slate-800 transition border-b border-slate-800 group";
                 
                 tr.innerHTML = `
-                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod || '-'}</td>
+                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod || 'N/A'}</td>
                     <td class="p-4 font-medium text-slate-200">${item.nom}</td>
-                    <td class="p-4 text-slate-400 text-xs uppercase">${item.prov || '-'}</td>
+                    <td class="p-4 text-slate-400 text-xs uppercase tracking-wide">${item.prov || '-'}</td>
                     <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs font-normal text-slate-500">${item.uni}</span></td>
                     <td class="p-4 text-center text-slate-500">${item.min}</td>
                     <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-emerald-900/30 text-emerald-400 border-emerald-800'}">
+                        <span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">
                             ${critico ? 'REPONER' : 'OK'}
                         </span>
                     </td>
                     <td class="p-4 text-right">
-                        <button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-400 transition text-lg" title="Borrar">×</button>
+                        <button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition text-lg font-bold px-2 py-1 rounded hover:bg-slate-700">×</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- MODALES Y GUARDADO ---
+        // --- FUNCIONES DEL MODAL (GUARDAR) ---
         function mostrarModal() {
-            document.getElementById('modal').classList.remove('oculto');
-            document.getElementById('modal').classList.add('visible');
-            // Reset inputs
+            const modal = document.getElementById('modal');
+            modal.classList.remove('oculto');
+            modal.classList.add('visible');
+            
+            // Limpiar campos
             document.getElementById('m-cod').value = '';
             document.getElementById('m-prov').value = '';
             document.getElementById('m-nombre').value = '';
@@ -225,8 +270,9 @@
         }
 
         function cerrarModal() {
-            document.getElementById('modal').classList.remove('visible');
-            document.getElementById('modal').classList.add('oculto');
+            const modal = document.getElementById('modal');
+            modal.classList.remove('visible');
+            modal.classList.add('oculto');
         }
 
         function guardar(e) {
@@ -234,17 +280,14 @@
             
             const codigo = document.getElementById('m-cod').value.trim();
             
-            // 1. VALIDACIÓN: ¿Existe el código?
-            // Buscamos si ya hay un ítem con ese código en CUALQUIER categoría (para evitar líos)
+            // VALIDACIÓN: Código único
             const existe = datos.some(d => d.cod === codigo);
-            
             if (existe) {
-                alert('⛔ ERROR: El código "' + codigo + '" ya está en uso. Por favor usa uno único.');
-                return; // Detiene la función, no guarda nada
+                alert('⛔ ERROR: El código "' + codigo + '" ya existe en el sistema. Usa otro.');
+                return;
             }
 
-            // 2. Si no existe, creamos el objeto
-            const nuevo = {
+            const nuevoItem = {
                 id: Date.now(),
                 cod: codigo,
                 prov: document.getElementById('m-prov').value.trim(),
@@ -255,14 +298,14 @@
                 cat: catActual
             };
 
-            datos.push(nuevo);
+            datos.push(nuevoItem);
             localStorage.setItem(DB_KEY, JSON.stringify(datos));
             cerrarModal();
             renderTabla();
         }
 
         function borrar(id) {
-            if(confirm('¿Eliminar este ítem del inventario?')) {
+            if(confirm('¿Seguro que deseas eliminar este ítem permanentemente?')) {
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem(DB_KEY, JSON.stringify(datos));
                 renderTabla();
@@ -270,15 +313,70 @@
         }
         
         function borrarBaseDatos() {
-            if(confirm('⚠️ ¿ESTÁS SEGURA? Esto borrará TODOS los productos para empezar de cero.')) {
+            if(confirm('⚠️ PELIGRO: Esto borrará TODOS los productos y no se pueden recuperar.\n\n¿Estás segura?')) {
                 localStorage.removeItem(DB_KEY);
                 location.reload();
             }
         }
 
-        // --- REPORTE PDF ---
+        // --- FUNCIONES DE REPORTE (PDF) ---
         function generarOrden() {
-            const faltantes = datos.filter(d => d.cant <= d.min);
-            if(faltantes.length === 0) return alert('✅ Todo OK. No hay faltantes.');
+            const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
+            if(faltantes.length === 0) return alert('✅ Inventario saludable. No hay ítems por debajo del mínimo.');
 
-            const fecha = new Date().toLocaleDate
+            const fecha = new Date().toLocaleDateString();
+            let html = `
+                <body style="font-family: Arial, sans-serif; padding: 40px; color: #333;">
+                    <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
+                        <div>
+                            <h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1>
+                            <p style="margin:5px 0 0 0; color:#666;">Sistema de Gestión LABSE</p>
+                        </div>
+                        <div style="text-align:right;">
+                            <strong>Fecha:</strong> ${fecha}<br>
+                            <strong>Solicitante:</strong> Admin
+                        </div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background-color: #f1f5f9; text-transform:uppercase; font-size:12px;">
+                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Cód</th>
+                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Producto</th>
+                                <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Proveedor</th>
+                                <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Stock Actual</th>
+                                <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Mínimo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            faltantes.forEach(f => {
+                html += `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight:bold;">${f.cod}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${f.nom}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; font-size:0.9em; color:#555;">${f.prov || '-'}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: red; font-weight: bold;">${f.cant} ${f.uni}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${f.min}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                    <div style="margin-top:30px; text-align:center;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight:bold;">🖨️ IMPRIMIR REPORTE</button>
+                    </div>
+                </body>
+            `;
+
+            const w = window.open('', '_blank');
+            w.document.write(html);
+            w.document.close();
+        }
+    </script>
+</body>
+</html>
+
