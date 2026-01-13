@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V9</title>
+    <title>LABSE SYSTEM V10</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -21,13 +21,19 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Sistema de Gestión V9</p>
+            <p class="text-slate-400 text-sm mb-8">Gestión V10 (Perfiles)</p>
             <div class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
-                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">INICIAR SISTEMA</button>
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none uppercase text-center font-bold tracking-wider">
+                <input type="password" id="pass" placeholder="••••••" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none text-center">
+                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">INGRESAR</button>
             </div>
-            <p class="mt-6 text-xs text-slate-600">Actualización: Botón Copiar Lista</p>
+            <div class="mt-6 text-xs text-slate-500">
+                <p>Usuarios disponibles:</p>
+                <div class="flex justify-center gap-2 mt-2">
+                    <span class="bg-slate-700 px-2 py-1 rounded text-emerald-400 font-bold">camila</span>
+                    <span class="bg-slate-700 px-2 py-1 rounded text-blue-400 font-bold">reporte</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -35,15 +41,17 @@
         <div class="w-full p-4 flex justify-between items-center bg-slate-800 border-b border-slate-700 shadow-md">
             <div class="font-bold text-blue-400 tracking-wider text-lg">LABSE SYSTEM</div>
             <div class="flex items-center gap-4">
-                <span id="user-display" class="text-slate-300 text-sm font-semibold border-r border-slate-600 pr-4">Usuario: Admin</span>
+                <span id="user-display" class="text-slate-300 text-sm font-semibold border-r border-slate-600 pr-4">Hola, Usuario</span>
                 <button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold transition flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-700"><span>⏻</span> Salir</button>
             </div>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-10">Panel de Control</h2>
+            
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-6 rounded-2xl shadow-xl border border-blue-400/30 mb-12 flex items-center justify-center gap-4 transition transform hover:scale-105">
                 <span class="text-2xl">📄</span> <span class="text-lg">GENERAR ORDEN DE COMPRA</span>
             </button>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden shadow-lg">
                     <div class="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition">📦</div>
@@ -54,7 +62,10 @@
                     <h3 class="text-2xl font-bold text-indigo-200 group-hover:text-indigo-400 mb-2">Herramientas</h3>
                 </div>
             </div>
-            <button onclick="borrarBaseDatos()" class="mt-16 text-xs text-red-900 hover:text-red-500 underline opacity-60 hover:opacity-100 transition">Resetear Base de Datos</button>
+            
+            <button id="btn-reset-db" onclick="borrarBaseDatos()" class="mt-16 text-xs text-red-900 hover:text-red-500 underline opacity-60 hover:opacity-100 transition hidden">
+                ⚠️ MODO ADMIN: Resetear Base de Datos
+            </button>
         </div>
     </div>
 
@@ -64,7 +75,9 @@
                 <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm border border-slate-600 transition">← Volver</button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-blue-400 border-l border-slate-600 pl-4">Inventario</h2>
             </div>
-            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5"><span>+</span> NUEVO ÍTEM</button>
+            <button id="btn-nuevo-item" onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5 hidden">
+                <span>+</span> NUEVO ÍTEM
+            </button>
         </div>
         <div class="flex-1 overflow-auto p-6 bg-slate-900">
             <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
@@ -76,7 +89,7 @@
                             <th class="p-4 font-bold border-b border-slate-700 w-1/4">Proveedores</th>
                             <th class="p-4 font-bold border-b border-slate-700 text-center">Stock</th>
                             <th class="p-4 font-bold border-b border-slate-700 text-center">Estado</th>
-                            <th class="p-4 font-bold border-b border-slate-700 text-right">Acción</th>
+                            <th id="col-accion" class="p-4 font-bold border-b border-slate-700 text-right hidden">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm"></tbody>
@@ -145,12 +158,14 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v9';
+        const DB_KEY = 'labse_db_v10';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
-        let currentUser = 'Admin';
+        let currentUser = '';
+        let esAdmin = false; // Variable clave para controlar permisos
 
+        // --- NAVEGACION ---
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
                 const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
@@ -158,12 +173,44 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
+        // --- LOGIN CON ROLES ---
         function login() {
-            const input = document.getElementById('user');
-            if (input && input.value.trim() !== '') currentUser = input.value.trim().charAt(0).toUpperCase() + input.value.trim().slice(1);
-            document.getElementById('user-display').innerText = 'Usuario: ' + currentUser;
-            irA('vista-dashboard');
+            const input = document.getElementById('user').value.trim().toLowerCase();
+            
+            if (input === 'camila') {
+                currentUser = 'Camila (Admin)';
+                esAdmin = true;
+                irA('vista-dashboard');
+                aplicarPermisos();
+            } else if (input === 'reporte') {
+                currentUser = 'Reporte (Auditor)';
+                esAdmin = false;
+                irA('vista-dashboard');
+                aplicarPermisos();
+            } else {
+                alert('⛔ ACCESO DENEGADO\nUsuarios válidos:\n- camila (Control Total)\n- reporte (Solo Órdenes)');
+            }
         }
+
+        function aplicarPermisos() {
+            document.getElementById('user-display').innerText = currentUser;
+
+            // 1. Botón Reset Database (Dashboard)
+            const btnReset = document.getElementById('btn-reset-db');
+            if (esAdmin) btnReset.classList.remove('hidden');
+            else btnReset.classList.add('hidden');
+
+            // 2. Botón Nuevo Item (Tabla)
+            const btnNuevo = document.getElementById('btn-nuevo-item');
+            if (esAdmin) btnNuevo.classList.remove('hidden');
+            else btnNuevo.classList.add('hidden');
+
+            // 3. Columna Acción (Tabla)
+            const colAccion = document.getElementById('col-accion');
+            if (esAdmin) colAccion.classList.remove('hidden');
+            else colAccion.classList.add('hidden');
+        }
+
         function logout() { location.reload(); }
         function volver() { irA('vista-dashboard'); }
 
@@ -193,6 +240,15 @@
                     provStr = item.proveedores.map(p => p.nombre).join(', ');
                     if(provStr.length > 30) provStr = provStr.substring(0, 30) + '...';
                 }
+
+                // SI NO ES ADMIN, OCULTAMOS EL BOTÓN DE BORRAR
+                let botonBorrar = '';
+                if (esAdmin) {
+                    botonBorrar = `<td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button></td>`;
+                } else {
+                    botonBorrar = `<td class="p-4 text-right hidden"></td>`; // Columna oculta
+                }
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-700/50 group";
                 tr.innerHTML = `
@@ -201,13 +257,15 @@
                     <td class="p-4 text-slate-400 text-xs">${provStr}</td>
                     <td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span><span class="text-xs text-slate-500 block">${item.uni}</span></td>
                     <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>
-                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button></td>
+                    ${botonBorrar}
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // GESTION
         function mostrarModal() {
+            if(!esAdmin) return; // Seguridad extra
             document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
             document.getElementById('m-cod').value = ''; document.getElementById('m-nombre').value = ''; 
             document.getElementById('m-cant').value = ''; document.getElementById('m-min').value = ''; 
@@ -217,6 +275,7 @@
         }
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
         function limpiarInputsProveedor() { ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = ''); }
+        
         function agregarProveedorTemporal() {
             const nombre = document.getElementById('p-nombre').value.trim();
             if(!nombre) return;
@@ -228,6 +287,7 @@
             limpiarInputsProveedor(); renderProveedoresTemp(); document.getElementById('p-nombre').focus();
         }
         function eliminarProveedorTemp(id) { proveedoresTemporales = proveedoresTemporales.filter(p => p.id !== id); renderProveedoresTemp(); }
+        
         function renderProveedoresTemp() {
             const ul = document.getElementById('lista-proveedores-temp'); ul.innerHTML = '';
             if(proveedoresTemporales.length === 0) { ul.innerHTML = '<li class="text-slate-600 italic pl-2 text-xs">Sin proveedores.</li>'; return; }
@@ -238,8 +298,10 @@
                 ul.appendChild(li);
             });
         }
+
         function guardarProducto(e) {
             e.preventDefault();
+            if(!esAdmin) return;
             const cod = document.getElementById('m-cod').value.trim();
             if(datos.some(d => d.cod === cod)) { alert('⛔ ERROR: Código repetido.'); return; }
             const nombrePendiente = document.getElementById('p-nombre').value.trim();
@@ -251,8 +313,16 @@
             });
             localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla();
         }
-        function borrar(id) { if(confirm('¿Eliminar producto?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
-        function borrarBaseDatos() { if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+
+        function borrar(id) { 
+            if(!esAdmin) return;
+            if(confirm('¿Eliminar producto?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } 
+        }
+        
+        function borrarBaseDatos() { 
+            if(!esAdmin) return;
+            if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } 
+        }
 
         function generarOrden() {
             const todosFaltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
@@ -262,31 +332,14 @@
             const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
 
-            // 1. GENERAR TEXTO PLANO
+            // EMAIL
             let cuerpoEmail = `ORDEN DE COMPRA - LABSE\nFecha: ${fecha}\nResponsable: ${currentUser}\n\n`;
-            
-            if(insumos.length > 0) {
-                cuerpoEmail += `--- INSUMOS ---\n`;
-                insumos.forEach(i => {
-                    const cant = parseInt(i.min) - parseInt(i.cant);
-                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}\n`;
-                });
-                cuerpoEmail += `\n`;
-            }
-            if(herramientas.length > 0) {
-                cuerpoEmail += `--- HERRAMIENTAS ---\n`;
-                herramientas.forEach(i => {
-                    const cant = parseInt(i.min) - parseInt(i.cant);
-                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}\n`;
-                });
-            }
-            // Codificamos para el mailto por si acaso
+            if(insumos.length > 0) { cuerpoEmail += `--- INSUMOS ---\n`; insumos.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); cuerpoEmail += `\n`; }
+            if(herramientas.length > 0) { cuerpoEmail += `--- HERRAMIENTAS ---\n`; herramientas.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); }
             const mailtoLink = `mailto:?subject=${encodeURIComponent("Orden LABSE - " + fecha)}&body=${encodeURIComponent(cuerpoEmail)}`;
-
-            // Guardamos el texto en una variable global del documento nuevo para que la funcion copiar lo lea
             const textoScript = JSON.stringify(cuerpoEmail);
 
-            // 2. GENERAR HTML
+            // HTML
             let html = `<!DOCTYPE html><html><head><title>Orden LABSE</title><style>
                 body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
                 .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -296,57 +349,27 @@
                 td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
                 .actions { margin-top: 30px; text-align: center; display: flex; gap: 10px; justify-content: center; }
                 .btn { padding: 12px 24px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; display: inline-block; font-family: sans-serif; }
-                .btn-print { background: #2563eb; }
-                .btn-mail { background: #059669; }
-                .btn-copy { background: #475569; }
-                .btn:hover { opacity: 0.9; }
+                .btn-print { background: #2563eb; } .btn-mail { background: #059669; } .btn-copy { background: #475569; }
                 @media print { .actions { display: none; } }
-            </style>
-            <script>
-                function copiarAlPortapapeles() {
-                    const texto = ${textoScript};
-                    navigator.clipboard.writeText(texto).then(() => {
-                        alert('✅ LISTA COPIADA.\\n\\nAhora ve a tu correo o WhatsApp y presiona PEGAR (Ctrl+V).');
-                    }).catch(err => {
-                        alert('❌ Error al copiar. Intenta seleccionar el texto manualmente.');
-                    });
-                }
-            <\/script>
-            </head><body>
+            </style><script>function copiar(){navigator.clipboard.writeText(${textoScript}).then(()=>alert('✅ Copiado')).catch(()=>alert('❌ Error'));}<\/script></head><body>
             <div class="header"><div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div><div style="text-align:right;"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>RESPONSABLE:</strong> ${currentUser}</p></div></div>`;
 
             function crearTabla(titulo, lista, color) {
                 if(lista.length === 0) return '';
-                let tbl = `<h2 style="background:${color}; color:white; padding:8px; margin-top:30px; font-size:14px; text-transform:uppercase;">${titulo}</h2>
-                <table><thead><tr><th>Cód</th><th>Descripción</th><th style="text-align:center">Stock</th><th style="text-align:center; color:#dc2626;">A Comprar</th><th>Proveedores</th></tr></thead><tbody>`;
+                let tbl = `<h2 style="background:${color}; color:white; padding:8px; margin-top:30px; font-size:14px; text-transform:uppercase;">${titulo}</h2><table><thead><tr><th>Cód</th><th>Descripción</th><th style="text-align:center">Stock</th><th style="text-align:center; color:#dc2626;">A Comprar</th><th>Proveedores</th></tr></thead><tbody>`;
                 lista.forEach(item => {
-                    const cantidadPedir = parseInt(item.min) - parseInt(item.cant);
                     let provHtml = '<span style="color:#999; italic">N/A</span>';
-                    if(item.proveedores && item.proveedores.length > 0) {
-                        provHtml = '<ul style="margin:0; padding-left:15px;">';
-                        item.proveedores.forEach(p => provHtml += `<li><strong>${p.nombre}</strong> <span style="font-size:10px; color:#555;">${p.tel || ''}</span></li>`);
-                        provHtml += '</ul>';
-                    }
-                    tbl += `<tr><td><strong>${item.cod}</strong></td><td>${item.nom}</td><td style="text-align:center">${item.cant}</td><td style="text-align:center; font-weight:bold; color:#dc2626;">${cantidadPedir} ${item.uni}</td><td>${provHtml}</td></tr>`;
+                    if(item.proveedores && item.proveedores.length > 0) { provHtml = '<ul style="margin:0; padding-left:15px;">'; item.proveedores.forEach(p => provHtml += `<li><strong>${p.nombre}</strong> <span style="font-size:10px; color:#555;">${p.tel || ''}</span></li>`); provHtml += '</ul>'; }
+                    tbl += `<tr><td><strong>${item.cod}</strong></td><td>${item.nom}</td><td style="text-align:center">${item.cant}</td><td style="text-align:center; font-weight:bold; color:#dc2626;">${parseInt(item.min)-parseInt(item.cant)} ${item.uni}</td><td>${provHtml}</td></tr>`;
                 });
                 return tbl + '</tbody></table>';
             }
-
             html += crearTabla('📦 INSUMOS', insumos, '#2563eb');
             html += crearTabla('🔧 HERRAMIENTAS', herramientas, '#4f46e5');
-            
-            // BOTONES DE ACCIÓN
             html += `<div style="margin-top:50px; display:flex; justify-content:space-between;"><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Solicitante</div><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Autorizante</div></div>
-            <div class="actions">
-                <button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
-                <a href="${mailtoLink}" class="btn btn-mail">📧 ABRIR CORREO</a>
-                <button class="btn btn-copy" onclick="copiarAlPortapapeles()">📋 COPIAR LISTA</button>
-            </div>
-            </body></html>`;
-
+            <div class="actions"><button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR / PDF</button><a href="${mailtoLink}" class="btn btn-mail">📧 ABRIR CORREO</a><button class="btn btn-copy" onclick="copiar()">📋 COPIAR LISTA</button></div></body></html>`;
             const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
 </body>
 </html>
-
