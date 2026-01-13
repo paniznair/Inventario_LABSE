@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V6 - PROVEEDORES</title>
+    <title>LABSE V6.1 - FINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -11,7 +11,6 @@
         .visible { display: flex !important; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        /* Scrollbar fina para la lista de proveedores */
         .scroll-fino::-webkit-scrollbar { width: 6px; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
@@ -21,7 +20,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-6">Gestión V6 (Multi-Proveedor)</p>
+            <p class="text-slate-400 text-sm mb-6">Gestión V6.1 (Auto-Guardado)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
@@ -90,7 +89,7 @@
     <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/90 items-center justify-center backdrop-blur-sm fade-in overflow-y-auto py-10">
         <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-2xl shadow-2xl my-auto">
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
-                <h3 class="text-xl font-bold text-white">Nuevo Producto & Proveedores</h3>
+                <h3 class="text-xl font-bold text-white">Nuevo Producto</h3>
                 <button onclick="cerrarModal()" class="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
             
@@ -103,13 +102,13 @@
                             <input type="text" id="m-cod" placeholder="001" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                         </div>
                         <div class="w-3/4">
-                            <label class="block text-xs text-slate-400 mb-1">NOMBRE DEL PRODUCTO *</label>
-                            <input type="text" id="m-nombre" placeholder="Ej: Cable UTP" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                            <label class="block text-xs text-slate-400 mb-1">NOMBRE *</label>
+                            <input type="text" id="m-nombre" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                         </div>
                     </div>
                     <div class="flex gap-4">
                         <div class="w-1/3">
-                            <label class="block text-xs text-slate-400 mb-1">STOCK ACTUAL *</label>
+                            <label class="block text-xs text-slate-400 mb-1">STOCK *</label>
                             <input type="number" id="m-cant" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
                         </div>
                         <div class="w-1/3">
@@ -124,31 +123,28 @@
                 </div>
 
                 <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border border-slate-700">
-                    <h4 class="text-emerald-400 text-sm font-bold uppercase mb-3">2. Cargar Proveedores</h4>
-                    
+                    <h4 class="text-emerald-400 text-sm font-bold uppercase mb-3">2. Proveedor (Opcional)</h4>
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="p-nombre" placeholder="Nombre Empresa/Persona" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="text" id="p-nombre" placeholder="Nombre Empresa" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
                         <input type="text" id="p-tel" placeholder="Teléfono" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
                         <input type="email" id="p-mail" placeholder="Email" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
-                        <input type="text" id="p-web" placeholder="Página Web" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
-                        <input type="text" id="p-loc" placeholder="Ubicación/Dirección" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm col-span-2">
+                        <input type="text" id="p-web" placeholder="Web" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="text" id="p-loc" placeholder="Dirección" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm col-span-2">
                     </div>
                     
                     <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-700 hover:bg-slate-600 text-emerald-400 border border-emerald-900/50 font-bold py-2 rounded text-sm mb-4 transition">
-                        + AGREGAR A LA LISTA DE PROVEEDORES
+                        ▼ AGREGAR A LA LISTA (Click aquí si cargas varios)
                     </button>
 
-                    <div class="bg-slate-950 p-3 rounded border border-slate-800 min-h-[80px]">
-                        <p class="text-xs text-slate-500 mb-2">Proveedores asignados a este producto:</p>
-                        <ul id="lista-proveedores-temp" class="space-y-2 text-sm text-slate-300 max-h-32 overflow-y-auto scroll-fino">
-                            </ul>
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800 min-h-[60px]">
+                        <ul id="lista-proveedores-temp" class="space-y-2 text-sm text-slate-300 max-h-32 overflow-y-auto scroll-fino"></ul>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2 border-t border-slate-700">
                     <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-4 py-2 transition">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded font-bold transition shadow-lg shadow-blue-900/50">
-                        GUARDAR PRODUCTO COMPLETO
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded font-bold transition shadow-lg">
+                        GUARDAR TODO
                     </button>
                 </div>
             </form>
@@ -159,48 +155,36 @@
         const DB_KEY = 'labse_db_v6';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
-        let proveedoresTemporales = []; // Array temporal para el modal
+        let proveedoresTemporales = [];
 
-        // --- NAVEGACIÓN ---
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
-                const el = document.getElementById(v);
-                if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
+                const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
             });
-            const dest = document.getElementById(id);
-            if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
+            const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        function login() {
-            const u = document.getElementById('user').value.toLowerCase().trim();
-            if(u === 'admin' || u === 'camila' || u === '') irA('vista-dashboard');
-            else alert('Usuario incorrecto. Prueba con: admin');
-        }
+        function login() { irA('vista-dashboard'); }
         function logout() { location.reload(); }
         function volver() { irA('vista-dashboard'); }
 
-        // --- INVENTARIO ---
         function abrirInventario(cat) {
             catActual = cat;
             document.getElementById('titulo-cat').innerText = (cat === 'Insumos' ? '📦 ' : '🔧 ') + cat;
-            renderTabla();
-            irA('vista-tabla');
+            renderTabla(); irA('vista-tabla');
         }
 
         function renderTabla() {
             const tbody = document.getElementById('tabla-body');
-            const vacioMsg = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
-            
             const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => a.cod > b.cod ? 1 : -1);
             
-            if(filtrados.length === 0) vacioMsg.classList.remove('hidden');
-            else vacioMsg.classList.add('hidden');
+            if(filtrados.length === 0) document.getElementById('vacio-msg').classList.remove('hidden');
+            else document.getElementById('vacio-msg').classList.add('hidden');
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) <= parseInt(item.min);
-                // Extraer nombres de proveedores para mostrar resumen
-                const provNombres = item.proveedores && item.proveedores.length > 0 
+                const provStr = (item.proveedores && item.proveedores.length > 0) 
                     ? item.proveedores.map(p => p.nombre).join(', ') 
                     : '<span class="text-slate-600 italic">Sin asignar</span>';
 
@@ -209,7 +193,7 @@
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-blue-300 font-bold">${item.cod}</td>
                     <td class="p-4 font-medium text-slate-200">${item.nom}</td>
-                    <td class="p-4 text-slate-400 text-xs">${provNombres}</td>
+                    <td class="p-4 text-slate-400 text-xs">${provStr}</td>
                     <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs text-slate-500">${item.uni}</span></td>
                     <td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">${critico ? 'REPONER' : 'OK'}</span></td>
                     <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition font-bold px-2">×</button></td>
@@ -218,53 +202,38 @@
             });
         }
 
-        // --- MODAL Y PROVEEDORES ---
         function mostrarModal() {
-            const m = document.getElementById('modal');
-            m.classList.remove('oculto'); m.classList.add('visible');
-            
-            // Resetear formulario
+            document.getElementById('modal').classList.remove('oculto');
+            document.getElementById('modal').classList.add('visible');
             document.getElementById('m-cod').value = '';
             document.getElementById('m-nombre').value = '';
             document.getElementById('m-cant').value = '';
             document.getElementById('m-min').value = '';
             document.getElementById('m-uni').value = '';
-            
-            // Resetear proveedores
             proveedoresTemporales = [];
             limpiarInputsProveedor();
             renderProveedoresTemp();
-            
-            document.getElementById('m-cod').focus();
         }
 
         function cerrarModal() {
-            document.getElementById('modal').classList.remove('visible');
-            document.getElementById('modal').classList.add('oculto');
+            document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto');
         }
 
         function limpiarInputsProveedor() {
-            document.getElementById('p-nombre').value = '';
-            document.getElementById('p-tel').value = '';
-            document.getElementById('p-mail').value = '';
-            document.getElementById('p-web').value = '';
-            document.getElementById('p-loc').value = '';
+            ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = '');
         }
 
         function agregarProveedorTemporal() {
             const nombre = document.getElementById('p-nombre').value.trim();
-            if(!nombre) return alert('Ingresa al menos el nombre del proveedor.');
-
-            const nuevoProv = {
+            if(!nombre) return; // No agrega vacíos
+            proveedoresTemporales.push({
                 id: Date.now(),
                 nombre: nombre,
                 tel: document.getElementById('p-tel').value.trim(),
                 mail: document.getElementById('p-mail').value.trim(),
                 web: document.getElementById('p-web').value.trim(),
                 loc: document.getElementById('p-loc').value.trim()
-            };
-
-            proveedoresTemporales.push(nuevoProv);
+            });
             limpiarInputsProveedor();
             renderProveedoresTemp();
         }
@@ -278,19 +247,12 @@
             const ul = document.getElementById('lista-proveedores-temp');
             ul.innerHTML = '';
             if(proveedoresTemporales.length === 0) {
-                ul.innerHTML = '<li class="text-slate-600 italic pl-2">- Ninguno agregado aún -</li>';
-                return;
+                ul.innerHTML = '<li class="text-slate-600 italic pl-2">- Ninguno en lista -</li>'; return;
             }
             proveedoresTemporales.forEach(p => {
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700";
-                li.innerHTML = `
-                    <div>
-                        <span class="font-bold text-emerald-300 block">${p.nombre}</span>
-                        <span class="text-xs text-slate-400">${p.tel} | ${p.loc}</span>
-                    </div>
-                    <button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-red-300 text-xs font-bold px-2">Quitar</button>
-                `;
+                li.innerHTML = `<div><span class="font-bold text-emerald-300 block">${p.nombre}</span><span class="text-xs text-slate-400">${p.tel}</span></div><button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-red-300 text-xs font-bold px-2">Quitar</button>`;
                 ul.appendChild(li);
             });
         }
@@ -300,80 +262,64 @@
             const cod = document.getElementById('m-cod').value.trim();
             if(datos.some(d => d.cod === cod)) return alert('⛔ El código ya existe.');
 
-            const nuevo = {
+            // === MAGIA DE AUTOGUARDADO ===
+            // Si el usuario escribió un proveedor pero no le dio a "Agregar", lo agregamos ahora.
+            const nombrePendiente = document.getElementById('p-nombre').value.trim();
+            if(nombrePendiente !== "") {
+                agregarProveedorTemporal();
+            }
+
+            datos.push({
                 id: Date.now(),
                 cod: cod,
                 nom: document.getElementById('m-nombre').value.trim(),
                 cant: parseInt(document.getElementById('m-cant').value),
                 min: parseInt(document.getElementById('m-min').value),
                 uni: document.getElementById('m-uni').value.trim() || 'u.',
-                proveedores: [...proveedoresTemporales], // Copia del array
+                proveedores: [...proveedoresTemporales],
                 cat: catActual
-            };
-
-            datos.push(nuevo);
+            });
             localStorage.setItem(DB_KEY, JSON.stringify(datos));
             cerrarModal(); renderTabla();
         }
 
         function borrar(id) {
-            if(confirm('¿Eliminar producto?')) {
+            if(confirm('¿Eliminar?')) {
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem(DB_KEY, JSON.stringify(datos));
                 renderTabla();
             }
         }
-        function borrarBaseDatos() { if(confirm('⚠️ ¿Borrar TODOS los datos?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+        function borrarBaseDatos() { if(confirm('⚠️ ¿Borrar TODOS?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
-        // --- REPORTE PDF CON DETALLES ---
         function generarOrden() {
             const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
-            if(faltantes.length === 0) return alert('✅ Inventario saludable.');
+            if(faltantes.length === 0) return alert('✅ Todo OK.');
             
-            const fecha = new Date().toLocaleDateString();
-            let html = `
-            <body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
+            let html = `<body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
                 <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
-                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE - Detalle de Contacto</p></div>
-                    <div style="text-align:right;"><strong>Fecha:</strong> ${fecha}</div>
+                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p></div>
+                    <div style="text-align:right;"><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
                 </div>`;
 
             faltantes.forEach(f => {
-                // Generar HTML de proveedores
-                let htmlProv = '<em style="color:#999">Sin datos de proveedor</em>';
+                let htmlProv = '<em style="color:#999">Sin proveedor asignado</em>';
                 if(f.proveedores && f.proveedores.length > 0) {
                     htmlProv = `<table style="width:100%; font-size:12px; margin-top:5px; border:1px solid #ddd; background:#f9fafb;">`;
                     f.proveedores.forEach(p => {
-                        htmlProv += `
-                            <tr>
-                                <td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td>
-                                <td style="padding:4px;">📞 ${p.tel || '-'}</td>
-                                <td style="padding:4px;">📧 ${p.mail || '-'}</td>
-                                <td style="padding:4px;">📍 ${p.loc || '-'}</td>
-                            </tr>`;
+                        htmlProv += `<tr><td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td><td style="padding:4px;">📞 ${p.tel || '-'}</td><td style="padding:4px;">📧 ${p.mail || '-'}</td><td style="padding:4px;">📍 ${p.loc || '-'}</td></tr>`;
                     });
                     htmlProv += `</table>`;
                 }
-
-                html += `
-                <div style="margin-bottom:20px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
+                html += `<div style="margin-bottom:20px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
                     <div style="background:#eef2ff; padding:10px; border-bottom:1px solid #ccc; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <span style="background:#2563eb; color:white; padding:3px 6px; border-radius:4px; font-size:12px; font-weight:bold; margin-right:10px;">${f.cod}</span>
-                            <strong style="font-size:16px;">${f.nom}</strong>
-                        </div>
-                        <div style="color:#dc2626; font-weight:bold;">
-                            FALTAN: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} (Stock: ${f.cant})
-                        </div>
+                        <div><span style="background:#2563eb; color:white; padding:3px 6px; border-radius:4px; font-size:12px; font-weight:bold; margin-right:10px;">${f.cod}</span><strong style="font-size:16px;">${f.nom}</strong></div>
+                        <div style="color:#dc2626; font-weight:bold;">FALTAN: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} (Stock: ${f.cant})</div>
                     </div>
-                    <div style="padding:10px;">
-                        <strong style="font-size:12px; text-transform:uppercase; color:#666;">Contactar a:</strong>
-                        ${htmlProv}
-                    </div>
+                    <div style="padding:10px;"><strong style="font-size:12px; text-transform:uppercase; color:#666;">Contactar a:</strong>${htmlProv}</div>
                 </div>`;
             });
-
-            html += `<div style="text-align:center; margin-top:30px;"><button onclick="window.print()" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">🖨️ IMPRIMIR ORDEN</button></div></body>`;
+            html += `<div style="text-align:center; margin-top:30px;"><button onclick="window.print()" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">🖨️ IMPRIMIR</button></div></body>`;
             const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
