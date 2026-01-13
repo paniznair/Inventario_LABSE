@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V8</title>
+    <title>LABSE SYSTEM V9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -14,7 +14,6 @@
         .scroll-fino::-webkit-scrollbar { width: 8px; }
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        .scroll-fino::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
@@ -22,13 +21,13 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Sistema de Gestión V8</p>
+            <p class="text-slate-400 text-sm mb-8">Sistema de Gestión V9</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">INICIAR SISTEMA</button>
             </div>
-            <p class="mt-6 text-xs text-slate-600">Actualización: Envío por Correo</p>
+            <p class="mt-6 text-xs text-slate-600">Actualización: Botón Copiar Lista</p>
         </div>
     </div>
 
@@ -146,7 +145,7 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v8';
+        const DB_KEY = 'labse_db_v9';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
@@ -263,15 +262,14 @@
             const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
 
-            // 1. GENERAR TEXTO PLANO PARA EMAIL
+            // 1. GENERAR TEXTO PLANO
             let cuerpoEmail = `ORDEN DE COMPRA - LABSE\nFecha: ${fecha}\nResponsable: ${currentUser}\n\n`;
             
             if(insumos.length > 0) {
                 cuerpoEmail += `--- INSUMOS ---\n`;
                 insumos.forEach(i => {
                     const cant = parseInt(i.min) - parseInt(i.cant);
-                    const prov = (i.proveedores && i.proveedores.length > 0) ? ` (Prov: ${i.proveedores[0].nombre})` : '';
-                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}${prov}\n`;
+                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}\n`;
                 });
                 cuerpoEmail += `\n`;
             }
@@ -279,14 +277,16 @@
                 cuerpoEmail += `--- HERRAMIENTAS ---\n`;
                 herramientas.forEach(i => {
                     const cant = parseInt(i.min) - parseInt(i.cant);
-                    const prov = (i.proveedores && i.proveedores.length > 0) ? ` (Prov: ${i.proveedores[0].nombre})` : '';
-                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}${prov}\n`;
+                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}\n`;
                 });
             }
-            const asunto = `Orden de Compra LABSE - ${fecha}`;
-            const mailtoLink = `mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpoEmail)}`;
+            // Codificamos para el mailto por si acaso
+            const mailtoLink = `mailto:?subject=${encodeURIComponent("Orden LABSE - " + fecha)}&body=${encodeURIComponent(cuerpoEmail)}`;
 
-            // 2. GENERAR HTML PARA IMPRIMIR
+            // Guardamos el texto en una variable global del documento nuevo para que la funcion copiar lo lea
+            const textoScript = JSON.stringify(cuerpoEmail);
+
+            // 2. GENERAR HTML
             let html = `<!DOCTYPE html><html><head><title>Orden LABSE</title><style>
                 body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
                 .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -295,11 +295,24 @@
                 th { background: #f1f5f9; text-transform: uppercase; border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 11px; }
                 td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
                 .actions { margin-top: 30px; text-align: center; display: flex; gap: 10px; justify-content: center; }
-                .btn { padding: 10px 20px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 14px; display: inline-block; }
+                .btn { padding: 12px 24px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; display: inline-block; font-family: sans-serif; }
                 .btn-print { background: #2563eb; }
                 .btn-mail { background: #059669; }
+                .btn-copy { background: #475569; }
+                .btn:hover { opacity: 0.9; }
                 @media print { .actions { display: none; } }
-            </style></head><body>
+            </style>
+            <script>
+                function copiarAlPortapapeles() {
+                    const texto = ${textoScript};
+                    navigator.clipboard.writeText(texto).then(() => {
+                        alert('✅ LISTA COPIADA.\\n\\nAhora ve a tu correo o WhatsApp y presiona PEGAR (Ctrl+V).');
+                    }).catch(err => {
+                        alert('❌ Error al copiar. Intenta seleccionar el texto manualmente.');
+                    });
+                }
+            <\/script>
+            </head><body>
             <div class="header"><div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div><div style="text-align:right;"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>RESPONSABLE:</strong> ${currentUser}</p></div></div>`;
 
             function crearTabla(titulo, lista, color) {
@@ -321,10 +334,13 @@
 
             html += crearTabla('📦 INSUMOS', insumos, '#2563eb');
             html += crearTabla('🔧 HERRAMIENTAS', herramientas, '#4f46e5');
+            
+            // BOTONES DE ACCIÓN
             html += `<div style="margin-top:50px; display:flex; justify-content:space-between;"><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Solicitante</div><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Autorizante</div></div>
             <div class="actions">
-                <button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR REPORTE</button>
-                <a href="${mailtoLink}" class="btn btn-mail">📧 ENVIAR POR CORREO</a>
+                <button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
+                <a href="${mailtoLink}" class="btn btn-mail">📧 ABRIR CORREO</a>
+                <button class="btn btn-copy" onclick="copiarAlPortapapeles()">📋 COPIAR LISTA</button>
             </div>
             </body></html>`;
 
@@ -333,3 +349,4 @@
     </script>
 </body>
 </html>
+
