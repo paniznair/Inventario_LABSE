@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE V5 - FINAL</title>
+    <title>LABSE V6 - PROVEEDORES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -11,6 +11,9 @@
         .visible { display: flex !important; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Scrollbar fina para la lista de proveedores */
+        .scroll-fino::-webkit-scrollbar { width: 6px; }
+        .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
@@ -18,7 +21,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-6">Gestión de Inventario V5</p>
+            <p class="text-slate-400 text-sm mb-6">Gestión V6 (Multi-Proveedor)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
@@ -26,30 +29,27 @@
                     INICIAR SISTEMA
                 </button>
             </div>
-            <p class="mt-4 text-xs text-slate-500">Usuarios habilitados: admin, camila</p>
         </div>
     </div>
 
     <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-900 fade-in">
         <div class="w-full p-4 flex justify-between items-center bg-slate-800 border-b border-slate-700">
             <div class="font-bold text-blue-400 tracking-wider">LABSE SYSTEM</div>
-            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">✕ Cerrar Sesión</button>
+            <button onclick="logout()" class="text-red-400 text-sm hover:text-red-300 transition flex items-center gap-1">✕ Salir</button>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-8">Panel de Control</h2>
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl border border-blue-400/30 mb-10 flex items-center justify-center gap-3 transition transform hover:scale-105">
-                📄 GENERAR ORDEN DE COMPRA
+                📄 GENERAR ORDEN DE COMPRA CON DETALLES
             </button>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">📦</div>
                     <h3 class="text-xl font-bold text-blue-200 group-hover:text-blue-400">Insumos</h3>
-                    <p class="text-slate-400 text-sm mt-1">Materiales consumibles</p>
                 </div>
                 <div onclick="abrirInventario('Herramientas')" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition text-6xl">🔧</div>
                     <h3 class="text-xl font-bold text-indigo-200 group-hover:text-indigo-400">Herramientas</h3>
-                    <p class="text-slate-400 text-sm mt-1">Activos y maquinaria</p>
                 </div>
             </div>
             <button onclick="borrarBaseDatos()" class="mt-12 text-xs text-red-900 hover:text-red-500 underline opacity-50 hover:opacity-100 transition">Resetear Base de Datos</button>
@@ -71,9 +71,8 @@
                         <tr>
                             <th class="p-4 border-b border-slate-700 font-bold">Cód.</th>
                             <th class="p-4 border-b border-slate-700 font-bold">Nombre</th>
-                            <th class="p-4 border-b border-slate-700 font-bold">Proveedor</th>
+                            <th class="p-4 border-b border-slate-700 font-bold w-1/4">Proveedores</th>
                             <th class="p-4 border-b border-slate-700 text-center font-bold">Stock</th>
-                            <th class="p-4 border-b border-slate-700 text-center font-bold">Mín</th>
                             <th class="p-4 border-b border-slate-700 text-center font-bold">Estado</th>
                             <th class="p-4 border-b border-slate-700 text-right font-bold">Acción</th>
                         </tr>
@@ -82,60 +81,87 @@
                 </table>
                 <div id="vacio-msg" class="text-center p-12 text-slate-500 hidden">
                     <p class="text-lg mb-2">📭</p>
-                    <p>No hay productos en esta categoría.</p>
+                    <p>No hay productos registrados.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center backdrop-blur-sm fade-in">
-        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-md shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
-                <h3 class="text-lg font-bold text-white">Datos del Producto</h3>
-                <button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button>
+    <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/90 items-center justify-center backdrop-blur-sm fade-in overflow-y-auto py-10">
+        <div class="bg-slate-800 p-6 rounded-xl border border-slate-600 w-full max-w-2xl shadow-2xl my-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
+                <h3 class="text-xl font-bold text-white">Nuevo Producto & Proveedores</h3>
+                <button onclick="cerrarModal()" class="text-slate-500 hover:text-white text-2xl">×</button>
             </div>
-            <form onsubmit="guardar(event)">
-                <div class="flex gap-3 mb-3">
-                    <div class="w-1/3">
-                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Código *</label>
-                        <input type="text" id="m-cod" placeholder="Ej: 001" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+            
+            <form onsubmit="guardarProducto(event)">
+                <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border border-slate-700">
+                    <h4 class="text-blue-400 text-sm font-bold uppercase mb-3">1. Información del Ítem</h4>
+                    <div class="flex gap-4 mb-3">
+                        <div class="w-1/4">
+                            <label class="block text-xs text-slate-400 mb-1">CÓDIGO *</label>
+                            <input type="text" id="m-cod" placeholder="001" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        </div>
+                        <div class="w-3/4">
+                            <label class="block text-xs text-slate-400 mb-1">NOMBRE DEL PRODUCTO *</label>
+                            <input type="text" id="m-nombre" placeholder="Ej: Cable UTP" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        </div>
                     </div>
-                    <div class="w-2/3">
-                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Proveedor</label>
-                        <input type="text" id="m-prov" placeholder="Ej: Ferretería Norte" class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                    <div class="flex gap-4">
+                        <div class="w-1/3">
+                            <label class="block text-xs text-slate-400 mb-1">STOCK ACTUAL *</label>
+                            <input type="number" id="m-cant" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-xs text-slate-400 mb-1">MÍNIMO *</label>
+                            <input type="number" id="m-min" required class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-xs text-slate-400 mb-1">UNIDAD</label>
+                            <input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-800 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Nombre del Producto *</label>
-                    <input type="text" id="m-nombre" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
+
+                <div class="bg-slate-900/50 p-4 rounded-lg mb-6 border border-slate-700">
+                    <h4 class="text-emerald-400 text-sm font-bold uppercase mb-3">2. Cargar Proveedores</h4>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="p-nombre" placeholder="Nombre Empresa/Persona" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="text" id="p-tel" placeholder="Teléfono" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="email" id="p-mail" placeholder="Email" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="text" id="p-web" placeholder="Página Web" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm">
+                        <input type="text" id="p-loc" placeholder="Ubicación/Dirección" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm col-span-2">
+                    </div>
+                    
+                    <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-700 hover:bg-slate-600 text-emerald-400 border border-emerald-900/50 font-bold py-2 rounded text-sm mb-4 transition">
+                        + AGREGAR A LA LISTA DE PROVEEDORES
+                    </button>
+
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800 min-h-[80px]">
+                        <p class="text-xs text-slate-500 mb-2">Proveedores asignados a este producto:</p>
+                        <ul id="lista-proveedores-temp" class="space-y-2 text-sm text-slate-300 max-h-32 overflow-y-auto scroll-fino">
+                            </ul>
+                    </div>
                 </div>
-                <div class="flex gap-3 mb-6">
-                    <div class="w-1/3">
-                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Stock *</label>
-                        <input type="number" id="m-cant" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
-                    </div>
-                    <div class="w-1/3">
-                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Mínimo *</label>
-                        <input type="number" id="m-min" required class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
-                    </div>
-                    <div class="w-1/3">
-                        <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Unidad</label>
-                        <input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-900 text-white border border-slate-600 p-2 rounded focus:border-blue-500 outline-none">
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
-                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-3 py-2 text-sm transition">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold transition shadow-lg">Guardar</button>
+
+                <div class="flex justify-end gap-3 pt-2 border-t border-slate-700">
+                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-4 py-2 transition">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded font-bold transition shadow-lg shadow-blue-900/50">
+                        GUARDAR PRODUCTO COMPLETO
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v5_final';
+        const DB_KEY = 'labse_db_v6';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
+        let proveedoresTemporales = []; // Array temporal para el modal
 
+        // --- NAVEGACIÓN ---
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
                 const el = document.getElementById(v);
@@ -147,16 +173,13 @@
 
         function login() {
             const u = document.getElementById('user').value.toLowerCase().trim();
-            if(u === 'admin' || u === 'camila' || u === '') {
-                irA('vista-dashboard');
-            } else {
-                alert('⚠️ Usuario incorrecto. Prueba con: admin');
-            }
+            if(u === 'admin' || u === 'camila' || u === '') irA('vista-dashboard');
+            else alert('Usuario incorrecto. Prueba con: admin');
         }
-        
-        function logout() { if(confirm('¿Cerrar sesión?')) location.reload(); }
+        function logout() { location.reload(); }
         function volver() { irA('vista-dashboard'); }
 
+        // --- INVENTARIO ---
         function abrirInventario(cat) {
             catActual = cat;
             document.getElementById('titulo-cat').innerText = (cat === 'Insumos' ? '📦 ' : '🔧 ') + cat;
@@ -169,106 +192,188 @@
             const vacioMsg = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
             
-            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
-                const numA = parseInt(a.cod);
-                const numB = parseInt(b.cod);
-                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                return a.cod > b.cod ? 1 : -1;
-            });
+            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => a.cod > b.cod ? 1 : -1);
             
             if(filtrados.length === 0) vacioMsg.classList.remove('hidden');
             else vacioMsg.classList.add('hidden');
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) <= parseInt(item.min);
+                // Extraer nombres de proveedores para mostrar resumen
+                const provNombres = item.proveedores && item.proveedores.length > 0 
+                    ? item.proveedores.map(p => p.nombre).join(', ') 
+                    : '<span class="text-slate-600 italic">Sin asignar</span>';
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800 transition border-b border-slate-800 group";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod || 'N/A'}</td>
+                    <td class="p-4 font-mono text-blue-300 font-bold">${item.cod}</td>
                     <td class="p-4 font-medium text-slate-200">${item.nom}</td>
-                    <td class="p-4 text-slate-400 text-xs uppercase tracking-wide">${item.prov || '-'}</td>
-                    <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs font-normal text-slate-500">${item.uni}</span></td>
-                    <td class="p-4 text-center text-slate-500">${item.min}</td>
+                    <td class="p-4 text-slate-400 text-xs">${provNombres}</td>
+                    <td class="p-4 text-center font-bold ${critico ? 'text-red-400' : 'text-emerald-400'}">${item.cant} <span class="text-xs text-slate-500">${item.uni}</span></td>
                     <td class="p-4 text-center"><span class="px-2 py-1 rounded text-xs font-bold border ${critico ? 'bg-red-900/20 text-red-400 border-red-900' : 'bg-emerald-900/20 text-emerald-400 border-emerald-900'}">${critico ? 'REPONER' : 'OK'}</span></td>
-                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition text-lg font-bold px-2 py-1 rounded hover:bg-slate-700">×</button></td>
+                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-600 hover:text-red-500 transition font-bold px-2">×</button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // --- MODAL Y PROVEEDORES ---
         function mostrarModal() {
             const m = document.getElementById('modal');
             m.classList.remove('oculto'); m.classList.add('visible');
+            
+            // Resetear formulario
             document.getElementById('m-cod').value = '';
-            document.getElementById('m-prov').value = '';
             document.getElementById('m-nombre').value = '';
             document.getElementById('m-cant').value = '';
             document.getElementById('m-min').value = '';
             document.getElementById('m-uni').value = '';
+            
+            // Resetear proveedores
+            proveedoresTemporales = [];
+            limpiarInputsProveedor();
+            renderProveedoresTemp();
+            
             document.getElementById('m-cod').focus();
         }
 
         function cerrarModal() {
-            const m = document.getElementById('modal');
-            m.classList.remove('visible'); m.classList.add('oculto');
+            document.getElementById('modal').classList.remove('visible');
+            document.getElementById('modal').classList.add('oculto');
         }
 
-        function guardar(e) {
-            e.preventDefault();
-            const codigo = document.getElementById('m-cod').value.trim();
-            if (datos.some(d => d.cod === codigo)) return alert('⛔ ERROR: El código "' + codigo + '" ya existe.');
+        function limpiarInputsProveedor() {
+            document.getElementById('p-nombre').value = '';
+            document.getElementById('p-tel').value = '';
+            document.getElementById('p-mail').value = '';
+            document.getElementById('p-web').value = '';
+            document.getElementById('p-loc').value = '';
+        }
 
-            datos.push({
+        function agregarProveedorTemporal() {
+            const nombre = document.getElementById('p-nombre').value.trim();
+            if(!nombre) return alert('Ingresa al menos el nombre del proveedor.');
+
+            const nuevoProv = {
                 id: Date.now(),
-                cod: codigo,
-                prov: document.getElementById('m-prov').value.trim(),
+                nombre: nombre,
+                tel: document.getElementById('p-tel').value.trim(),
+                mail: document.getElementById('p-mail').value.trim(),
+                web: document.getElementById('p-web').value.trim(),
+                loc: document.getElementById('p-loc').value.trim()
+            };
+
+            proveedoresTemporales.push(nuevoProv);
+            limpiarInputsProveedor();
+            renderProveedoresTemp();
+        }
+
+        function eliminarProveedorTemp(id) {
+            proveedoresTemporales = proveedoresTemporales.filter(p => p.id !== id);
+            renderProveedoresTemp();
+        }
+
+        function renderProveedoresTemp() {
+            const ul = document.getElementById('lista-proveedores-temp');
+            ul.innerHTML = '';
+            if(proveedoresTemporales.length === 0) {
+                ul.innerHTML = '<li class="text-slate-600 italic pl-2">- Ninguno agregado aún -</li>';
+                return;
+            }
+            proveedoresTemporales.forEach(p => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700";
+                li.innerHTML = `
+                    <div>
+                        <span class="font-bold text-emerald-300 block">${p.nombre}</span>
+                        <span class="text-xs text-slate-400">${p.tel} | ${p.loc}</span>
+                    </div>
+                    <button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-red-300 text-xs font-bold px-2">Quitar</button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        function guardarProducto(e) {
+            e.preventDefault();
+            const cod = document.getElementById('m-cod').value.trim();
+            if(datos.some(d => d.cod === cod)) return alert('⛔ El código ya existe.');
+
+            const nuevo = {
+                id: Date.now(),
+                cod: cod,
                 nom: document.getElementById('m-nombre').value.trim(),
                 cant: parseInt(document.getElementById('m-cant').value),
                 min: parseInt(document.getElementById('m-min').value),
                 uni: document.getElementById('m-uni').value.trim() || 'u.',
+                proveedores: [...proveedoresTemporales], // Copia del array
                 cat: catActual
-            });
+            };
+
+            datos.push(nuevo);
             localStorage.setItem(DB_KEY, JSON.stringify(datos));
             cerrarModal(); renderTabla();
         }
 
         function borrar(id) {
-            if(confirm('¿Borrar ítem?')) {
+            if(confirm('¿Eliminar producto?')) {
                 datos = datos.filter(d => d.id !== id);
                 localStorage.setItem(DB_KEY, JSON.stringify(datos));
                 renderTabla();
             }
         }
-        
-        function borrarBaseDatos() {
-            if(confirm('⚠️ ¿Borrar TODOS los datos?')) { localStorage.removeItem(DB_KEY); location.reload(); }
-        }
+        function borrarBaseDatos() { if(confirm('⚠️ ¿Borrar TODOS los datos?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
+        // --- REPORTE PDF CON DETALLES ---
         function generarOrden() {
             const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
             if(faltantes.length === 0) return alert('✅ Inventario saludable.');
+            
             const fecha = new Date().toLocaleDateString();
-            let html = `<body style="font-family: Arial, sans-serif; padding: 40px; color: #333;">
+            let html = `
+            <body style="font-family: Arial, sans-serif; padding: 40px; color: #333; font-size:14px;">
                 <div style="border-bottom: 3px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between;">
-                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE</p></div>
+                    <div><h1 style="color: #2563eb; margin: 0;">ORDEN DE REPOSICIÓN</h1><p style="margin:5px 0 0 0; color:#666;">Sistema LABSE - Detalle de Contacto</p></div>
                     <div style="text-align:right;"><strong>Fecha:</strong> ${fecha}</div>
-                </div>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                    <thead><tr style="background-color: #f1f5f9; text-transform:uppercase; font-size:12px;">
-                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Cód</th>
-                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Producto</th>
-                        <th style="text-align: left; padding: 12px; border-bottom: 2px solid #ccc;">Proveedor</th>
-                        <th style="text-align: center; padding: 12px; border-bottom: 2px solid #ccc;">Faltante</th>
-                    </tr></thead><tbody>`;
+                </div>`;
+
             faltantes.forEach(f => {
-                html += `<tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight:bold;">${f.cod}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${f.nom}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee; font-size:0.9em; color:#555;">${f.prov || '-'}</td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center; color: red; font-weight: bold;">${f.cant} ${f.uni}</td>
-                </tr>`;
+                // Generar HTML de proveedores
+                let htmlProv = '<em style="color:#999">Sin datos de proveedor</em>';
+                if(f.proveedores && f.proveedores.length > 0) {
+                    htmlProv = `<table style="width:100%; font-size:12px; margin-top:5px; border:1px solid #ddd; background:#f9fafb;">`;
+                    f.proveedores.forEach(p => {
+                        htmlProv += `
+                            <tr>
+                                <td style="padding:4px; font-weight:bold; color:#059669;">${p.nombre}</td>
+                                <td style="padding:4px;">📞 ${p.tel || '-'}</td>
+                                <td style="padding:4px;">📧 ${p.mail || '-'}</td>
+                                <td style="padding:4px;">📍 ${p.loc || '-'}</td>
+                            </tr>`;
+                    });
+                    htmlProv += `</table>`;
+                }
+
+                html += `
+                <div style="margin-bottom:20px; border:1px solid #ccc; border-radius:8px; overflow:hidden;">
+                    <div style="background:#eef2ff; padding:10px; border-bottom:1px solid #ccc; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="background:#2563eb; color:white; padding:3px 6px; border-radius:4px; font-size:12px; font-weight:bold; margin-right:10px;">${f.cod}</span>
+                            <strong style="font-size:16px;">${f.nom}</strong>
+                        </div>
+                        <div style="color:#dc2626; font-weight:bold;">
+                            FALTAN: ${parseInt(f.min) - parseInt(f.cant) + 1} ${f.uni} (Stock: ${f.cant})
+                        </div>
+                    </div>
+                    <div style="padding:10px;">
+                        <strong style="font-size:12px; text-transform:uppercase; color:#666;">Contactar a:</strong>
+                        ${htmlProv}
+                    </div>
+                </div>`;
             });
-            html += `</tbody></table><br><div style="text-align:center;"><button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer;">🖨️ IMPRIMIR</button></div></body>`;
+
+            html += `<div style="text-align:center; margin-top:30px;"><button onclick="window.print()" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">🖨️ IMPRIMIR ORDEN</button></div></body>`;
             const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
