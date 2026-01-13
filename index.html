@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V7.1</title>
+    <title>LABSE SYSTEM V8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -11,7 +11,6 @@
         .visible { display: flex !important; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        /* Scrollbar personalizado */
         .scroll-fino::-webkit-scrollbar { width: 8px; }
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -23,23 +22,13 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Sistema de Gestión de Inventario</p>
-            
+            <p class="text-slate-400 text-sm mb-8">Sistema de Gestión V8</p>
             <div class="space-y-4">
-                <div class="text-left">
-                    <label class="text-xs text-slate-500 font-bold ml-1">USUARIO</label>
-                    <input type="text" id="user" placeholder="Ej: Admin" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none transition">
-                </div>
-                <div class="text-left">
-                    <label class="text-xs text-slate-500 font-bold ml-1">CONTRASEÑA</label>
-                    <input type="password" id="pass" placeholder="••••••" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none transition">
-                </div>
-                
-                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">
-                    INICIAR SISTEMA
-                </button>
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none">
+                <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">INICIAR SISTEMA</button>
             </div>
-            <p class="mt-6 text-xs text-slate-600">Versión 7.1 Final</p>
+            <p class="mt-6 text-xs text-slate-600">Actualización: Envío por Correo</p>
         </div>
     </div>
 
@@ -48,37 +37,25 @@
             <div class="font-bold text-blue-400 tracking-wider text-lg">LABSE SYSTEM</div>
             <div class="flex items-center gap-4">
                 <span id="user-display" class="text-slate-300 text-sm font-semibold border-r border-slate-600 pr-4">Usuario: Admin</span>
-                <button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold transition flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-700">
-                    <span>⏻</span> Salir
-                </button>
+                <button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold transition flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-700"><span>⏻</span> Salir</button>
             </div>
         </div>
-
         <div class="flex-1 flex flex-col items-center justify-center p-6">
             <h2 class="text-3xl font-bold text-white mb-10">Panel de Control</h2>
-
             <button onclick="generarOrden()" class="w-full max-w-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-6 rounded-2xl shadow-xl border border-blue-400/30 mb-12 flex items-center justify-center gap-4 transition transform hover:scale-105">
-                <span class="text-2xl">📄</span> 
-                <span class="text-lg">GENERAR ORDEN DE COMPRA</span>
+                <span class="text-2xl">📄</span> <span class="text-lg">GENERAR ORDEN DE COMPRA</span>
             </button>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 <div onclick="abrirInventario('Insumos')" class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-blue-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden shadow-lg">
                     <div class="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition">📦</div>
                     <h3 class="text-2xl font-bold text-blue-200 group-hover:text-blue-400 mb-2">Insumos</h3>
-                    <p class="text-slate-400 text-sm">Consumibles, cables, materiales.</p>
                 </div>
-
                 <div onclick="abrirInventario('Herramientas')" class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition hover:bg-slate-750 group relative overflow-hidden shadow-lg">
                     <div class="absolute -right-4 -top-4 text-8xl opacity-5 group-hover:opacity-10 transition">🔧</div>
                     <h3 class="text-2xl font-bold text-indigo-200 group-hover:text-indigo-400 mb-2">Herramientas</h3>
-                    <p class="text-slate-400 text-sm">Activos fijos, máquinas, instrumentos.</p>
                 </div>
             </div>
-            
-            <button onclick="borrarBaseDatos()" class="mt-16 text-xs text-red-900 hover:text-red-500 underline opacity-60 hover:opacity-100 transition">
-                Resetear Base de Datos (Borrar todo)
-            </button>
+            <button onclick="borrarBaseDatos()" class="mt-16 text-xs text-red-900 hover:text-red-500 underline opacity-60 hover:opacity-100 transition">Resetear Base de Datos</button>
         </div>
     </div>
 
@@ -88,11 +65,8 @@
                 <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm border border-slate-600 transition">← Volver</button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-blue-400 border-l border-slate-600 pl-4">Inventario</h2>
             </div>
-            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5">
-                <span>+</span> NUEVO ÍTEM
-            </button>
+            <button onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5"><span>+</span> NUEVO ÍTEM</button>
         </div>
-
         <div class="flex-1 overflow-auto p-6 bg-slate-900">
             <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
                 <table class="w-full text-left border-collapse">
@@ -100,18 +74,16 @@
                         <tr>
                             <th class="p-4 font-bold border-b border-slate-700">Cód.</th>
                             <th class="p-4 font-bold border-b border-slate-700">Producto</th>
-                            <th class="p-4 font-bold border-b border-slate-700 w-1/4">Proveedores Asignados</th>
+                            <th class="p-4 font-bold border-b border-slate-700 w-1/4">Proveedores</th>
                             <th class="p-4 font-bold border-b border-slate-700 text-center">Stock</th>
                             <th class="p-4 font-bold border-b border-slate-700 text-center">Estado</th>
                             <th class="p-4 font-bold border-b border-slate-700 text-right">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm">
-                        </tbody>
+                    <tbody id="tabla-body" class="divide-y divide-slate-700 text-sm"></tbody>
                 </table>
                 <div id="vacio-msg" class="text-center p-16 text-slate-500 hidden flex flex-col items-center">
-                    <span class="text-4xl mb-2">📭</span>
-                    <p>No hay productos registrados en esta categoría.</p>
+                    <span class="text-4xl mb-2">📭</span><p>No hay productos registrados.</p>
                 </div>
             </div>
         </div>
@@ -119,125 +91,87 @@
 
     <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/90 items-center justify-center backdrop-blur-sm fade-in overflow-y-auto py-10">
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-600 w-full max-w-2xl shadow-2xl my-auto relative">
-            
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
                 <h3 class="text-2xl font-bold text-white">Nuevo Producto</h3>
                 <button onclick="cerrarModal()" class="text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
             </div>
-            
             <form onsubmit="guardarProducto(event)">
-                
                 <div class="bg-slate-900/50 p-5 rounded-xl mb-6 border border-slate-700/50">
                     <h4 class="text-blue-400 text-xs font-bold uppercase tracking-wider mb-4 border-b border-slate-700/50 pb-1">1. Información General</h4>
-                    
                     <div class="flex gap-4 mb-4">
                         <div class="w-1/4">
                             <label class="block text-xs text-slate-400 font-bold mb-1">CÓDIGO *</label>
-                            <input type="text" id="m-cod" placeholder="001" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none transition font-mono">
+                            <input type="text" id="m-cod" placeholder="001" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none">
                         </div>
                         <div class="w-3/4">
-                            <label class="block text-xs text-slate-400 font-bold mb-1">NOMBRE DEL PRODUCTO *</label>
-                            <input type="text" id="m-nombre" placeholder="Ej: Cable UTP Cat6" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none transition">
+                            <label class="block text-xs text-slate-400 font-bold mb-1">NOMBRE *</label>
+                            <input type="text" id="m-nombre" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none">
                         </div>
                     </div>
-
                     <div class="flex gap-4">
                         <div class="w-1/3">
-                            <label class="block text-xs text-slate-400 font-bold mb-1">STOCK ACTUAL *</label>
-                            <input type="number" id="m-cant" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none transition">
+                            <label class="block text-xs text-slate-400 font-bold mb-1">STOCK *</label>
+                            <input type="number" id="m-cant" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none">
                         </div>
                         <div class="w-1/3">
-                            <label class="block text-xs text-slate-400 font-bold mb-1">STOCK MÍNIMO *</label>
-                            <input type="number" id="m-min" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none transition">
+                            <label class="block text-xs text-slate-400 font-bold mb-1">MÍNIMO *</label>
+                            <input type="number" id="m-min" required class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none">
                         </div>
                         <div class="w-1/3">
                             <label class="block text-xs text-slate-400 font-bold mb-1">UNIDAD</label>
-                            <input type="text" id="m-uni" placeholder="u., mts, lts" class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none transition">
+                            <input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-800 text-white border border-slate-600 p-2.5 rounded-lg focus:border-blue-500 outline-none">
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-slate-900/50 p-5 rounded-xl mb-6 border border-slate-700/50">
                     <h4 class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4 border-b border-slate-700/50 pb-1">2. Proveedores (Opcional)</h4>
-                    
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <input type="text" id="p-nombre" placeholder="Nombre Empresa / Persona" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
+                        <input type="text" id="p-nombre" placeholder="Nombre" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
                         <input type="text" id="p-tel" placeholder="Teléfono" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
                         <input type="email" id="p-mail" placeholder="Email" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
-                        <input type="text" id="p-web" placeholder="Página Web" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
-                        <input type="text" id="p-loc" placeholder="Dirección / Ubicación" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm col-span-2 focus:border-emerald-500 outline-none">
+                        <input type="text" id="p-web" placeholder="Web" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm focus:border-emerald-500 outline-none">
+                        <input type="text" id="p-loc" placeholder="Ubicación" class="bg-slate-800 text-white border border-slate-600 p-2 rounded text-sm col-span-2 focus:border-emerald-500 outline-none">
                     </div>
-                    
-                    <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 border-dashed hover:border-emerald-500 py-2 rounded-lg text-sm font-bold transition mb-4">
-                        + AGREGAR A LA LISTA DE ESTE PRODUCTO
-                    </button>
-
+                    <button type="button" onclick="agregarProveedorTemporal()" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 border-dashed hover:border-emerald-500 py-2 rounded-lg text-sm font-bold transition mb-4">+ AGREGAR A LA LISTA</button>
                     <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 min-h-[60px]">
                         <ul id="lista-proveedores-temp" class="space-y-2 text-sm max-h-32 overflow-y-auto scroll-fino"></ul>
                     </div>
                 </div>
-
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
-                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-5 py-2.5 rounded-lg transition hover:bg-slate-700">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg shadow-blue-900/50 hover:shadow-blue-900/80">
-                        GUARDAR PRODUCTO
-                    </button>
+                    <button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-5 py-2.5 rounded-lg transition">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg font-bold transition shadow-lg">GUARDAR</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- BASE DE DATOS LOCAL ---
-        const DB_KEY = 'labse_db_v7_final';
+        const DB_KEY = 'labse_db_v8';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
-        let currentUser = 'Admin'; // Usuario por defecto
+        let currentUser = 'Admin';
 
-        // --- SISTEMA DE NAVEGACIÓN ---
         function irA(id) {
-            // Oculta todas las pantallas
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
-                const el = document.getElementById(v);
-                if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
+                const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
             });
-            // Muestra la deseada
-            const dest = document.getElementById(id);
-            if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
+            const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // --- LOGIN (Blindado) ---
         function login() {
             const input = document.getElementById('user');
-            let nombre = 'Admin'; // Por defecto si está vacío
-            
-            if (input && input.value.trim() !== '') {
-                nombre = input.value.trim();
-                // Poner mayúscula inicial
-                nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-            }
-            
-            currentUser = nombre;
-            
-            // Actualizar interfaz
-            const display = document.getElementById('user-display');
-            if(display) display.innerText = 'Usuario: ' + currentUser;
-            
-            // Entrar
+            if (input && input.value.trim() !== '') currentUser = input.value.trim().charAt(0).toUpperCase() + input.value.trim().slice(1);
+            document.getElementById('user-display').innerText = 'Usuario: ' + currentUser;
             irA('vista-dashboard');
         }
-
         function logout() { location.reload(); }
         function volver() { irA('vista-dashboard'); }
 
-        // --- INVENTARIO ---
-        function abrirInventario(categoria) {
-            catActual = categoria;
-            const titulo = document.getElementById('titulo-cat');
-            if(titulo) titulo.innerText = (categoria === 'Insumos' ? '📦 ' : '🔧 ') + categoria;
-            renderTabla();
-            irA('vista-tabla');
+        function abrirInventario(cat) {
+            catActual = cat;
+            document.getElementById('titulo-cat').innerText = (cat === 'Insumos' ? '📦 ' : '🔧 ') + cat;
+            renderTabla(); irA('vista-tabla');
         }
 
         function renderTabla() {
@@ -245,286 +179,156 @@
             const vacioMsg = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
             
-            // Filtrar y ordenar por código
-            const filtrados = datos
-                .filter(d => d.cat === catActual)
-                .sort((a, b) => {
-                    // Intenta ordenar números si son numéricos
-                    const na = parseInt(a.cod), nb = parseInt(b.cod);
-                    return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.cod.localeCompare(b.cod);
-                });
+            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
+                const na = parseInt(a.cod), nb = parseInt(b.cod);
+                return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.cod.localeCompare(b.cod);
+            });
             
-            if(filtrados.length === 0) {
-                vacioMsg.classList.remove('hidden');
-                vacioMsg.classList.add('flex');
-            } else {
-                vacioMsg.classList.add('hidden');
-                vacioMsg.classList.remove('flex');
-            }
+            if(filtrados.length === 0) { vacioMsg.classList.remove('hidden'); vacioMsg.classList.add('flex'); } 
+            else { vacioMsg.classList.add('hidden'); vacioMsg.classList.remove('flex'); }
 
             filtrados.forEach(item => {
-                const esCritico = parseInt(item.cant) <= parseInt(item.min);
-                
-                // Formatear lista corta de proveedores
+                const esCritico = parseInt(item.cant) < parseInt(item.min);
                 let provStr = '<span class="text-slate-600 italic text-xs">Sin asignar</span>';
                 if(item.proveedores && item.proveedores.length > 0) {
                     provStr = item.proveedores.map(p => p.nombre).join(', ');
                     if(provStr.length > 30) provStr = provStr.substring(0, 30) + '...';
                 }
-
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-700/50 group";
-                
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-blue-300 font-bold">${item.cod}</td>
                     <td class="p-4 font-medium text-slate-200 text-lg">${item.nom}</td>
                     <td class="p-4 text-slate-400 text-xs">${provStr}</td>
-                    <td class="p-4 text-center">
-                        <span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span>
-                        <span class="text-xs text-slate-500 block">${item.uni}</span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">
-                            ${esCritico ? 'REPONER' : 'OK'}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right">
-                        <button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition" title="Eliminar">
-                            🗑️
-                        </button>
-                    </td>
+                    <td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span><span class="text-xs text-slate-500 block">${item.uni}</span></td>
+                    <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>
+                    <td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- GESTIÓN DE MODAL Y PROVEEDORES ---
         function mostrarModal() {
-            document.getElementById('modal').classList.remove('oculto');
-            document.getElementById('modal').classList.add('visible');
-            
-            // Limpiar campos
-            document.getElementById('m-cod').value = '';
-            document.getElementById('m-nombre').value = '';
-            document.getElementById('m-cant').value = '';
-            document.getElementById('m-min').value = '';
+            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
+            document.getElementById('m-cod').value = ''; document.getElementById('m-nombre').value = ''; 
+            document.getElementById('m-cant').value = ''; document.getElementById('m-min').value = ''; 
             document.getElementById('m-uni').value = '';
-            
-            proveedoresTemporales = [];
-            limpiarInputsProveedor();
-            renderProveedoresTemp();
-            
+            proveedoresTemporales = []; limpiarInputsProveedor(); renderProveedoresTemp();
             document.getElementById('m-cod').focus();
         }
-
-        function cerrarModal() {
-            document.getElementById('modal').classList.remove('visible');
-            document.getElementById('modal').classList.add('oculto');
-        }
-
-        function limpiarInputsProveedor() {
-            ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = '');
-        }
-
+        function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
+        function limpiarInputsProveedor() { ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = ''); }
         function agregarProveedorTemporal() {
             const nombre = document.getElementById('p-nombre').value.trim();
-            if(!nombre) return; // No agregar vacíos
-            
+            if(!nombre) return;
             proveedoresTemporales.push({
-                id: Date.now(),
-                nombre: nombre,
-                tel: document.getElementById('p-tel').value.trim(),
-                mail: document.getElementById('p-mail').value.trim(),
-                web: document.getElementById('p-web').value.trim(),
+                id: Date.now(), nombre: nombre, tel: document.getElementById('p-tel').value.trim(),
+                mail: document.getElementById('p-mail').value.trim(), web: document.getElementById('p-web').value.trim(),
                 loc: document.getElementById('p-loc').value.trim()
             });
-            
-            limpiarInputsProveedor();
-            renderProveedoresTemp();
-            // Poner foco en nombre de nuevo para agregar otro rápido
-            document.getElementById('p-nombre').focus();
+            limpiarInputsProveedor(); renderProveedoresTemp(); document.getElementById('p-nombre').focus();
         }
-
-        function eliminarProveedorTemp(id) {
-            proveedoresTemporales = proveedoresTemporales.filter(p => p.id !== id);
-            renderProveedoresTemp();
-        }
-
+        function eliminarProveedorTemp(id) { proveedoresTemporales = proveedoresTemporales.filter(p => p.id !== id); renderProveedoresTemp(); }
         function renderProveedoresTemp() {
-            const ul = document.getElementById('lista-proveedores-temp');
-            ul.innerHTML = '';
-            
-            if(proveedoresTemporales.length === 0) {
-                ul.innerHTML = '<li class="text-slate-600 italic pl-2 text-xs">No hay proveedores asignados aún.</li>';
-                return;
-            }
-            
+            const ul = document.getElementById('lista-proveedores-temp'); ul.innerHTML = '';
+            if(proveedoresTemporales.length === 0) { ul.innerHTML = '<li class="text-slate-600 italic pl-2 text-xs">Sin proveedores.</li>'; return; }
             proveedoresTemporales.forEach(p => {
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center bg-slate-900/80 p-2 rounded border border-slate-700";
-                li.innerHTML = `
-                    <div class="overflow-hidden">
-                        <span class="font-bold text-emerald-400 block truncate">${p.nombre}</span>
-                        <span class="text-[10px] text-slate-400 truncate block">${p.tel} | ${p.mail}</span>
-                    </div>
-                    <button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-white hover:bg-red-500 rounded px-2 py-0.5 text-xs font-bold transition ml-2">Quit</button>
-                `;
+                li.innerHTML = `<div class="overflow-hidden"><span class="font-bold text-emerald-400 block truncate">${p.nombre}</span><span class="text-[10px] text-slate-400 truncate block">${p.tel} | ${p.mail}</span></div><button type="button" onclick="eliminarProveedorTemp(${p.id})" class="text-red-400 hover:text-white hover:bg-red-500 rounded px-2 py-0.5 text-xs font-bold transition ml-2">Quit</button>`;
                 ul.appendChild(li);
             });
         }
-
         function guardarProducto(e) {
             e.preventDefault();
             const cod = document.getElementById('m-cod').value.trim();
-            
-            // Validación código único
-            if(datos.some(d => d.cod === cod)) {
-                alert('⛔ ERROR: El código "' + cod + '" ya existe.');
-                return;
-            }
-
-            // Autoguardado de proveedor pendiente
+            if(datos.some(d => d.cod === cod)) { alert('⛔ ERROR: Código repetido.'); return; }
             const nombrePendiente = document.getElementById('p-nombre').value.trim();
             if(nombrePendiente !== "") agregarProveedorTemporal();
-
-            const nuevoItem = {
-                id: Date.now(),
-                cod: cod,
-                nom: document.getElementById('m-nombre').value.trim(),
-                cant: parseInt(document.getElementById('m-cant').value),
-                min: parseInt(document.getElementById('m-min').value),
-                uni: document.getElementById('m-uni').value.trim() || 'u.',
-                proveedores: [...proveedoresTemporales],
-                cat: catActual
-            };
-
-            datos.push(nuevoItem);
-            localStorage.setItem(DB_KEY, JSON.stringify(datos));
-            cerrarModal();
-            renderTabla();
+            datos.push({
+                id: Date.now(), cod: cod, nom: document.getElementById('m-nombre').value.trim(),
+                cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
+                uni: document.getElementById('m-uni').value.trim() || 'u.', proveedores: [...proveedoresTemporales], cat: catActual
+            });
+            localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla();
         }
+        function borrar(id) { if(confirm('¿Eliminar producto?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
+        function borrarBaseDatos() { if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
-        function borrar(id) {
-            if(confirm('¿Estás segura de eliminar este producto?')) {
-                datos = datos.filter(d => d.id !== id);
-                localStorage.setItem(DB_KEY, JSON.stringify(datos));
-                renderTabla();
-            }
-        }
-        
-        function borrarBaseDatos() {
-            if(confirm('⚠️ ¿BORRAR TODO EL INVENTARIO?\n\nEsta acción no se puede deshacer.')) {
-                localStorage.removeItem(DB_KEY);
-                location.reload();
-            }
-        }
-
-        // --- GENERADOR DE ORDEN DE COMPRA (PDF) ---
         function generarOrden() {
-            const faltantes = datos.filter(d => parseInt(d.cant) <= parseInt(d.min));
+            const todosFaltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
+            if(todosFaltantes.length === 0) return alert('✅ Inventario OK.');
             
-            if(faltantes.length === 0) return alert('✅ Inventario saludable. No hace falta reponer nada.');
-            
-            const insumos = faltantes.filter(d => d.cat === 'Insumos');
-            const herramientas = faltantes.filter(d => d.cat === 'Herramientas');
+            const insumos = todosFaltantes.filter(d => d.cat === 'Insumos');
+            const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
 
-            // Estilos CSS para imprimir
-            let html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Orden de Compra - LABSE</title>
-                <style>
-                    body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
-                    .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
-                    h1 { color: #2563eb; margin: 0; font-size: 24px; }
-                    .meta { text-align: right; }
-                    .section-title { background: #333; color: white; padding: 8px; margin-top: 30px; margin-bottom: 0; font-size: 14px; text-transform: uppercase; font-weight: bold; }
-                    table { width: 100%; border-collapse: collapse; border: 1px solid #ccc; }
-                    th { background: #f1f5f9; text-transform: uppercase; border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 11px; }
-                    td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
-                    .col-cod { width: 10%; font-weight: bold; }
-                    .col-prod { width: 30%; }
-                    .col-stock { width: 10%; text-align: center; }
-                    .col-pedir { width: 10%; text-align: center; color: #dc2626; font-weight: bold; }
-                    .col-prov { width: 40%; }
-                    ul { margin: 0; padding-left: 15px; }
-                    li { margin-bottom: 5px; }
-                    .print-btn { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: block; margin: 30px auto; }
-                    @media print { .print-btn { display: none; } }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <div>
-                        <h1>ORDEN DE COMPRA</h1>
-                        <p style="margin:5px 0 0 0; color:#555;">Sistema de Gestión LABSE</p>
-                    </div>
-                    <div class="meta">
-                        <p style="margin:0;"><strong>FECHA:</strong> ${fecha}</p>
-                        <p style="margin:2px 0;"><strong>GENERADO POR:</strong> ${currentUser}</p>
-                    </div>
-                </div>`;
+            // 1. GENERAR TEXTO PLANO PARA EMAIL
+            let cuerpoEmail = `ORDEN DE COMPRA - LABSE\nFecha: ${fecha}\nResponsable: ${currentUser}\n\n`;
+            
+            if(insumos.length > 0) {
+                cuerpoEmail += `--- INSUMOS ---\n`;
+                insumos.forEach(i => {
+                    const cant = parseInt(i.min) - parseInt(i.cant);
+                    const prov = (i.proveedores && i.proveedores.length > 0) ? ` (Prov: ${i.proveedores[0].nombre})` : '';
+                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}${prov}\n`;
+                });
+                cuerpoEmail += `\n`;
+            }
+            if(herramientas.length > 0) {
+                cuerpoEmail += `--- HERRAMIENTAS ---\n`;
+                herramientas.forEach(i => {
+                    const cant = parseInt(i.min) - parseInt(i.cant);
+                    const prov = (i.proveedores && i.proveedores.length > 0) ? ` (Prov: ${i.proveedores[0].nombre})` : '';
+                    cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${cant} ${i.uni}${prov}\n`;
+                });
+            }
+            const asunto = `Orden de Compra LABSE - ${fecha}`;
+            const mailtoLink = `mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpoEmail)}`;
 
-            function crearTabla(titulo, lista, colorFondo) {
+            // 2. GENERAR HTML PARA IMPRIMIR
+            let html = `<!DOCTYPE html><html><head><title>Orden LABSE</title><style>
+                body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
+                .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+                h1 { color: #2563eb; margin: 0; font-size: 24px; }
+                table { width: 100%; border-collapse: collapse; border: 1px solid #ccc; margin-top: 10px; }
+                th { background: #f1f5f9; text-transform: uppercase; border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 11px; }
+                td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
+                .actions { margin-top: 30px; text-align: center; display: flex; gap: 10px; justify-content: center; }
+                .btn { padding: 10px 20px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 14px; display: inline-block; }
+                .btn-print { background: #2563eb; }
+                .btn-mail { background: #059669; }
+                @media print { .actions { display: none; } }
+            </style></head><body>
+            <div class="header"><div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div><div style="text-align:right;"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>RESPONSABLE:</strong> ${currentUser}</p></div></div>`;
+
+            function crearTabla(titulo, lista, color) {
                 if(lista.length === 0) return '';
-                
-                let tbl = `<h2 class="section-title" style="background:${colorFondo}">${titulo}</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Descripción del Producto</th>
-                            <th style="text-align:center">Stock</th>
-                            <th style="text-align:center">A Comprar</th>
-                            <th>Proveedores Sugeridos</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                
+                let tbl = `<h2 style="background:${color}; color:white; padding:8px; margin-top:30px; font-size:14px; text-transform:uppercase;">${titulo}</h2>
+                <table><thead><tr><th>Cód</th><th>Descripción</th><th style="text-align:center">Stock</th><th style="text-align:center; color:#dc2626;">A Comprar</th><th>Proveedores</th></tr></thead><tbody>`;
                 lista.forEach(item => {
-                    const cantidadPedir = (parseInt(item.min) - parseInt(item.cant)) + 1; // Pedir lo justo para superar el mínimo o +1
-                    
-                    let provHtml = '<span style="color:#999; font-style:italic;">No especificado</span>';
+                    const cantidadPedir = parseInt(item.min) - parseInt(item.cant);
+                    let provHtml = '<span style="color:#999; italic">N/A</span>';
                     if(item.proveedores && item.proveedores.length > 0) {
-                        provHtml = '<ul>';
-                        item.proveedores.forEach(p => {
-                            provHtml += `<li><strong>${p.nombre}</strong><br>
-                            <span style="font-size:10px; color:#555;">
-                            ${p.tel ? '📞'+p.tel : ''} ${p.mail ? '✉️'+p.mail : ''} ${p.loc ? '📍'+p.loc : ''}
-                            </span></li>`;
-                        });
+                        provHtml = '<ul style="margin:0; padding-left:15px;">';
+                        item.proveedores.forEach(p => provHtml += `<li><strong>${p.nombre}</strong> <span style="font-size:10px; color:#555;">${p.tel || ''}</span></li>`);
                         provHtml += '</ul>';
                     }
-
-                    tbl += `<tr>
-                        <td class="col-cod">${item.cod}</td>
-                        <td class="col-prod">${item.nom}</td>
-                        <td class="col-stock">${item.cant} ${item.uni}</td>
-                        <td class="col-pedir">${cantidadPedir} ${item.uni}</td>
-                        <td class="col-prov">${provHtml}</td>
-                    </tr>`;
+                    tbl += `<tr><td><strong>${item.cod}</strong></td><td>${item.nom}</td><td style="text-align:center">${item.cant}</td><td style="text-align:center; font-weight:bold; color:#dc2626;">${cantidadPedir} ${item.uni}</td><td>${provHtml}</td></tr>`;
                 });
-                
-                tbl += `</tbody></table>`;
-                return tbl;
+                return tbl + '</tbody></table>';
             }
 
-            html += crearTabla('📦 INSUMOS Y CONSUMIBLES', insumos, '#2563eb');
-            html += crearTabla('🔧 HERRAMIENTAS Y ACTIVOS', herramientas, '#4f46e5');
-
-            html += `
-                <div style="margin-top:50px; border-top:1px solid #ccc; padding-top:10px; display:flex; justify-content:space-between;">
-                    <div style="width:30%; border-top:1px solid #000; text-align:center; margin-top:40px; padding-top:5px;">Firma Solicitante</div>
-                    <div style="width:30%; border-top:1px solid #000; text-align:center; margin-top:40px; padding-top:5px;">Firma Autorizante</div>
-                </div>
-                <button class="print-btn" onclick="window.print()">🖨️ IMPRIMIR REPORTE</button>
+            html += crearTabla('📦 INSUMOS', insumos, '#2563eb');
+            html += crearTabla('🔧 HERRAMIENTAS', herramientas, '#4f46e5');
+            html += `<div style="margin-top:50px; display:flex; justify-content:space-between;"><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Solicitante</div><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Autorizante</div></div>
+            <div class="actions">
+                <button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR REPORTE</button>
+                <a href="${mailtoLink}" class="btn btn-mail">📧 ENVIAR POR CORREO</a>
+            </div>
             </body></html>`;
 
-            const w = window.open('', '_blank');
-            w.document.write(html);
-            w.document.close();
+            const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
 </body>
