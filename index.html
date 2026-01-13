@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V10.1</title>
+    <title>LABSE SYSTEM V11 (EDICIÓN)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -21,17 +21,17 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Gestión V10.1 (Accesos)</p>
+            <p class="text-slate-400 text-sm mb-8">Gestión V11 (Edición)</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none uppercase text-center font-bold tracking-wider">
                 <input type="password" id="pass" placeholder="••••••" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none text-center">
                 <button type="button" onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-lg shadow-lg transition transform active:scale-95 mt-4">INGRESAR</button>
             </div>
             <div class="mt-6 text-xs text-slate-500">
-                <p>Usuarios disponibles:</p>
-                <div class="flex justify-center gap-2 mt-2">
-                    <span class="bg-slate-700 px-2 py-1 rounded text-emerald-400 font-bold">camila</span>
-                    <span class="bg-slate-700 px-2 py-1 rounded text-blue-400 font-bold">reporte</span>
+                <p>Usuarios habilitados:</p>
+                <div class="flex flex-col gap-1 mt-2">
+                    <span class="text-emerald-400">Total: camila, admin</span>
+                    <span class="text-blue-400">Ver/Reporte: reporte, auditor</span>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
                 <button onclick="volver()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm border border-slate-600 transition">← Volver</button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-blue-400 border-l border-slate-600 pl-4">Inventario</h2>
             </div>
-            <button id="btn-nuevo-item" onclick="mostrarModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5 hidden">
+            <button id="btn-nuevo-item" onclick="mostrarModalNuevo()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-lg font-bold text-sm shadow-lg shadow-emerald-900/20 flex items-center gap-2 transition hover:-translate-y-0.5 hidden">
                 <span>+</span> NUEVO ÍTEM
             </button>
         </div>
@@ -104,7 +104,7 @@
     <div id="modal" class="oculto fixed inset-0 z-[60] bg-black/90 items-center justify-center backdrop-blur-sm fade-in overflow-y-auto py-10">
         <div class="bg-slate-800 p-8 rounded-2xl border border-slate-600 w-full max-w-2xl shadow-2xl my-auto relative">
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                <h3 class="text-2xl font-bold text-white">Nuevo Producto</h3>
+                <h3 id="modal-titulo" class="text-2xl font-bold text-white">Nuevo Producto</h3>
                 <button onclick="cerrarModal()" class="text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
             </div>
             <form onsubmit="guardarProducto(event)">
@@ -158,12 +158,13 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v10';
+        const DB_KEY = 'labse_db_v11';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
         let currentUser = '';
         let esAdmin = false;
+        let editandoId = null; // Variable para saber si estamos editando
 
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
@@ -172,41 +173,30 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
+        // --- LOGIN ---
         function login() {
             const input = document.getElementById('user').value.trim().toLowerCase();
-            
-            if (input === 'camila') {
-                currentUser = 'Camila (Admin)';
+            if (['camila', 'admin', 'jefa', 'administrador'].includes(input)) {
+                currentUser = input.toUpperCase() + ' (ADMIN)';
                 esAdmin = true;
                 irA('vista-dashboard');
                 aplicarPermisos();
-            } else if (input === 'reporte') {
-                currentUser = 'Reporte (Auditor)';
+            } else if (['reporte', 'auditor', 'invitado'].includes(input)) {
+                currentUser = input.toUpperCase() + ' (VISITA)';
                 esAdmin = false;
                 irA('vista-dashboard');
                 aplicarPermisos();
             } else {
-                alert('⛔ ACCESO DENEGADO\nUsuarios válidos:\n- camila (Control Total)\n- reporte (Solo Órdenes)');
+                alert('⛔ ACCESO DENEGADO\nPrueba con: camila (Jefa) o reporte (Visita)');
             }
         }
 
         function aplicarPermisos() {
             document.getElementById('user-display').innerText = currentUser;
-
-            // 1. Reset Database (Solo Admin)
-            const btnReset = document.getElementById('btn-reset-db');
-            if (esAdmin) btnReset.classList.remove('hidden');
-            else btnReset.classList.add('hidden');
-
-            // 2. Nuevo Item (Solo Admin)
-            const btnNuevo = document.getElementById('btn-nuevo-item');
-            if (esAdmin) btnNuevo.classList.remove('hidden');
-            else btnNuevo.classList.add('hidden');
-
-            // 3. Columna Acción (Borrar) - Solo Admin
-            const colAccion = document.getElementById('col-accion');
-            if (esAdmin) colAccion.classList.remove('hidden');
-            else colAccion.classList.add('hidden');
+            const elemsAdmin = [document.getElementById('btn-reset-db'), document.getElementById('btn-nuevo-item'), document.getElementById('col-accion')];
+            elemsAdmin.forEach(el => {
+                if (esAdmin) el.classList.remove('hidden'); else el.classList.add('hidden');
+            });
         }
 
         function logout() { location.reload(); }
@@ -222,12 +212,10 @@
             const tbody = document.getElementById('tabla-body');
             const vacioMsg = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
-            
             const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
                 const na = parseInt(a.cod), nb = parseInt(b.cod);
                 return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.cod.localeCompare(b.cod);
             });
-            
             if(filtrados.length === 0) { vacioMsg.classList.remove('hidden'); vacioMsg.classList.add('flex'); } 
             else { vacioMsg.classList.add('hidden'); vacioMsg.classList.remove('flex'); }
 
@@ -239,12 +227,15 @@
                     if(provStr.length > 30) provStr = provStr.substring(0, 30) + '...';
                 }
 
-                // SI NO ES ADMIN, OCULTAMOS EL BOTÓN DE BORRAR
-                let botonBorrar = '';
+                // Botones de acción (SOLO ADMIN)
+                let botonesAccion = '';
                 if (esAdmin) {
-                    botonBorrar = `<td class="p-4 text-right"><button onclick="borrar(${item.id})" class="text-slate-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition">🗑️</button></td>`;
+                    botonesAccion = `<td class="p-4 text-right flex justify-end gap-2">
+                        <button onclick="editar(${item.id})" class="text-yellow-500 hover:text-yellow-300 hover:bg-yellow-500/10 p-2 rounded-lg transition" title="Editar">✏️</button>
+                        <button onclick="borrar(${item.id})" class="text-red-500 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg transition" title="Eliminar">🗑️</button>
+                    </td>`;
                 } else {
-                    botonBorrar = `<td class="p-4 text-right hidden"></td>`;
+                    botonesAccion = `<td class="p-4 text-right hidden"></td>`;
                 }
 
                 const tr = document.createElement('tr');
@@ -255,22 +246,57 @@
                     <td class="p-4 text-slate-400 text-xs">${provStr}</td>
                     <td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span><span class="text-xs text-slate-500 block">${item.uni}</span></td>
                     <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>
-                    ${botonBorrar}
+                    ${botonesAccion}
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // GESTION
-        function mostrarModal() {
+        // --- GESTIÓN DE MODALES ---
+        function mostrarModalNuevo() {
             if(!esAdmin) return;
-            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
-            document.getElementById('m-cod').value = ''; document.getElementById('m-nombre').value = ''; 
-            document.getElementById('m-cant').value = ''; document.getElementById('m-min').value = ''; 
+            editandoId = null; // Modo Nuevo
+            document.getElementById('modal-titulo').innerText = 'Nuevo Producto';
+            
+            // Limpiar
+            document.getElementById('m-cod').value = '';
+            document.getElementById('m-nombre').value = ''; 
+            document.getElementById('m-cant').value = '';
+            document.getElementById('m-min').value = ''; 
             document.getElementById('m-uni').value = '';
-            proveedoresTemporales = []; limpiarInputsProveedor(); renderProveedoresTemp();
+            proveedoresTemporales = [];
+            
+            limpiarInputsProveedor();
+            renderProveedoresTemp();
+            
+            document.getElementById('modal').classList.remove('oculto'); 
+            document.getElementById('modal').classList.add('visible');
             document.getElementById('m-cod').focus();
         }
+
+        function editar(id) {
+            if(!esAdmin) return;
+            const item = datos.find(d => d.id === id);
+            if(!item) return;
+
+            editandoId = id; // Modo Edición
+            document.getElementById('modal-titulo').innerText = 'Editar Producto';
+
+            // Cargar datos
+            document.getElementById('m-cod').value = item.cod;
+            document.getElementById('m-nombre').value = item.nom;
+            document.getElementById('m-cant').value = item.cant;
+            document.getElementById('m-min').value = item.min;
+            document.getElementById('m-uni').value = item.uni;
+            
+            // Cargar proveedores (clonar array)
+            proveedoresTemporales = item.proveedores ? [...item.proveedores] : [];
+            renderProveedoresTemp();
+
+            document.getElementById('modal').classList.remove('oculto');
+            document.getElementById('modal').classList.add('visible');
+        }
+
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
         function limpiarInputsProveedor() { ['p-nombre','p-tel','p-mail','p-web','p-loc'].forEach(id => document.getElementById(id).value = ''); }
         
@@ -301,22 +327,47 @@
             e.preventDefault();
             if(!esAdmin) return;
             const cod = document.getElementById('m-cod').value.trim();
-            if(datos.some(d => d.cod === cod)) { alert('⛔ ERROR: Código repetido.'); return; }
+            
+            // Validación: Código único (Excluyendo el propio item si se edita)
+            const existe = datos.some(d => d.cod === cod && d.id !== editandoId);
+            if(existe) { alert('⛔ ERROR: El código ya existe en otro producto.'); return; }
+
             const nombrePendiente = document.getElementById('p-nombre').value.trim();
             if(nombrePendiente !== "") agregarProveedorTemporal();
-            datos.push({
-                id: Date.now(), cod: cod, nom: document.getElementById('m-nombre').value.trim(),
-                cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
-                uni: document.getElementById('m-uni').value.trim() || 'u.', proveedores: [...proveedoresTemporales], cat: catActual
-            });
-            localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla();
+
+            if (editandoId) {
+                // MODO EDICION
+                const index = datos.findIndex(d => d.id === editandoId);
+                if (index !== -1) {
+                    datos[index] = {
+                        id: editandoId,
+                        cod: cod,
+                        nom: document.getElementById('m-nombre').value.trim(),
+                        cant: parseInt(document.getElementById('m-cant').value),
+                        min: parseInt(document.getElementById('m-min').value),
+                        uni: document.getElementById('m-uni').value.trim() || 'u.',
+                        proveedores: [...proveedoresTemporales],
+                        cat: catActual
+                    };
+                }
+            } else {
+                // MODO CREACION
+                datos.push({
+                    id: Date.now(), cod: cod, nom: document.getElementById('m-nombre').value.trim(),
+                    cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
+                    uni: document.getElementById('m-uni').value.trim() || 'u.', proveedores: [...proveedoresTemporales], cat: catActual
+                });
+            }
+
+            localStorage.setItem(DB_KEY, JSON.stringify(datos));
+            cerrarModal();
+            renderTabla();
         }
 
         function borrar(id) { 
             if(!esAdmin) return;
-            if(confirm('¿Eliminar producto?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } 
+            if(confirm('¿Eliminar producto permanentemente?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } 
         }
-        
         function borrarBaseDatos() { 
             if(!esAdmin) return;
             if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } 
