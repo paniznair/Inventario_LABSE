@@ -163,22 +163,12 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v30_final';
-        const TASKS_KEY = 'labse_tareas_v30';
+        const DB_KEY = 'labse_db_v31_final'; // Clave nueva para DB limpia
+        const TASKS_KEY = 'labse_tareas_v31';
         
+        // SIN DATOS AUTOMÁTICOS
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        // Carga inicial de datos si está vacío
-        if(datos.length === 0) {
-            datos = [
-                {id:1, cod:'C01', nom:'Cinta Aisladora', cant:20, min:5, uni:'Rollos', cat:'Insumos', proveedores:[]},
-                {id:2, cod:'T01', nom:'Tornillo 3/4', cant:100, min:50, uni:'u.', cat:'Insumos', proveedores:[]},
-                {id:3, cod:'P01', nom:'Pegamento Ind.', cant:5, min:2, uni:'Latas', cat:'Insumos', proveedores:[]},
-                {id:4, cod:'H01', nom:'Destornillador Phillips', cant:2, min:1, uni:'u.', cat:'Herramientas', proveedores:[]},
-                {id:5, cod:'H02', nom:'Taladro Percutor', cant:1, min:1, uni:'u.', cat:'Herramientas', proveedores:[]}
-            ];
-            localStorage.setItem(DB_KEY, JSON.stringify(datos));
-        }
-
+        
         let tareas = JSON.parse(localStorage.getItem(TASKS_KEY)) || [
             {id: 1, nombre: "Instr. Eje, Biela Distrib y EH", materiales: []},
             {id: 2, nombre: "Instru. Rodete", materiales: []},
@@ -288,7 +278,7 @@
             });
         }
         
-        // BUSCADOR
+        // BUSCADOR DE MATERIALES
         function agregarMaterialATrabajo() { 
             if(datos.length === 0) return alert('¡Inventario vacío! Carga productos primero.');
             document.getElementById('modal-buscador').classList.remove('oculto'); 
@@ -356,11 +346,11 @@
             res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         }
 
-        // CRUD CORREGIDO
+        // CRUD CORREGIDO Y VALIDADO
         function mostrarModalNuevo() { 
             if(!catActual) return alert('Error: No se ha definido una categoría. Recarga la página.');
             editandoId=null; 
-            document.getElementById('modal-titulo').innerText='Nuevo ' + catActual.slice(0, -1); // "Insumo" o "Herramienta"
+            document.getElementById('modal-titulo').innerText='Nuevo ' + catActual.slice(0, -1);
             limpiarForm(); 
             if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable; 
             document.getElementById('modal').classList.remove('oculto'); 
@@ -384,8 +374,7 @@
             
             if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); 
             
-            // ASEGURAR CATEGORIA
-            if(!catActual) catActual = 'Insumos'; // Fallback por seguridad
+            if(!catActual) catActual = 'Insumos';
 
             const obj = {
                 id: editandoId||Date.now(), 
