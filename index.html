@@ -34,7 +34,7 @@
 
             <form onsubmit="verificarPassword(event)" class="flex flex-col gap-4">
                 <input type="password" id="sys-pass" placeholder="Contraseña..." class="w-full bg-slate-950 text-white border border-slate-700 rounded-xl py-3 text-center focus:border-blue-500 outline-none transition text-lg tracking-widest">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95">DESBLOQUEAR</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95 uppercase tracking-wide">INICIAR SISTEMA</button>
             </form>
         </div>
     </div>
@@ -68,7 +68,7 @@
         </div>
         
         <button onclick="volverAlBloqueo()" class="mt-12 text-slate-500 hover:text-red-400 text-sm flex items-center gap-2 transition">
-            <i class="fas fa-arrow-left"></i> Volver al bloqueo
+            <i class="fas fa-arrow-left"></i> Volver al Inicio
         </button>
     </div>
 
@@ -216,7 +216,7 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v18_final';
+        const DB_KEY = 'labse_db_v19_final';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
