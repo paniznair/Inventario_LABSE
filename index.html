@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LABSE SYSTEM V11 (EDICIÓN)</title>
+    <title>LABSE - Gestión de Inventario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
@@ -21,7 +21,7 @@
     <div id="vista-login" class="visible fixed inset-0 z-50 w-full h-full bg-slate-900 items-center justify-center fade-in">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-96 text-center">
             <h1 class="text-5xl font-black text-blue-500 mb-2 tracking-tighter">LABSE</h1>
-            <p class="text-slate-400 text-sm mb-8">Gestión V11 (Edición)</p>
+            <p class="text-slate-400 text-sm mb-8">Gestión de Inventario</p>
             <div class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none uppercase text-center font-bold tracking-wider">
                 <input type="password" id="pass" placeholder="••••••" class="w-full bg-slate-700 text-white p-3 rounded border border-slate-600 focus:border-blue-500 outline-none text-center">
@@ -30,8 +30,8 @@
             <div class="mt-6 text-xs text-slate-500">
                 <p>Usuarios habilitados:</p>
                 <div class="flex flex-col gap-1 mt-2">
-                    <span class="text-emerald-400">Total: camila, admin</span>
-                    <span class="text-blue-400">Ver/Reporte: reporte, auditor</span>
+                    <span class="text-emerald-400">Admin: labse</span>
+                    <span class="text-blue-400">Visita: reporte</span>
                 </div>
             </div>
         </div>
@@ -108,6 +108,12 @@
                 <button onclick="cerrarModal()" class="text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
             </div>
             <form onsubmit="guardarProducto(event)">
+                
+                <div class="bg-indigo-900/30 p-4 rounded-xl mb-4 border border-indigo-500/30">
+                    <label class="block text-xs text-indigo-300 font-bold mb-1">¿QUIÉN REALIZA LA CARGA? *</label>
+                    <input type="text" id="m-resp" placeholder="Ej: Camila, Juan, Pedro..." required class="w-full bg-slate-900 text-white border border-indigo-500/50 p-2.5 rounded-lg focus:border-indigo-400 outline-none font-bold tracking-wide">
+                </div>
+
                 <div class="bg-slate-900/50 p-5 rounded-xl mb-6 border border-slate-700/50">
                     <h4 class="text-blue-400 text-xs font-bold uppercase tracking-wider mb-4 border-b border-slate-700/50 pb-1">1. Información General</h4>
                     <div class="flex gap-4 mb-4">
@@ -158,13 +164,13 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v11';
+        const DB_KEY = 'labse_db_v13';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
         let currentUser = '';
         let esAdmin = false;
-        let editandoId = null; // Variable para saber si estamos editando
+        let editandoId = null;
 
         function irA(id) {
             ['vista-login', 'vista-dashboard', 'vista-tabla'].forEach(v => {
@@ -173,21 +179,25 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // --- LOGIN ---
+        // --- LOGIN: SOLO LABSE ES ADMIN ---
         function login() {
             const input = document.getElementById('user').value.trim().toLowerCase();
-            if (['camila', 'admin', 'jefa', 'administrador'].includes(input)) {
-                currentUser = input.toUpperCase() + ' (ADMIN)';
+            
+            // ADMIN = LABSE
+            if (input === 'labse') {
+                currentUser = 'LABSE (ADMIN)';
                 esAdmin = true;
                 irA('vista-dashboard');
                 aplicarPermisos();
-            } else if (['reporte', 'auditor', 'invitado'].includes(input)) {
-                currentUser = input.toUpperCase() + ' (VISITA)';
+            } 
+            // VISITA = REPORTE
+            else if (['reporte', 'auditor', 'invitado'].includes(input)) {
+                currentUser = 'VISITA (SOLO VER)';
                 esAdmin = false;
                 irA('vista-dashboard');
                 aplicarPermisos();
             } else {
-                alert('⛔ ACCESO DENEGADO\nPrueba con: camila (Jefa) o reporte (Visita)');
+                alert('⛔ ERROR DE ACCESO\n\nUsuario Administrador: labse\nUsuario Visita: reporte');
             }
         }
 
@@ -227,7 +237,6 @@
                     if(provStr.length > 30) provStr = provStr.substring(0, 30) + '...';
                 }
 
-                // Botones de acción (SOLO ADMIN)
                 let botonesAccion = '';
                 if (esAdmin) {
                     botonesAccion = `<td class="p-4 text-right flex justify-end gap-2">
@@ -242,7 +251,10 @@
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-700/50 group";
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-blue-300 font-bold">${item.cod}</td>
-                    <td class="p-4 font-medium text-slate-200 text-lg">${item.nom}</td>
+                    <td class="p-4">
+                        <div class="font-medium text-slate-200 text-lg">${item.nom}</div>
+                        <div class="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">Reg. por: ${item.resp || 'Anónimo'}</div>
+                    </td>
                     <td class="p-4 text-slate-400 text-xs">${provStr}</td>
                     <td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span><span class="text-xs text-slate-500 block">${item.uni}</span></td>
                     <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>
@@ -252,49 +264,33 @@
             });
         }
 
-        // --- GESTIÓN DE MODALES ---
+        // --- MODALES ---
         function mostrarModalNuevo() {
             if(!esAdmin) return;
-            editandoId = null; // Modo Nuevo
+            editandoId = null;
             document.getElementById('modal-titulo').innerText = 'Nuevo Producto';
-            
-            // Limpiar
-            document.getElementById('m-cod').value = '';
-            document.getElementById('m-nombre').value = ''; 
-            document.getElementById('m-cant').value = '';
-            document.getElementById('m-min').value = ''; 
+            document.getElementById('m-resp').value = '';
+            document.getElementById('m-cod').value = ''; document.getElementById('m-nombre').value = ''; 
+            document.getElementById('m-cant').value = ''; document.getElementById('m-min').value = ''; 
             document.getElementById('m-uni').value = '';
-            proveedoresTemporales = [];
-            
-            limpiarInputsProveedor();
-            renderProveedoresTemp();
-            
-            document.getElementById('modal').classList.remove('oculto'); 
-            document.getElementById('modal').classList.add('visible');
-            document.getElementById('m-cod').focus();
+            proveedoresTemporales = []; limpiarInputsProveedor(); renderProveedoresTemp();
+            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
+            document.getElementById('m-resp').focus();
         }
 
         function editar(id) {
             if(!esAdmin) return;
             const item = datos.find(d => d.id === id);
             if(!item) return;
-
-            editandoId = id; // Modo Edición
+            editandoId = id;
             document.getElementById('modal-titulo').innerText = 'Editar Producto';
-
-            // Cargar datos
-            document.getElementById('m-cod').value = item.cod;
-            document.getElementById('m-nombre').value = item.nom;
-            document.getElementById('m-cant').value = item.cant;
-            document.getElementById('m-min').value = item.min;
+            document.getElementById('m-resp').value = item.resp || '';
+            document.getElementById('m-cod').value = item.cod; document.getElementById('m-nombre').value = item.nom;
+            document.getElementById('m-cant').value = item.cant; document.getElementById('m-min').value = item.min;
             document.getElementById('m-uni').value = item.uni;
-            
-            // Cargar proveedores (clonar array)
             proveedoresTemporales = item.proveedores ? [...item.proveedores] : [];
             renderProveedoresTemp();
-
-            document.getElementById('modal').classList.remove('oculto');
-            document.getElementById('modal').classList.add('visible');
+            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
         }
 
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
@@ -326,52 +322,38 @@
         function guardarProducto(e) {
             e.preventDefault();
             if(!esAdmin) return;
-            const cod = document.getElementById('m-cod').value.trim();
             
-            // Validación: Código único (Excluyendo el propio item si se edita)
-            const existe = datos.some(d => d.cod === cod && d.id !== editandoId);
-            if(existe) { alert('⛔ ERROR: El código ya existe en otro producto.'); return; }
+            const resp = document.getElementById('m-resp').value.trim();
+            if(!resp) { alert('⚠️ Por favor indica el NOMBRE del Responsable de Carga.'); return; }
 
+            const cod = document.getElementById('m-cod').value.trim();
+            const existe = datos.some(d => d.cod === cod && d.id !== editandoId);
+            if(existe) { alert('⛔ ERROR: El código ya existe.'); return; }
             const nombrePendiente = document.getElementById('p-nombre').value.trim();
             if(nombrePendiente !== "") agregarProveedorTemporal();
 
-            if (editandoId) {
-                // MODO EDICION
-                const index = datos.findIndex(d => d.id === editandoId);
-                if (index !== -1) {
-                    datos[index] = {
-                        id: editandoId,
-                        cod: cod,
-                        nom: document.getElementById('m-nombre').value.trim(),
-                        cant: parseInt(document.getElementById('m-cant').value),
-                        min: parseInt(document.getElementById('m-min').value),
-                        uni: document.getElementById('m-uni').value.trim() || 'u.',
-                        proveedores: [...proveedoresTemporales],
-                        cat: catActual
-                    };
-                }
-            } else {
-                // MODO CREACION
-                datos.push({
-                    id: Date.now(), cod: cod, nom: document.getElementById('m-nombre').value.trim(),
-                    cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
-                    uni: document.getElementById('m-uni').value.trim() || 'u.', proveedores: [...proveedoresTemporales], cat: catActual
-                });
-            }
+            const itemGuardar = {
+                id: editandoId || Date.now(),
+                resp: resp,
+                cod: cod, nom: document.getElementById('m-nombre').value.trim(),
+                cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
+                uni: document.getElementById('m-uni').value.trim() || 'u.', proveedores: [...proveedoresTemporales], cat: catActual
+            };
 
-            localStorage.setItem(DB_KEY, JSON.stringify(datos));
-            cerrarModal();
-            renderTabla();
+            if (editandoId) {
+                const index = datos.findIndex(d => d.id === editandoId);
+                if (index !== -1) datos[index] = itemGuardar;
+            } else {
+                datos.push(itemGuardar);
+            }
+            localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla();
         }
 
         function borrar(id) { 
             if(!esAdmin) return;
-            if(confirm('¿Eliminar producto permanentemente?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } 
+            if(confirm('¿Eliminar producto?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } 
         }
-        function borrarBaseDatos() { 
-            if(!esAdmin) return;
-            if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } 
-        }
+        function borrarBaseDatos() { if(!esAdmin) return; if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
         function generarOrden() {
             const todosFaltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
@@ -381,12 +363,6 @@
             const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
 
-            let cuerpoEmail = `ORDEN DE COMPRA - LABSE\nFecha: ${fecha}\nResponsable: ${currentUser}\n\n`;
-            if(insumos.length > 0) { cuerpoEmail += `--- INSUMOS ---\n`; insumos.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); cuerpoEmail += `\n`; }
-            if(herramientas.length > 0) { cuerpoEmail += `--- HERRAMIENTAS ---\n`; herramientas.forEach(i => { cuerpoEmail += `[${i.cod}] ${i.nom}: Pedir ${parseInt(i.min)-parseInt(i.cant)} ${i.uni}\n`; }); }
-            const mailtoLink = `mailto:?subject=${encodeURIComponent("Orden LABSE - " + fecha)}&body=${encodeURIComponent(cuerpoEmail)}`;
-            const textoScript = JSON.stringify(cuerpoEmail);
-
             let html = `<!DOCTYPE html><html><head><title>Orden LABSE</title><style>
                 body { font-family: Arial, sans-serif; padding: 40px; color: #333; font-size: 12px; }
                 .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
@@ -395,10 +371,10 @@
                 th { background: #f1f5f9; text-transform: uppercase; border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 11px; }
                 td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
                 .actions { margin-top: 30px; text-align: center; display: flex; gap: 10px; justify-content: center; }
-                .btn { padding: 12px 24px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; display: inline-block; font-family: sans-serif; }
-                .btn-print { background: #2563eb; } .btn-mail { background: #059669; } .btn-copy { background: #475569; }
+                .btn { padding: 12px 24px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; display: inline-block; font-family: sans-serif; background: #2563eb; }
+                .btn:hover { background: #1d4ed8; }
                 @media print { .actions { display: none; } }
-            </style><script>function copiar(){navigator.clipboard.writeText(${textoScript}).then(()=>alert('✅ Copiado')).catch(()=>alert('❌ Error'));}<\/script></head><body>
+            </style></head><body>
             <div class="header"><div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div><div style="text-align:right;"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>RESPONSABLE:</strong> ${currentUser}</p></div></div>`;
 
             function crearTabla(titulo, lista, color) {
@@ -414,7 +390,7 @@
             html += crearTabla('📦 INSUMOS', insumos, '#2563eb');
             html += crearTabla('🔧 HERRAMIENTAS', herramientas, '#4f46e5');
             html += `<div style="margin-top:50px; display:flex; justify-content:space-between;"><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Solicitante</div><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Autorizante</div></div>
-            <div class="actions"><button class="btn btn-print" onclick="window.print()">🖨️ IMPRIMIR / PDF</button><a href="${mailtoLink}" class="btn btn-mail">📧 ABRIR CORREO</a><button class="btn btn-copy" onclick="copiar()">📋 COPIAR LISTA</button></div></body></html>`;
+            <div class="actions"><button class="btn" onclick="window.print()">🖨️ IMPRIMIR REPORTE / GUARDAR PDF</button></div></body></html>`;
             const w = window.open('', '_blank'); w.document.write(html); w.document.close();
         }
     </script>
