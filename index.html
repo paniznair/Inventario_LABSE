@@ -127,7 +127,7 @@
             </div>
             <div class="flex-1 overflow-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-4"><h4 class="text-blue-400 font-bold text-xs uppercase">Materiales (x Operario)</h4><button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700" id="btn-add-mat">+ Item</button></div>
+                    <div class="flex justify-between items-center mb-4"><h4 class="text-blue-400 font-bold text-xs uppercase">Materiales (x Operario)</h4><button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700 hover:bg-slate-700" id="btn-add-mat">+ Item</button></div>
                     <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-900 text-slate-400 text-xs uppercase"><tr><th class="p-3">Item</th><th class="p-3 text-center">Cant.</th><th class="p-3 text-right"></th></tr></thead><tbody id="mt-lista-materiales" class="divide-y divide-slate-800"></tbody></table><div id="mt-vacio" class="p-8 text-center text-slate-500 text-xs">Sin materiales.</div></div>
                 </div>
                 <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 flex flex-col">
@@ -143,9 +143,9 @@
     <div id="modal-buscador" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center p-4 fade-in">
         <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6">
             <h3 class="text-white font-bold mb-4">Seleccionar Producto</h3>
-            <input type="text" id="mb-input" placeholder="Buscar..." class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 mb-4 outline-none" onkeyup="filtrarBuscadorModal()">
-            <div class="h-64 overflow-auto bg-slate-950 rounded border border-slate-800" id="mb-lista"></div>
-            <button onclick="cerrarBuscador()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded">Cancelar</button>
+            <input type="text" id="mb-input" placeholder="Buscar..." class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 mb-4 outline-none focus:border-blue-500" onkeyup="filtrarBuscadorModal()">
+            <div class="h-64 overflow-auto bg-slate-950 rounded border border-slate-800 p-1" id="mb-lista"></div>
+            <button onclick="cerrarBuscador()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded font-bold text-sm">Cancelar</button>
         </div>
     </div>
 
@@ -163,10 +163,21 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v27_final';
-        const TASKS_KEY = 'labse_tareas_v27';
+        const DB_KEY = 'labse_db_v29_final';
+        const TASKS_KEY = 'labse_tareas_v29';
         
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        if(datos.length === 0) {
+            datos = [
+                {id:1, cod:'C01', nom:'Cinta Aisladora', cant:20, min:5, uni:'Rollos', cat:'Insumos', proveedores:[]},
+                {id:2, cod:'T01', nom:'Tornillo 3/4', cant:100, min:50, uni:'u.', cat:'Insumos', proveedores:[]},
+                {id:3, cod:'P01', nom:'Pegamento Ind.', cant:5, min:2, uni:'Latas', cat:'Insumos', proveedores:[]},
+                {id:4, cod:'H01', nom:'Destornillador Phillips', cant:2, min:1, uni:'u.', cat:'Herramientas', proveedores:[]},
+                {id:5, cod:'H02', nom:'Taladro Percutor', cant:1, min:1, uni:'u.', cat:'Herramientas', proveedores:[]}
+            ];
+            localStorage.setItem(DB_KEY, JSON.stringify(datos));
+        }
+
         let tareas = JSON.parse(localStorage.getItem(TASKS_KEY)) || [
             {id: 1, nombre: "Instr. Eje, Biela Distrib y EH", materiales: []},
             {id: 2, nombre: "Instru. Rodete", materiales: []},
@@ -215,7 +226,6 @@
             const vacio = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
             
-            // CORRECCIÓN CLAVE: Ordenamiento seguro para números y letras
             const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
                 const na = parseInt(a.cod), nb = parseInt(b.cod);
                 if(!isNaN(na) && !isNaN(nb)) return na - nb;
@@ -239,7 +249,7 @@
             });
         }
 
-        // TAREAS (INSTRUMENTACION)
+        // TAREAS
         function abrirInstrumentacion() { irA('vista-instrumentacion'); renderTareas(); }
         function renderTareas() {
             const c = document.getElementById('lista-tareas'); c.innerHTML = '';
@@ -256,7 +266,7 @@
         function editNomTarea(id, e) { e.stopPropagation(); const t = tareas.find(x=>x.id===id); const n = prompt("Nuevo nombre:", t.nombre); if(n) { t.nombre = n; localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); } }
         function delTarea(id, e) { e.stopPropagation(); if(confirm("¿Borrar?")) { tareas = tareas.filter(x=>x.id!==id); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); } }
 
-        // DETALLE TRABAJO (MRP)
+        // DETALLE TRABAJO
         function abrirDetalleTrabajo(id) {
             tareaActual = tareas.find(t => t.id === id);
             document.getElementById('mt-titulo').innerText = tareaActual.nombre;
@@ -276,21 +286,54 @@
                 tb.appendChild(tr);
             });
         }
-        function agregarMaterialATrabajo() { document.getElementById('modal-buscador').classList.remove('oculto'); document.getElementById('modal-buscador').classList.add('visible'); document.getElementById('mb-input').value=''; filtrarBuscadorModal(); }
-        function cerrarBuscador() { document.getElementById('modal-buscador').classList.remove('visible'); document.getElementById('modal-buscador').classList.add('oculto'); }
+        
+        // BUSCADOR CORREGIDO
+        function agregarMaterialATrabajo() { 
+            if(datos.length === 0) return alert('¡Inventario vacío! Carga productos primero.');
+            document.getElementById('modal-buscador').classList.remove('oculto'); 
+            document.getElementById('modal-buscador').classList.add('visible'); 
+            document.getElementById('mb-input').value=''; 
+            filtrarBuscadorModal(); 
+        }
+        
+        function cerrarBuscador() { 
+            document.getElementById('modal-buscador').classList.remove('visible'); 
+            document.getElementById('modal-buscador').classList.add('oculto'); 
+        }
+        
         function filtrarBuscadorModal() {
             const txt = document.getElementById('mb-input').value.toLowerCase();
             const l = document.getElementById('mb-lista'); l.innerHTML = '';
-            datos.filter(d => d.nom.toLowerCase().includes(txt) || d.cod.toLowerCase().includes(txt)).forEach(d => {
-                let div = document.createElement('div'); div.className = "p-3 border-b border-slate-800 hover:bg-slate-800 cursor-pointer flex justify-between";
+            
+            // FILTRO MAS PERMISIVO
+            const matches = datos.filter(d => {
+                const n = d.nom ? d.nom.toLowerCase() : "";
+                const c = d.cod ? d.cod.toLowerCase() : "";
+                return n.includes(txt) || c.includes(txt);
+            });
+            
+            if(matches.length === 0) {
+                l.innerHTML = '<div class="p-4 text-slate-500 text-center text-sm">No se encontraron productos.</div>';
+                return;
+            }
+
+            matches.forEach(d => {
+                let div = document.createElement('div'); 
+                div.className = "p-3 border-b border-slate-800 hover:bg-slate-800 cursor-pointer flex justify-between items-center group";
                 div.onclick = () => {
-                    const c = prompt(`Cantidad de "${d.nom}" POR OPERARIO:`);
-                    if(c && !isNaN(c)) { tareaActual.materiales.push({cod: d.cod, cant: parseInt(c)}); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); cerrarBuscador(); renderMaterialesTarea(); }
+                    const c = prompt(`Cantidad de "${d.nom}" necesaria POR OPERARIO:`);
+                    if(c && !isNaN(c)) { 
+                        tareaActual.materiales.push({cod: d.cod, cant: parseInt(c)}); 
+                        localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); 
+                        cerrarBuscador(); 
+                        renderMaterialesTarea(); 
+                    }
                 };
-                div.innerHTML = `<span class="text-sm text-slate-300">${d.nom}</span><span class="text-xs bg-slate-700 px-2 rounded text-white">${d.cod}</span>`;
+                div.innerHTML = `<div><span class="text-sm text-slate-300 font-bold block">${d.nom}</span><span class="text-xs text-slate-500">${d.cat} | Stock: ${d.cant}</span></div><span class="text-xs bg-slate-700 px-2 py-1 rounded text-white group-hover:bg-blue-600 transition">Agregar</span>`;
                 l.appendChild(div);
             });
         }
+        
         function delMatTarea(idx) { if(confirm("¿Quitar?")) { tareaActual.materiales.splice(idx, 1); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderMaterialesTarea(); } }
         
         function calcularDisponibilidad() {
@@ -313,7 +356,7 @@
             res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         }
 
-        // CRUD BASE
+        // CRUD
         function mostrarModalNuevo() { editandoId=null; document.getElementById('modal-titulo').innerText='Nuevo'; limpiarForm(); if(ultimoResponsable)document.getElementById('m-resp').value=ultimoResponsable; document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
         function editar(id) { const d=datos.find(x=>x.id===id); if(!d)return; editandoId=id; document.getElementById('modal-titulo').innerText='Editar'; document.getElementById('m-resp').value=d.resp||''; document.getElementById('m-cod').value=d.cod; document.getElementById('m-nombre').value=d.nom; document.getElementById('m-cant').value=d.cant; document.getElementById('m-min').value=d.min; document.getElementById('m-uni').value=d.uni; proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
@@ -322,7 +365,7 @@
         function renderProveedoresTemp() { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); }
         function guardarProducto(e) { e.preventDefault(); const r=document.getElementById('m-resp').value; if(!r)return alert('Falta Responsable'); ultimoResponsable=r; const c=document.getElementById('m-cod').value; if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); const obj={id:editandoId||Date.now(), resp:r, cod:c, nom:document.getElementById('m-nombre').value, cant:parseInt(document.getElementById('m-cant').value), min:parseInt(document.getElementById('m-min').value), uni:document.getElementById('m-uni').value, proveedores:proveedoresTemporales, cat:catActual}; if(editandoId){ datos[datos.findIndex(x=>x.id===editandoId)]=obj; } else { datos.push(obj); } localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla(); }
         function borrar(id) { if(confirm('¿Borrar?')) { datos=datos.filter(x=>x.id!==id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
-        function borrarBaseDatos() { if(confirm('¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
+        function borrarBaseDatos() { if(confirm('¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); localStorage.removeItem(TASKS_KEY); location.reload(); } }
 
         // CONSULTA
         function buscarProducto() { const t=document.getElementById('buscador-global').value.toLowerCase(); const r=datos.filter(d=>d.nom.toLowerCase().includes(t)||d.cod.toLowerCase().includes(t)); const b=document.getElementById('tabla-consulta'); b.innerHTML=''; r.forEach(i=>{ b.innerHTML+=`<tr class="border-b border-slate-800"><td class="p-4 font-mono text-emerald-400">${i.cod}</td><td class="p-4 text-white">${i.nom}</td><td class="p-4 text-xs text-slate-500">${i.cat}</td><td class="p-4 text-center text-white">${i.cant}</td></tr>`; }); }
