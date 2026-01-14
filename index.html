@@ -67,7 +67,7 @@
             </button>
         </div>
         
-        <button onclick="logout()" class="mt-12 text-slate-500 hover:text-red-400 text-sm flex items-center gap-2">
+        <button onclick="volverAlBloqueo()" class="mt-12 text-slate-500 hover:text-red-400 text-sm flex items-center gap-2 transition">
             <i class="fas fa-arrow-left"></i> Volver al bloqueo
         </button>
     </div>
@@ -83,8 +83,8 @@
                 <button onclick="generarOrden()" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800 transition-all text-sm font-medium">
                     <i class="fas fa-file-invoice"></i> Generar Reporte
                 </button>
-                <button onclick="logout()" class="text-slate-500 hover:text-red-400 transition-colors px-3 py-2" title="Salir">
-                    <i class="fas fa-sign-out-alt text-lg"></i>
+                <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition-colors px-3 py-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider" title="Cambiar Usuario">
+                    <i class="fas fa-arrow-left"></i> Salir
                 </button>
             </div>
         </header>
@@ -128,7 +128,7 @@
     <div id="vista-tabla" class="oculto w-full h-full flex-col bg-slate-950 fade-in">
         <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
             <div class="flex items-center gap-4">
-                <button onclick="volver()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="fas fa-arrow-left text-sm"></i></button>
+                <button onclick="volverAlDashboard()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="fas fa-arrow-left text-sm"></i></button>
                 <h2 id="titulo-cat" class="text-xl font-bold text-white tracking-tight">Inventario</h2>
             </div>
             <button id="btn-nuevo-item" onclick="mostrarModalNuevo()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center gap-2 transition transform active:scale-95 hidden">
@@ -216,7 +216,7 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v17_final';
+        const DB_KEY = 'labse_db_v18_final';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
@@ -224,7 +224,7 @@
         let editandoId = null;
         let ultimoResponsable = '';
 
-        // NAVEGACIÓN
+        // NAVEGACIÓN CENTRALIZADA
         function irA(id) {
             ['vista-pass', 'vista-roles', 'vista-dashboard', 'vista-tabla'].forEach(v => {
                 const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
@@ -232,19 +232,21 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // PASO 1: VERIFICAR CONTRASEÑA
+        // --- SISTEMA DE NAVEGACIÓN PASO A PASO ---
+        
+        // 1. Verificar Clave -> Ir a Roles
         function verificarPassword(e) {
             e.preventDefault();
             const p = document.getElementById('sys-pass').value.trim();
             if (p === 'labse') {
-                irA('vista-roles'); // Pasar a selección de rol
+                irA('vista-roles');
             } else {
                 alert('🚫 Clave incorrecta');
                 document.getElementById('sys-pass').value = '';
             }
         }
 
-        // PASO 2: SELECCIONAR ROL
+        // 2. Seleccionar Rol -> Ir a Dashboard
         function seleccionarRol(rol) {
             if (rol === 'admin') {
                 esAdmin = true;
@@ -269,10 +271,25 @@
             irA('vista-dashboard');
         }
 
-        function logout() { location.reload(); }
-        function volver() { irA('vista-dashboard'); }
+        // 3. Volver Atrás (Navegación Inversa)
+        
+        // De Roles a Bloqueo
+        function volverAlBloqueo() {
+            document.getElementById('sys-pass').value = ''; // Limpiar clave por seguridad
+            irA('vista-pass');
+        }
 
-        // INVENTARIO
+        // De Dashboard a Roles
+        function volverARoles() {
+            irA('vista-roles');
+        }
+
+        // De Tabla a Dashboard
+        function volverAlDashboard() {
+            irA('vista-dashboard');
+        }
+
+        // INVENTARIO Y TABLAS
         function abrirInventario(cat) {
             catActual = cat;
             document.getElementById('titulo-cat').innerText = cat;
