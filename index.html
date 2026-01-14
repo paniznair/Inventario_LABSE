@@ -110,8 +110,8 @@
             <form onsubmit="guardarProducto(event)">
                 
                 <div class="bg-indigo-900/30 p-4 rounded-xl mb-4 border border-indigo-500/30">
-                    <label class="block text-xs text-indigo-300 font-bold mb-1">¿QUIÉN REALIZA LA CARGA? *</label>
-                    <input type="text" id="m-resp" placeholder="Ej: Camila, Juan, Pedro..." required class="w-full bg-slate-900 text-white border border-indigo-500/50 p-2.5 rounded-lg focus:border-indigo-400 outline-none font-bold tracking-wide">
+                    <label class="block text-xs text-indigo-300 font-bold mb-1">¿QUIÉN REALIZA ESTA CARGA? *</label>
+                    <input type="text" id="m-resp" placeholder="Tu Nombre (Ej: Camila)" required class="w-full bg-slate-900 text-white border border-indigo-500/50 p-2.5 rounded-lg focus:border-indigo-400 outline-none font-bold tracking-wide">
                 </div>
 
                 <div class="bg-slate-900/50 p-5 rounded-xl mb-6 border border-slate-700/50">
@@ -179,19 +179,14 @@
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
         }
 
-        // --- LOGIN: SOLO LABSE ES ADMIN ---
         function login() {
             const input = document.getElementById('user').value.trim().toLowerCase();
-            
-            // ADMIN = LABSE
             if (input === 'labse') {
                 currentUser = 'LABSE (ADMIN)';
                 esAdmin = true;
                 irA('vista-dashboard');
                 aplicarPermisos();
-            } 
-            // VISITA = REPORTE
-            else if (['reporte', 'auditor', 'invitado'].includes(input)) {
+            } else if (['reporte', 'auditor', 'invitado'].includes(input)) {
                 currentUser = 'VISITA (SOLO VER)';
                 esAdmin = false;
                 irA('vista-dashboard');
@@ -264,7 +259,7 @@
             });
         }
 
-        // --- MODALES ---
+        // --- GESTIÓN DE MODALES ---
         function mostrarModalNuevo() {
             if(!esAdmin) return;
             editandoId = null;
@@ -359,6 +354,10 @@
             const todosFaltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
             if(todosFaltantes.length === 0) return alert('✅ Inventario OK.');
             
+            // PREGUNTAR NOMBRE PARA FIRMA EN PDF
+            const nombreSolicitante = prompt("Por favor, ingresa tu nombre para la firma del reporte:", "Admin");
+            if(nombreSolicitante === null) return; // Si cancela, no hace nada
+
             const insumos = todosFaltantes.filter(d => d.cat === 'Insumos');
             const herramientas = todosFaltantes.filter(d => d.cat === 'Herramientas');
             const fecha = new Date().toLocaleDateString();
@@ -375,7 +374,13 @@
                 .btn:hover { background: #1d4ed8; }
                 @media print { .actions { display: none; } }
             </style></head><body>
-            <div class="header"><div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div><div style="text-align:right;"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>RESPONSABLE:</strong> ${currentUser}</p></div></div>`;
+            <div class="header">
+                <div><h1>ORDEN DE COMPRA</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div>
+                <div style="text-align:right;">
+                    <p><strong>FECHA:</strong> ${fecha}</p>
+                    <p><strong>RESPONSABLE:</strong> ${nombreSolicitante}</p>
+                </div>
+            </div>`;
 
             function crearTabla(titulo, lista, color) {
                 if(lista.length === 0) return '';
