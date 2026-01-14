@@ -151,9 +151,18 @@
 
     <div id="modal" class="oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4 fade-in overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl my-auto relative p-6">
-            <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-white">Producto</h3><button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button></div>
+            <div class="flex justify-between mb-4"><h3 id="modal-titulo" class="text-xl font-bold text-white">Producto</h3><button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button></div>
             <form onsubmit="guardarProducto(event)">
                 <input type="text" id="m-resp" placeholder="Responsable *" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 mb-4 focus:border-blue-500 outline-none" required>
+                
+                <div class="mb-4">
+                    <label class="block text-xs text-slate-500 mb-1">CATEGORÍA *</label>
+                    <select id="m-cat" class="w-full bg-slate-800 text-white border border-slate-700 rounded p-2 focus:border-blue-500 outline-none">
+                        <option value="Insumos">Insumos</option>
+                        <option value="Herramientas">Herramientas</option>
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-4 gap-4 mb-4"><input type="text" id="m-cod" placeholder="Código" required class="col-span-1 bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-nombre" placeholder="Nombre" required class="col-span-3 bg-slate-800 text-white border-slate-700 rounded p-2"></div>
                 <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
                 <div class="bg-slate-950/50 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
@@ -163,12 +172,12 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v31_final'; // Clave nueva para DB limpia
-        const TASKS_KEY = 'labse_tareas_v31';
+        const DB_KEY = 'labse_db_v32_final'; 
+        const TASKS_KEY = 'labse_tareas_v32';
         
-        // SIN DATOS AUTOMÁTICOS
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        
+        // SIN DATOS AUTOMATICOS - BD LIMPIA POR DEFECTO
+
         let tareas = JSON.parse(localStorage.getItem(TASKS_KEY)) || [
             {id: 1, nombre: "Instr. Eje, Biela Distrib y EH", materiales: []},
             {id: 2, nombre: "Instru. Rodete", materiales: []},
@@ -278,7 +287,7 @@
             });
         }
         
-        // BUSCADOR DE MATERIALES
+        // BUSCADOR
         function agregarMaterialATrabajo() { 
             if(datos.length === 0) return alert('¡Inventario vacío! Carga productos primero.');
             document.getElementById('modal-buscador').classList.remove('oculto'); 
@@ -346,18 +355,20 @@
             res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         }
 
-        // CRUD CORREGIDO Y VALIDADO
+        // CRUD CORREGIDO CON SELECTOR MANUAL
         function mostrarModalNuevo() { 
-            if(!catActual) return alert('Error: No se ha definido una categoría. Recarga la página.');
             editandoId=null; 
-            document.getElementById('modal-titulo').innerText='Nuevo ' + catActual.slice(0, -1);
+            document.getElementById('modal-titulo').innerText='Nuevo';
+            // Establecer el select en la categoría actual si existe
+            if(catActual) document.getElementById('m-cat').value = catActual;
+            
             limpiarForm(); 
             if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable; 
             document.getElementById('modal').classList.remove('oculto'); 
             document.getElementById('modal').classList.add('visible'); 
         }
 
-        function editar(id) { const d=datos.find(x=>x.id===id); if(!d)return; editandoId=id; document.getElementById('modal-titulo').innerText='Editar'; document.getElementById('m-resp').value=d.resp||''; document.getElementById('m-cod').value=d.cod; document.getElementById('m-nombre').value=d.nom; document.getElementById('m-cant').value=d.cant; document.getElementById('m-min').value=d.min; document.getElementById('m-uni').value=d.uni; proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
+        function editar(id) { const d=datos.find(x=>x.id===id); if(!d)return; editandoId=id; document.getElementById('modal-titulo').innerText='Editar'; document.getElementById('m-resp').value=d.resp||''; document.getElementById('m-cat').value=d.cat; document.getElementById('m-cod').value=d.cod; document.getElementById('m-nombre').value=d.nom; document.getElementById('m-cant').value=d.cant; document.getElementById('m-min').value=d.min; document.getElementById('m-uni').value=d.uni; proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
         function limpiarForm() { ['m-cod','m-nombre','m-cant','m-min','m-uni'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; renderProveedoresTemp(); }
         function agregarProveedorTemporal() { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; renderProveedoresTemp(); } }
@@ -369,12 +380,11 @@
             if(!r) return alert('Falta Responsable'); 
             ultimoResponsable=r; 
             
+            const categoriaElegida = document.getElementById('m-cat').value; // Tomar del select
             const c=document.getElementById('m-cod').value; 
             if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); 
             
             if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); 
-            
-            if(!catActual) catActual = 'Insumos';
 
             const obj = {
                 id: editandoId||Date.now(), 
@@ -385,7 +395,7 @@
                 min:parseInt(document.getElementById('m-min').value), 
                 uni:document.getElementById('m-uni').value, 
                 proveedores:proveedoresTemporales, 
-                cat:catActual 
+                cat:categoriaElegida // Usar la elegida manualmente
             }; 
             
             if(editandoId){ 
@@ -395,8 +405,11 @@
             } 
             
             localStorage.setItem(DB_KEY, JSON.stringify(datos)); 
+            
+            // Si estamos en la vista de esa categoría, refrescar tabla
+            if(catActual === categoriaElegida) renderTabla();
+            
             cerrarModal(); 
-            renderTabla(); 
         }
 
         function borrar(id) { if(confirm('¿Borrar?')) { datos=datos.filter(x=>x.id!==id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
