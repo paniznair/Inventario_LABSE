@@ -163,10 +163,11 @@
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v29_final';
-        const TASKS_KEY = 'labse_tareas_v29';
+        const DB_KEY = 'labse_db_v30_final';
+        const TASKS_KEY = 'labse_tareas_v30';
         
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        // Carga inicial de datos si está vacío
         if(datos.length === 0) {
             datos = [
                 {id:1, cod:'C01', nom:'Cinta Aisladora', cant:20, min:5, uni:'Rollos', cat:'Insumos', proveedores:[]},
@@ -287,7 +288,7 @@
             });
         }
         
-        // BUSCADOR CORREGIDO
+        // BUSCADOR
         function agregarMaterialATrabajo() { 
             if(datos.length === 0) return alert('¡Inventario vacío! Carga productos primero.');
             document.getElementById('modal-buscador').classList.remove('oculto'); 
@@ -305,7 +306,6 @@
             const txt = document.getElementById('mb-input').value.toLowerCase();
             const l = document.getElementById('mb-lista'); l.innerHTML = '';
             
-            // FILTRO MAS PERMISIVO
             const matches = datos.filter(d => {
                 const n = d.nom ? d.nom.toLowerCase() : "";
                 const c = d.cod ? d.cod.toLowerCase() : "";
@@ -356,14 +356,60 @@
             res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         }
 
-        // CRUD
-        function mostrarModalNuevo() { editandoId=null; document.getElementById('modal-titulo').innerText='Nuevo'; limpiarForm(); if(ultimoResponsable)document.getElementById('m-resp').value=ultimoResponsable; document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
+        // CRUD CORREGIDO
+        function mostrarModalNuevo() { 
+            if(!catActual) return alert('Error: No se ha definido una categoría. Recarga la página.');
+            editandoId=null; 
+            document.getElementById('modal-titulo').innerText='Nuevo ' + catActual.slice(0, -1); // "Insumo" o "Herramienta"
+            limpiarForm(); 
+            if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable; 
+            document.getElementById('modal').classList.remove('oculto'); 
+            document.getElementById('modal').classList.add('visible'); 
+        }
+
         function editar(id) { const d=datos.find(x=>x.id===id); if(!d)return; editandoId=id; document.getElementById('modal-titulo').innerText='Editar'; document.getElementById('m-resp').value=d.resp||''; document.getElementById('m-cod').value=d.cod; document.getElementById('m-nombre').value=d.nom; document.getElementById('m-cant').value=d.cant; document.getElementById('m-min').value=d.min; document.getElementById('m-uni').value=d.uni; proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
         function limpiarForm() { ['m-cod','m-nombre','m-cant','m-min','m-uni'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; renderProveedoresTemp(); }
         function agregarProveedorTemporal() { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; renderProveedoresTemp(); } }
         function renderProveedoresTemp() { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); }
-        function guardarProducto(e) { e.preventDefault(); const r=document.getElementById('m-resp').value; if(!r)return alert('Falta Responsable'); ultimoResponsable=r; const c=document.getElementById('m-cod').value; if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); const obj={id:editandoId||Date.now(), resp:r, cod:c, nom:document.getElementById('m-nombre').value, cant:parseInt(document.getElementById('m-cant').value), min:parseInt(document.getElementById('m-min').value), uni:document.getElementById('m-uni').value, proveedores:proveedoresTemporales, cat:catActual}; if(editandoId){ datos[datos.findIndex(x=>x.id===editandoId)]=obj; } else { datos.push(obj); } localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla(); }
+        
+        function guardarProducto(e) { 
+            e.preventDefault(); 
+            const r=document.getElementById('m-resp').value; 
+            if(!r) return alert('Falta Responsable'); 
+            ultimoResponsable=r; 
+            
+            const c=document.getElementById('m-cod').value; 
+            if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); 
+            
+            if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); 
+            
+            // ASEGURAR CATEGORIA
+            if(!catActual) catActual = 'Insumos'; // Fallback por seguridad
+
+            const obj = {
+                id: editandoId||Date.now(), 
+                resp:r, 
+                cod:c, 
+                nom:document.getElementById('m-nombre').value, 
+                cant:parseInt(document.getElementById('m-cant').value), 
+                min:parseInt(document.getElementById('m-min').value), 
+                uni:document.getElementById('m-uni').value, 
+                proveedores:proveedoresTemporales, 
+                cat:catActual 
+            }; 
+            
+            if(editandoId){ 
+                datos[datos.findIndex(x=>x.id===editandoId)]=obj; 
+            } else { 
+                datos.push(obj); 
+            } 
+            
+            localStorage.setItem(DB_KEY, JSON.stringify(datos)); 
+            cerrarModal(); 
+            renderTabla(); 
+        }
+
         function borrar(id) { if(confirm('¿Borrar?')) { datos=datos.filter(x=>x.id!==id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
         function borrarBaseDatos() { if(confirm('¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); localStorage.removeItem(TASKS_KEY); location.reload(); } }
 
