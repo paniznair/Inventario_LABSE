@@ -10,7 +10,7 @@
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
         .oculto { display: none !important; }
         .visible { display: flex !important; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); border-color: #3b82f6; }
         .scroll-fino::-webkit-scrollbar { width: 6px; }
@@ -65,6 +65,27 @@
         </div>
     </div>
 
+    <div id="vista-tabla" class="oculto w-full h-full flex-col bg-slate-950 fade-in">
+        <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-4">
+                <button onclick="volverAlDashboard()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                <h2 id="titulo-cat" class="text-xl font-bold text-white">Inventario</h2>
+            </div>
+            <button id="btn-nuevo-item" onclick="mostrarModalNuevo()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition">+ Nuevo</button>
+        </div>
+        <div class="flex-1 overflow-auto p-4 md:p-8">
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
+                        <tr><th class="p-5 border-b border-slate-800">Cód</th><th class="p-5 border-b border-slate-800">Producto</th><th class="p-5 border-b border-slate-800 hidden md:table-cell">Prov</th><th class="p-5 border-b border-slate-800 text-center">Stock</th><th class="p-5 border-b border-slate-800 text-center">Estado</th><th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th></tr>
+                    </thead>
+                    <tbody id="tabla-body" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
+                </table>
+                <div id="vacio-msg" class="text-center py-20 hidden flex-col items-center"><div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-3xl mb-4">📭</div><p class="text-slate-500">Sin productos.</p></div>
+            </div>
+        </div>
+    </div>
+
     <div id="vista-instrumentacion" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
         <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
             <div class="flex items-center gap-4">
@@ -78,49 +99,42 @@
         </div>
     </div>
 
+    <div id="vista-consulta" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
+        <header class="w-full p-6 flex justify-between items-center bg-slate-900 border-b border-slate-800 sticky top-0 z-20">
+            <div><div class="text-2xl font-black text-slate-100">LABSE <span class="text-emerald-500">.INV</span></div><div class="text-xs text-emerald-500 font-bold uppercase tracking-widest mt-1">CONSULTAS</div></div>
+            <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition px-3 py-2 text-sm font-bold">SALIR</button>
+        </header>
+        <div class="flex-1 overflow-hidden flex flex-col max-w-6xl mx-auto w-full p-6">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
+                <div class="flex gap-2">
+                    <button onclick="generarReporteGeneral()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 rounded-xl text-xs font-bold border border-slate-700">REPORTE</button>
+                    <button onclick="generarReporteFaltantes()" class="bg-slate-800 hover:bg-slate-700 text-red-400 px-4 rounded-xl text-xs font-bold border border-slate-700">FALTANTES</button>
+                    <button onclick="generarOrden()" class="bg-slate-800 hover:bg-slate-700 text-purple-400 px-4 rounded-xl text-xs font-bold border border-slate-700">SOLICITAR</button>
+                </div>
+            </div>
+            <div class="flex-1 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-auto p-4">
+                <table class="w-full text-left text-sm text-slate-300"><tbody id="tabla-consulta" class="divide-y divide-slate-800"></tbody></table>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-trabajo" class="oculto fixed inset-0 z-50 bg-black/90 backdrop-blur-sm items-center justify-center p-4 fade-in overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl my-auto relative flex flex-col h-[90vh]">
             <div class="flex justify-between items-center p-6 border-b border-slate-800">
-                <div>
-                    <h3 id="mt-titulo" class="text-2xl font-bold text-white">Nombre Trabajo</h3>
-                    <p class="text-slate-400 text-sm">Configuración de materiales y planificación</p>
-                </div>
+                <div><h3 id="mt-titulo" class="text-2xl font-bold text-white">Trabajo</h3><p class="text-slate-400 text-sm">Planificación</p></div>
                 <button onclick="cerrarModalTrabajo()" class="text-slate-500 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
             </div>
-            
             <div class="flex-1 overflow-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-blue-400 font-bold uppercase text-xs tracking-wider">Lista de Materiales (Por Operario)</h4>
-                        <button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded hover:bg-slate-700 text-white border border-slate-700" id="btn-add-mat">+ Agregar Item</button>
-                    </div>
-                    <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
-                                <tr><th class="p-3">Item</th><th class="p-3 text-center">Cant. x Op.</th><th class="p-3 text-right"></th></tr>
-                            </thead>
-                            <tbody id="mt-lista-materiales" class="divide-y divide-slate-800"></tbody>
-                        </table>
-                        <div id="mt-vacio" class="p-8 text-center text-slate-500 text-xs">Sin materiales definidos.</div>
-                    </div>
+                    <div class="flex justify-between items-center mb-4"><h4 class="text-blue-400 font-bold text-xs uppercase">Materiales (x Operario)</h4><button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700" id="btn-add-mat">+ Item</button></div>
+                    <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-900 text-slate-400 text-xs uppercase"><tr><th class="p-3">Item</th><th class="p-3 text-center">Cant.</th><th class="p-3 text-right"></th></tr></thead><tbody id="mt-lista-materiales" class="divide-y divide-slate-800"></tbody></table><div id="mt-vacio" class="p-8 text-center text-slate-500 text-xs">Sin materiales.</div></div>
                 </div>
-
                 <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 flex flex-col">
-                    <h4 class="text-emerald-400 font-bold uppercase text-xs tracking-wider mb-4">Planificar Ejecución</h4>
-                    
-                    <div class="mb-6">
-                        <label class="block text-slate-300 text-sm mb-2">Cantidad de Operarios:</label>
-                        <div class="flex gap-2">
-                            <input type="number" id="mt-operarios" value="1" min="1" class="bg-slate-900 border border-slate-600 text-white rounded px-4 py-2 w-24 text-center font-bold outline-none focus:border-emerald-500" onchange="calcularDisponibilidad()">
-                            <button onclick="calcularDisponibilidad()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm flex-1">Verificar Stock</button>
-                        </div>
-                    </div>
-
-                    <div id="mt-resultado" class="flex-1 overflow-auto space-y-3">
-                        <div class="text-center text-slate-500 text-sm mt-10">Define operarios para calcular.</div>
-                    </div>
-                    
-                    <button onclick="imprimirPlan()" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2"><i class="fas fa-print"></i> IMPRIMIR REPORTE DE TRABAJO</button>
+                    <h4 class="text-emerald-400 font-bold text-xs uppercase mb-4">Simular Ejecución</h4>
+                    <div class="mb-6"><label class="block text-slate-300 text-sm mb-2">Operarios:</label><div class="flex gap-2"><input type="number" id="mt-operarios" value="1" min="1" class="bg-slate-900 border border-slate-600 text-white rounded px-4 py-2 w-24 text-center font-bold outline-none" onchange="calcularDisponibilidad()"><button onclick="calcularDisponibilidad()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm flex-1">Verificar Stock</button></div></div>
+                    <div id="mt-resultado" class="flex-1 overflow-auto space-y-3"><div class="text-center text-slate-500 text-sm mt-10">Define operarios para calcular.</div></div>
+                    <button onclick="imprimirPlan()" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold text-xs">IMPRIMIR REPORTE</button>
                 </div>
             </div>
         </div>
@@ -135,13 +149,24 @@
         </div>
     </div>
 
+    <div id="modal" class="oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4 fade-in overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl my-auto relative p-6">
+            <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-white">Producto</h3><button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button></div>
+            <form onsubmit="guardarProducto(event)">
+                <input type="text" id="m-resp" placeholder="Responsable *" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 mb-4 focus:border-blue-500 outline-none" required>
+                <div class="grid grid-cols-4 gap-4 mb-4"><input type="text" id="m-cod" placeholder="Código" required class="col-span-1 bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-nombre" placeholder="Nombre" required class="col-span-3 bg-slate-800 text-white border-slate-700 rounded p-2"></div>
+                <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
+                <div class="bg-slate-950/50 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold">Guardar</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // --- BASE DE DATOS ---
-        const DB_KEY = 'labse_db_v26_final';
-        const TASKS_KEY = 'labse_tareas_v26';
+        const DB_KEY = 'labse_db_v27_final';
+        const TASKS_KEY = 'labse_tareas_v27';
         
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        // Estructura Tareas: { id, nombre, materiales: [{cod, cant}] }
         let tareas = JSON.parse(localStorage.getItem(TASKS_KEY)) || [
             {id: 1, nombre: "Instr. Eje, Biela Distrib y EH", materiales: []},
             {id: 2, nombre: "Instru. Rodete", materiales: []},
@@ -150,216 +175,166 @@
             {id: 5, nombre: "Montaje de tablero adquisidor", materiales: []}
         ];
 
+        let catActual = '';
+        let proveedoresTemporales = [];
         let esAdmin = false;
-        let tareaActual = null; // Tarea que se está editando/viendo
+        let tareaActual = null;
+        let editandoId = null;
+        let ultimoResponsable = '';
 
-        // --- NAVEGACION ---
+        // NAVEGACION
         function irA(id) {
             document.querySelectorAll('body > div').forEach(el => {
-                if(el.id !== 'modal-buscador' && el.id !== 'modal-trabajo') el.classList.remove('visible'); 
-                if(el.id !== 'modal-buscador' && el.id !== 'modal-trabajo') el.classList.add('oculto');
+                if(el.id.startsWith('vista-')) el.classList.add('oculto');
+                if(el.id.startsWith('vista-')) el.classList.remove('visible');
             });
-            document.getElementById(id).classList.remove('oculto');
-            document.getElementById(id).classList.add('visible');
+            const d = document.getElementById(id);
+            if(d) { d.classList.remove('oculto'); d.classList.add('visible'); }
         }
 
-        // --- LOGIN & ROLES ---
-        function verificarPassword(e) { e.preventDefault(); if(document.getElementById('sys-pass').value.trim() === 'labse') irA('vista-roles'); else alert('Clave incorrecta'); }
-        function seleccionarRol(rol) { 
-            esAdmin = (rol === 'admin'); 
-            const btnNew = document.getElementById('btn-nueva-tarea');
+        function verificarPassword(e) { e.preventDefault(); if(document.getElementById('sys-pass').value.trim() === 'labse') irA('vista-roles'); else alert('Incorrecto'); }
+        
+        function seleccionarRol(rol) {
+            esAdmin = (rol === 'admin');
+            const btnsAdmin = [document.getElementById('btn-reset-db'), document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
+            btnsAdmin.forEach(b => { if(b) b.classList.toggle('hidden', !esAdmin); });
             const btnAddMat = document.getElementById('btn-add-mat');
-            if(btnNew) btnNew.classList.toggle('hidden', !esAdmin);
-            //if(btnAddMat) btnAddMat.classList.toggle('hidden', !esAdmin); // VISITA TAMBIEN PUEDE SIMULAR? NO, SOLO ADMIN EDITA RECETA
-            irA('vista-dashboard'); 
+            if(btnAddMat) btnAddMat.style.display = esAdmin ? 'block' : 'none';
+            if(esAdmin) irA('vista-dashboard'); else { irA('vista-consulta'); buscarProducto(); }
         }
+
         function volverAlBloqueo() { document.getElementById('sys-pass').value=''; irA('vista-pass'); }
         function volverARoles() { irA('vista-roles'); }
         function volverAlDashboard() { irA('vista-dashboard'); }
 
-        // --- GESTIÓN DE TAREAS (RECETAS) ---
-        function abrirInstrumentacion() {
-            irA('vista-instrumentacion');
-            renderTareas();
+        // INVENTARIO
+        function abrirInventario(cat) { catActual = cat; document.getElementById('titulo-cat').innerText = cat; renderTabla(); irA('vista-tabla'); }
+        
+        function renderTabla() {
+            const tbody = document.getElementById('tabla-body');
+            const vacio = document.getElementById('vacio-msg');
+            tbody.innerHTML = '';
+            
+            // CORRECCIÓN CLAVE: Ordenamiento seguro para números y letras
+            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
+                const na = parseInt(a.cod), nb = parseInt(b.cod);
+                if(!isNaN(na) && !isNaN(nb)) return na - nb;
+                return String(a.cod).localeCompare(String(b.cod));
+            });
+
+            if(filtrados.length === 0) { vacio.classList.remove('hidden'); vacio.classList.add('flex'); } 
+            else { vacio.classList.add('hidden'); vacio.classList.remove('flex'); }
+
+            filtrados.forEach(item => {
+                const critico = parseInt(item.cant) < parseInt(item.min);
+                let prov = item.proveedores && item.proveedores.length ? item.proveedores[0].nombre : '-';
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
+                
+                let btns = '';
+                if(esAdmin) btns = `<div class="flex justify-end gap-2"><button onclick="editar(${item.id})" class="text-blue-400 hover:text-white">✏️</button><button onclick="borrar(${item.id})" class="text-red-400 hover:text-white">🗑️</button></div>`;
+
+                tr.innerHTML = `<td class="p-4 font-mono text-blue-400 font-bold">${item.cod}</td><td class="p-4">${item.nom}</td><td class="p-4 text-xs hidden md:table-cell">${prov}</td><td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td><td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td><td class="p-4 text-right">${btns}</td>`;
+                tbody.appendChild(tr);
+            });
         }
 
+        // TAREAS (INSTRUMENTACION)
+        function abrirInstrumentacion() { irA('vista-instrumentacion'); renderTareas(); }
         function renderTareas() {
             const c = document.getElementById('lista-tareas'); c.innerHTML = '';
             tareas.forEach(t => {
-                const div = document.createElement('div');
+                let div = document.createElement('div');
                 div.className = "bg-slate-900 p-5 rounded-xl border border-slate-800 hover:border-purple-500 cursor-pointer flex justify-between items-center group transition";
                 div.onclick = (e) => { if(!e.target.closest('button')) abrirDetalleTrabajo(t.id); };
-                
-                let btns = '';
-                if(esAdmin) btns = `<div class="flex gap-2"><button onclick="editarNomTarea(${t.id})" class="p-2 text-slate-500 hover:text-blue-400"><i class="fas fa-pen"></i></button><button onclick="borrarTarea(${t.id})" class="p-2 text-slate-500 hover:text-red-400"><i class="fas fa-trash"></i></button></div>`;
-                
-                div.innerHTML = `<div class="flex items-center gap-4"><div class="w-10 h-10 rounded bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold"><i class="fas fa-clipboard-list"></i></div><span class="text-slate-200 font-bold">${t.nombre}</span></div>${btns}`;
+                let btns = esAdmin ? `<div class="flex gap-2"><button onclick="editNomTarea(${t.id}, event)" class="p-2 hover:text-blue-400">✏️</button><button onclick="delTarea(${t.id}, event)" class="p-2 hover:text-red-400">🗑️</button></div>` : '<span class="text-slate-600">></span>';
+                div.innerHTML = `<div class="flex items-center gap-4"><span class="text-slate-200 font-bold">${t.nombre}</span></div>${btns}`;
                 c.appendChild(div);
             });
         }
+        function agregarTarea() { const n = prompt("Nombre Tarea:"); if(n) { tareas.push({id: Date.now(), nombre: n, materiales: []}); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); } }
+        function editNomTarea(id, e) { e.stopPropagation(); const t = tareas.find(x=>x.id===id); const n = prompt("Nuevo nombre:", t.nombre); if(n) { t.nombre = n; localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); } }
+        function delTarea(id, e) { e.stopPropagation(); if(confirm("¿Borrar?")) { tareas = tareas.filter(x=>x.id!==id); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); } }
 
-        function agregarTarea() {
-            const n = prompt("Nombre de nueva tarea:");
-            if(n) { tareas.push({id: Date.now(), nombre: n, materiales: []}); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); }
-        }
-        function editarNomTarea(id) {
-            const t = tareas.find(x=>x.id===id);
-            const n = prompt("Nuevo nombre:", t.nombre);
-            if(n) { t.nombre = n; localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); }
-        }
-        function borrarTarea(id) {
-            if(confirm("¿Borrar tarea?")) { tareas = tareas.filter(x=>x.id!==id); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderTareas(); }
-        }
-
-        // --- DETALLE DE TRABAJO (RECETA + SIMULADOR) ---
+        // DETALLE TRABAJO (MRP)
         function abrirDetalleTrabajo(id) {
             tareaActual = tareas.find(t => t.id === id);
             document.getElementById('mt-titulo').innerText = tareaActual.nombre;
-            document.getElementById('modal-trabajo').classList.remove('oculto');
-            document.getElementById('modal-trabajo').classList.add('visible');
-            
-            // Visibilidad boton agregar items (solo admin)
-            document.getElementById('btn-add-mat').style.display = esAdmin ? 'block' : 'none';
-            
+            document.getElementById('modal-trabajo').classList.remove('oculto'); document.getElementById('modal-trabajo').classList.add('visible');
             renderMaterialesTarea();
-            document.getElementById('mt-resultado').innerHTML = '<div class="text-center text-slate-500 text-sm mt-10">Define operarios para calcular.</div>';
+            document.getElementById('mt-resultado').innerHTML = '<div class="text-center text-slate-500 text-sm mt-10">Define operarios.</div>';
         }
-
-        function cerrarModalTrabajo() {
-            document.getElementById('modal-trabajo').classList.remove('visible');
-            document.getElementById('modal-trabajo').classList.add('oculto');
-        }
-
+        function cerrarModalTrabajo() { document.getElementById('modal-trabajo').classList.remove('visible'); document.getElementById('modal-trabajo').classList.add('oculto'); }
         function renderMaterialesTarea() {
-            const tbody = document.getElementById('mt-lista-materiales');
-            const vacio = document.getElementById('mt-vacio');
-            tbody.innerHTML = '';
-            
-            if(tareaActual.materiales.length === 0) {
-                vacio.style.display = 'block';
-            } else {
-                vacio.style.display = 'none';
-                tareaActual.materiales.forEach((m, idx) => {
-                    // Buscar nombre real en DB global por si cambió
-                    const itemReal = datos.find(d => d.cod === m.cod);
-                    const nombreMost = itemReal ? itemReal.nom : `(Item Borrado ${m.cod})`;
-                    
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-slate-800 text-slate-300";
-                    
-                    let btnDel = '';
-                    if(esAdmin) btnDel = `<button onclick="borrarMatDeTarea(${idx})" class="text-red-500 hover:text-white"><i class="fas fa-times"></i></button>`;
-
-                    tr.innerHTML = `<td class="p-3"><div class="font-bold text-white">${m.cod}</div><div class="text-xs text-slate-500">${nombreMost}</div></td><td class="p-3 text-center font-mono">${m.cant}</td><td class="p-3 text-right">${btnDel}</td>`;
-                    tbody.appendChild(tr);
-                });
-            }
+            const tb = document.getElementById('mt-lista-materiales'); tb.innerHTML = '';
+            document.getElementById('mt-vacio').style.display = tareaActual.materiales.length ? 'none' : 'block';
+            tareaActual.materiales.forEach((m, idx) => {
+                const item = datos.find(d => d.cod === m.cod);
+                let tr = document.createElement('tr'); tr.className = "border-b border-slate-800 text-slate-300";
+                let btn = esAdmin ? `<button onclick="delMatTarea(${idx})" class="text-red-500 hover:text-white">✕</button>` : '';
+                tr.innerHTML = `<td class="p-3"><div class="font-bold text-white">${m.cod}</div><div class="text-xs text-slate-500">${item?item.nom:'Item Borrado'}</div></td><td class="p-3 text-center">${m.cant}</td><td class="p-3 text-right">${btn}</td>`;
+                tb.appendChild(tr);
+            });
         }
-
-        function agregarMaterialATrabajo() {
-            // Abrir buscador
-            document.getElementById('modal-buscador').classList.remove('oculto');
-            document.getElementById('modal-buscador').classList.add('visible');
-            document.getElementById('mb-input').value = '';
-            document.getElementById('mb-input').focus();
-            filtrarBuscadorModal();
-        }
-
-        function cerrarBuscador() {
-            document.getElementById('modal-buscador').classList.remove('visible');
-            document.getElementById('modal-buscador').classList.add('oculto');
-        }
-
+        function agregarMaterialATrabajo() { document.getElementById('modal-buscador').classList.remove('oculto'); document.getElementById('modal-buscador').classList.add('visible'); document.getElementById('mb-input').value=''; filtrarBuscadorModal(); }
+        function cerrarBuscador() { document.getElementById('modal-buscador').classList.remove('visible'); document.getElementById('modal-buscador').classList.add('oculto'); }
         function filtrarBuscadorModal() {
             const txt = document.getElementById('mb-input').value.toLowerCase();
-            const lista = document.getElementById('mb-lista');
-            lista.innerHTML = '';
-            
-            const filtrados = datos.filter(d => d.nom.toLowerCase().includes(txt) || d.cod.toLowerCase().includes(txt));
-            
-            filtrados.forEach(d => {
-                const div = document.createElement('div');
-                div.className = "p-3 border-b border-slate-800 hover:bg-slate-800 cursor-pointer flex justify-between items-center";
-                div.onclick = () => seleccionarProductoParaTarea(d.cod);
-                div.innerHTML = `<span class="text-sm text-slate-300">${d.nom}</span> <span class="text-xs bg-slate-700 px-2 py-1 rounded text-white">${d.cod}</span>`;
-                lista.appendChild(div);
+            const l = document.getElementById('mb-lista'); l.innerHTML = '';
+            datos.filter(d => d.nom.toLowerCase().includes(txt) || d.cod.toLowerCase().includes(txt)).forEach(d => {
+                let div = document.createElement('div'); div.className = "p-3 border-b border-slate-800 hover:bg-slate-800 cursor-pointer flex justify-between";
+                div.onclick = () => {
+                    const c = prompt(`Cantidad de "${d.nom}" POR OPERARIO:`);
+                    if(c && !isNaN(c)) { tareaActual.materiales.push({cod: d.cod, cant: parseInt(c)}); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); cerrarBuscador(); renderMaterialesTarea(); }
+                };
+                div.innerHTML = `<span class="text-sm text-slate-300">${d.nom}</span><span class="text-xs bg-slate-700 px-2 rounded text-white">${d.cod}</span>`;
+                l.appendChild(div);
             });
         }
-
-        function seleccionarProductoParaTarea(cod) {
-            const cant = prompt("Cantidad necesaria POR OPERARIO:");
-            if(cant && !isNaN(cant)) {
-                tareaActual.materiales.push({cod: cod, cant: parseInt(cant)});
-                localStorage.setItem(TASKS_KEY, JSON.stringify(tareas));
-                cerrarBuscador();
-                renderMaterialesTarea();
-            }
-        }
-
-        function borrarMatDeTarea(idx) {
-            if(confirm("¿Quitar este material de la lista?")) {
-                tareaActual.materiales.splice(idx, 1);
-                localStorage.setItem(TASKS_KEY, JSON.stringify(tareas));
-                renderMaterialesTarea();
-            }
-        }
-
-        // --- MRP / SIMULADOR ---
+        function delMatTarea(idx) { if(confirm("¿Quitar?")) { tareaActual.materiales.splice(idx, 1); localStorage.setItem(TASKS_KEY, JSON.stringify(tareas)); renderMaterialesTarea(); } }
+        
         function calcularDisponibilidad() {
             const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
-            const resDiv = document.getElementById('mt-resultado');
-            resDiv.innerHTML = '';
-
-            if(tareaActual.materiales.length === 0) {
-                resDiv.innerHTML = '<div class="text-yellow-500 text-sm text-center">La lista de materiales está vacía.</div>';
-                return;
-            }
-
-            let todoOk = true;
-
+            const res = document.getElementById('mt-resultado'); res.innerHTML = '';
+            if(!tareaActual.materiales.length) { res.innerHTML = '<div class="text-yellow-500 text-center">Lista vacía</div>'; return; }
+            let ok = true;
             tareaActual.materiales.forEach(m => {
-                const itemInv = datos.find(d => d.cod === m.cod);
-                const necesario = m.cant * ops;
-                const stock = itemInv ? parseInt(itemInv.cant) : 0;
-                const nombre = itemInv ? itemInv.nom : `Item ${m.cod} no encontrado`;
-                
-                const falta = necesario - stock;
-                const esFalta = falta > 0;
-                if(esFalta) todoOk = false;
-
-                const card = document.createElement('div');
-                card.className = `p-3 rounded-lg border flex justify-between items-center text-sm ${esFalta ? 'bg-red-500/10 border-red-500/30' : 'bg-emerald-500/10 border-emerald-500/30'}`;
-                
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-white">${nombre}</div>
-                        <div class="text-xs text-slate-400">Nec: ${necesario} | Stock: ${stock}</div>
-                    </div>
-                    <div class="text-right">
-                        ${esFalta ? `<span class="text-red-400 font-bold">FALTAN ${falta}</span>` : `<span class="text-emerald-400 font-bold">OK</span>`}
-                    </div>
-                `;
-                resDiv.appendChild(card);
+                const item = datos.find(d => d.cod === m.cod);
+                const nec = m.cant * ops;
+                const stock = item ? parseInt(item.cant) : 0;
+                const falta = nec - stock;
+                if(falta > 0) ok = false;
+                let div = document.createElement('div'); div.className = `p-3 rounded border flex justify-between text-sm ${falta>0?'bg-red-500/10 border-red-500/30':'bg-emerald-500/10 border-emerald-500/30'}`;
+                div.innerHTML = `<div><div class="font-bold text-white">${item?item.nom:m.cod}</div><div class="text-xs text-slate-400">Nec: ${nec} | Stock: ${stock}</div></div><div class="text-right font-bold ${falta>0?'text-red-400':'text-emerald-400'}">${falta>0?'FALTA '+falta:'OK'}</div>`;
+                res.appendChild(div);
             });
-
-            if(todoOk) {
-                const msg = document.createElement('div');
-                msg.className = "bg-emerald-600 text-white text-center p-2 rounded font-bold text-sm mt-4";
-                msg.innerText = "✅ STOCK SUFICIENTE PARA INICIAR";
-                resDiv.prepend(msg);
-            } else {
-                const msg = document.createElement('div');
-                msg.className = "bg-red-600 text-white text-center p-2 rounded font-bold text-sm mt-4";
-                msg.innerText = "⚠️ STOCK INSUFICIENTE";
-                resDiv.prepend(msg);
-            }
+            res.prepend(document.createElement('div')); 
+            res.firstChild.className = `text-center p-2 rounded font-bold text-sm mb-4 ${ok?'bg-emerald-600 text-white':'bg-red-600 text-white'}`;
+            res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         }
 
-        function imprimirPlan() {
-            const ops = document.getElementById('mt-operarios').value;
-            alert('🖨️ Generando PDF de Planificación para: ' + tareaActual.nombre + ' (' + ops + ' operarios)... (Aquí iría la función de imprimir PDF)');
-        }
+        // CRUD BASE
+        function mostrarModalNuevo() { editandoId=null; document.getElementById('modal-titulo').innerText='Nuevo'; limpiarForm(); if(ultimoResponsable)document.getElementById('m-resp').value=ultimoResponsable; document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
+        function editar(id) { const d=datos.find(x=>x.id===id); if(!d)return; editandoId=id; document.getElementById('modal-titulo').innerText='Editar'; document.getElementById('m-resp').value=d.resp||''; document.getElementById('m-cod').value=d.cod; document.getElementById('m-nombre').value=d.nom; document.getElementById('m-cant').value=d.cant; document.getElementById('m-min').value=d.min; document.getElementById('m-uni').value=d.uni; proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
+        function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
+        function limpiarForm() { ['m-cod','m-nombre','m-cant','m-min','m-uni'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; renderProveedoresTemp(); }
+        function agregarProveedorTemporal() { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; renderProveedoresTemp(); } }
+        function renderProveedoresTemp() { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); }
+        function guardarProducto(e) { e.preventDefault(); const r=document.getElementById('m-resp').value; if(!r)return alert('Falta Responsable'); ultimoResponsable=r; const c=document.getElementById('m-cod').value; if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); if(document.getElementById('p-nombre').value) agregarProveedorTemporal(); const obj={id:editandoId||Date.now(), resp:r, cod:c, nom:document.getElementById('m-nombre').value, cant:parseInt(document.getElementById('m-cant').value), min:parseInt(document.getElementById('m-min').value), uni:document.getElementById('m-uni').value, proveedores:proveedoresTemporales, cat:catActual}; if(editandoId){ datos[datos.findIndex(x=>x.id===editandoId)]=obj; } else { datos.push(obj); } localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla(); }
+        function borrar(id) { if(confirm('¿Borrar?')) { datos=datos.filter(x=>x.id!==id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
+        function borrarBaseDatos() { if(confirm('¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
 
+        // CONSULTA
+        function buscarProducto() { const t=document.getElementById('buscador-global').value.toLowerCase(); const r=datos.filter(d=>d.nom.toLowerCase().includes(t)||d.cod.toLowerCase().includes(t)); const b=document.getElementById('tabla-consulta'); b.innerHTML=''; r.forEach(i=>{ b.innerHTML+=`<tr class="border-b border-slate-800"><td class="p-4 font-mono text-emerald-400">${i.cod}</td><td class="p-4 text-white">${i.nom}</td><td class="p-4 text-xs text-slate-500">${i.cat}</td><td class="p-4 text-center text-white">${i.cant}</td></tr>`; }); }
+        function generarOrden() { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); if(!ultimoResponsable){const n=prompt("Nombre:");if(n)ultimoResponsable=n;else return;} imprimirPDF('ORDEN', f, true); }
+        function generarReporteGeneral() { if(!datos.length)return alert('Vacío'); imprimirPDF('GENERAL', datos); }
+        function generarReporteFaltantes() { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); imprimirPDF('FALTANTES', f); }
+        function imprimirPlan() { alert('Imprimiendo plan de trabajo...'); }
+        function imprimirPDF(t,l,o=false) {
+            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:5px}</style></head><body><h1>${t}</h1><p>Fecha: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>COD</th><th>DESC</th><th>CANT</th><th>ESTADO</th></tr></thead><tbody>`;
+            l.forEach(x=>{ const d=x.min-x.cant; h+=`<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.cant}</td><td>${d>0?'FALTA '+d:'OK'}</td></tr>`; });
+            h+='</tbody></table></body></html>'; const w=window.open(''); w.document.write(h); w.document.close();
+        }
     </script>
 </body>
 </html>
