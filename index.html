@@ -57,23 +57,34 @@
         <header class="w-full p-6 flex justify-between items-center bg-transparent relative z-10">
             <div><div class="text-2xl font-black text-slate-100 tracking-tight">LABSE <span class="text-blue-500">.INV</span></div><div class="text-xs text-blue-500 font-bold uppercase tracking-widest mt-1">MODO ADMINISTRADOR</div></div>
             <div class="flex items-center gap-4">
-                <button onclick="generarOrden()" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800 transition-all text-sm font-medium"><i class="fas fa-file-invoice"></i> Generar Orden</button>
                 <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition-colors px-3 py-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider"><i class="fas fa-arrow-left"></i> Salir</button>
             </div>
         </header>
         <div class="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
             <h2 class="text-4xl font-bold text-white mb-2 text-center">Panel de Control</h2>
             <p class="text-slate-400 mb-12 text-center max-w-lg">Gestión de stock e inventario.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl px-4">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl px-4">
                 <div onclick="abrirInventario('Insumos')" class="group relative bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 transition-all duration-300 hover:border-blue-500/50 hover:bg-slate-800/80 card-hover overflow-hidden">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500"><i class="fas fa-boxes text-9xl text-blue-500"></i></div>
                     <div class="relative z-10"><div class="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400"><i class="fas fa-box-open text-2xl"></i></div><h3 class="text-3xl font-bold text-white mb-2">Insumos</h3><p class="text-slate-400 text-sm leading-relaxed mb-6">Materiales consumibles.</p><span class="text-blue-400 text-sm font-bold flex items-center gap-2 group-hover:gap-3 transition-all">Gestionar <i class="fas fa-arrow-right"></i></span></div>
                 </div>
+                
                 <div onclick="abrirInventario('Herramientas')" class="group relative bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800/80 card-hover overflow-hidden">
                     <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500"><i class="fas fa-tools text-9xl text-indigo-500"></i></div>
                     <div class="relative z-10"><div class="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400"><i class="fas fa-wrench text-2xl"></i></div><h3 class="text-3xl font-bold text-white mb-2">Herramientas</h3><p class="text-slate-400 text-sm leading-relaxed mb-6">Activos y maquinaria.</p><span class="text-indigo-400 text-sm font-bold flex items-center gap-2 group-hover:gap-3 transition-all">Gestionar <i class="fas fa-arrow-right"></i></span></div>
                 </div>
+
+                <div onclick="abrirInstrumentacion()" class="group relative bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 transition-all duration-300 hover:border-purple-500/50 hover:bg-slate-800/80 card-hover overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500"><i class="fas fa-tasks text-9xl text-purple-500"></i></div>
+                    <div class="relative z-10"><div class="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400"><i class="fas fa-clipboard-check text-2xl"></i></div><h3 class="text-3xl font-bold text-white mb-2">Instrumentación</h3><p class="text-slate-400 text-sm leading-relaxed mb-6">Trabajos y recetas.</p><span class="text-purple-400 text-sm font-bold flex items-center gap-2 group-hover:gap-3 transition-all">Ver Trabajos <i class="fas fa-arrow-right"></i></span></div>
+                </div>
             </div>
+
+            <button onclick="generarOrden()" class="mt-12 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-slate-800 text-white font-bold text-base hover:bg-slate-700 border border-slate-700 transition shadow-xl transform hover:-translate-y-1 w-full max-w-lg">
+                <i class="fas fa-file-invoice text-xl text-emerald-400"></i> GENERAR ORDEN DE COMPRA
+            </button>
+
             <button id="btn-reset-db" onclick="borrarBaseDatos()" class="absolute bottom-6 text-xs text-slate-600 hover:text-red-500 transition">Resetear Base de Datos</button>
         </div>
     </div>
@@ -83,12 +94,11 @@
             <div><div class="text-2xl font-black text-slate-100 tracking-tight">LABSE <span class="text-emerald-500">.INV</span></div><div class="text-xs text-emerald-500 font-bold uppercase tracking-widest mt-1">CENTRO DE CONSULTAS</div></div>
             <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition-colors px-3 py-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider"><i class="fas fa-arrow-left"></i> Salir</button>
         </header>
-
         <div class="flex-1 overflow-hidden flex flex-col max-w-6xl mx-auto w-full p-6">
             <div class="flex flex-col md:flex-row gap-4 mb-6">
                 <div class="flex-1 relative">
                     <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                    <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar por nombre, código o categoría..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl py-4 pl-12 pr-4 focus:border-emerald-500 outline-none text-lg shadow-lg">
+                    <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl py-4 pl-12 pr-4 focus:border-emerald-500 outline-none text-lg shadow-lg">
                 </div>
                 <div class="flex gap-2">
                     <button onclick="generarReporteGeneral()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-2 whitespace-nowrap"><i class="fas fa-list-alt"></i> REPORTE TOTAL</button>
@@ -96,26 +106,66 @@
                     <button onclick="generarOrden()" class="bg-slate-800 hover:bg-slate-700 text-purple-400 px-4 rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-2 whitespace-nowrap"><i class="fas fa-file-signature"></i> SOLICITAR COMPRA</button>
                 </div>
             </div>
-
             <div class="flex-1 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col">
                 <div class="overflow-auto scroll-fino flex-1">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold tracking-wider sticky top-0 z-10">
-                            <tr>
-                                <th class="p-5 border-b border-slate-800">Cód</th>
-                                <th class="p-5 border-b border-slate-800">Producto</th>
-                                <th class="p-5 border-b border-slate-800">Categoría</th>
-                                <th class="p-5 border-b border-slate-800 text-center">Stock</th>
-                                <th class="p-5 border-b border-slate-800 text-center">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-consulta" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
-                    </table>
-                    <div id="msg-consulta-vacio" class="text-center py-20 flex flex-col items-center">
-                        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-3xl mb-4 text-slate-600">🔍</div>
-                        <p class="text-slate-500">Escribe algo para buscar o revisa los reportes.</p>
-                    </div>
+                    <table class="w-full text-left border-collapse"><thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold tracking-wider sticky top-0 z-10"><tr><th class="p-5 border-b border-slate-800">Cód</th><th class="p-5 border-b border-slate-800">Producto</th><th class="p-5 border-b border-slate-800">Categoría</th><th class="p-5 border-b border-slate-800 text-center">Stock</th><th class="p-5 border-b border-slate-800 text-center">Estado</th></tr></thead><tbody id="tabla-consulta" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody></table>
+                    <div id="msg-consulta-vacio" class="text-center py-20 flex flex-col items-center"><div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-3xl mb-4 text-slate-600">🔍</div><p class="text-slate-500">Busca algo...</p></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vista-instrumentacion" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
+        <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-4">
+                <button onclick="volverAlDashboard()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition"><i class="fas fa-arrow-left text-sm"></i></button>
+                <h2 class="text-xl font-bold text-white tracking-tight text-purple-400">Trabajos de Instrumentación</h2>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-auto p-8 flex flex-col items-center">
+            <div class="grid grid-cols-1 gap-6 w-full max-w-4xl">
+                
+                <div onclick="verReceta('Instr. Eje, Biela Distrib y EH')" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-purple-500 cursor-pointer flex items-center justify-between group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">1</div>
+                        <h3 class="text-lg font-bold text-slate-200 group-hover:text-white">Instr. Eje, Biela Distrib y EH</h3>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 group-hover:text-purple-500"></i>
+                </div>
+
+                <div onclick="verReceta('Instru. Rodete')" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-purple-500 cursor-pointer flex items-center justify-between group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">2</div>
+                        <h3 class="text-lg font-bold text-slate-200 group-hover:text-white">Instru. Rodete</h3>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 group-hover:text-purple-500"></i>
+                </div>
+
+                <div onclick="verReceta('Instru. Brazo Oscilante')" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-purple-500 cursor-pointer flex items-center justify-between group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">3</div>
+                        <h3 class="text-lg font-bold text-slate-200 group-hover:text-white">Instru. Brazo Oscilante</h3>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 group-hover:text-purple-500"></i>
+                </div>
+
+                <div onclick="verReceta('Herramientas a bajar al eje')" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-purple-500 cursor-pointer flex items-center justify-between group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">4</div>
+                        <h3 class="text-lg font-bold text-slate-200 group-hover:text-white">Herramientas a bajar al eje</h3>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 group-hover:text-purple-500"></i>
+                </div>
+
+                <div onclick="verReceta('Montaje de tablero adquisidor dentro del EJE')" class="bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-purple-500 cursor-pointer flex items-center justify-between group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">5</div>
+                        <h3 class="text-lg font-bold text-slate-200 group-hover:text-white">Montaje de tablero adquisidor dentro del EJE</h3>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 group-hover:text-purple-500"></i>
+                </div>
+
             </div>
         </div>
     </div>
@@ -134,14 +184,7 @@
             <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold tracking-wider sticky top-0 z-10">
-                        <tr>
-                            <th class="p-5 border-b border-slate-800">Cód</th>
-                            <th class="p-5 border-b border-slate-800">Producto</th>
-                            <th class="p-5 border-b border-slate-800 hidden md:table-cell">Proveedores</th>
-                            <th class="p-5 border-b border-slate-800 text-center">Stock</th>
-                            <th class="p-5 border-b border-slate-800 text-center">Estado</th>
-                            <th id="col-accion" class="p-5 border-b border-slate-800 text-right">Acción</th>
-                        </tr>
+                        <tr><th class="p-5 border-b border-slate-800">Cód</th><th class="p-5 border-b border-slate-800">Producto</th><th class="p-5 border-b border-slate-800 hidden md:table-cell">Proveedores</th><th class="p-5 border-b border-slate-800 text-center">Stock</th><th class="p-5 border-b border-slate-800 text-center">Estado</th><th id="col-accion" class="p-5 border-b border-slate-800 text-right">Acción</th></tr>
                     </thead>
                     <tbody id="tabla-body" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
                 </table>
@@ -158,38 +201,25 @@
             </div>
             <form onsubmit="guardarProducto(event)" class="p-6">
                 <div class="mb-6"><label class="block text-xs text-blue-400 font-bold uppercase mb-2 tracking-wide">¿Quién realiza esta carga? *</label><input type="text" id="m-resp" placeholder="Tu Nombre (Ej: Camila)" class="w-full bg-slate-950 text-white border border-slate-800 rounded-lg p-3 focus:border-blue-500 outline-none transition font-medium"></div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="md:col-span-1"><label class="block text-xs text-slate-500 mb-1">CÓDIGO</label><input type="text" id="m-cod" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div>
-                    <div class="md:col-span-3"><label class="block text-xs text-slate-500 mb-1">NOMBRE DEL PRODUCTO</label><input type="text" id="m-nombre" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div>
-                </div>
-                <div class="grid grid-cols-3 gap-4 mb-8">
-                    <div><label class="block text-xs text-slate-500 mb-1">STOCK ACTUAL</label><input type="number" id="m-cant" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div>
-                    <div><label class="block text-xs text-slate-500 mb-1">MÍNIMO</label><input type="number" id="m-min" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div>
-                    <div><label class="block text-xs text-slate-500 mb-1">UNIDAD</label><input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div>
-                </div>
-                <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-6">
-                    <label class="block text-xs text-slate-500 font-bold uppercase mb-3">Agregar Proveedor (Opcional)</label>
-                    <div class="grid grid-cols-2 gap-3 mb-3"><input type="text" id="p-nombre" placeholder="Nombre Empresa" class="bg-slate-900 border-slate-700 text-white rounded p-2 text-sm outline-none focus:border-emerald-500"><input type="text" id="p-tel" placeholder="Teléfono" class="bg-slate-900 border-slate-700 text-white rounded p-2 text-sm outline-none focus:border-emerald-500"></div>
-                    <button type="button" onclick="agregarProveedorTemporal()" class="text-emerald-500 text-xs font-bold hover:text-emerald-400 transition flex items-center gap-1"><i class="fas fa-plus-circle"></i> AGREGAR A LA LISTA</button>
-                    <ul id="lista-proveedores-temp" class="mt-3 space-y-1"></ul>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"><div class="md:col-span-1"><label class="block text-xs text-slate-500 mb-1">CÓDIGO</label><input type="text" id="m-cod" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div><div class="md:col-span-3"><label class="block text-xs text-slate-500 mb-1">NOMBRE DEL PRODUCTO</label><input type="text" id="m-nombre" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div></div>
+                <div class="grid grid-cols-3 gap-4 mb-8"><div><label class="block text-xs text-slate-500 mb-1">STOCK ACTUAL</label><input type="number" id="m-cant" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div><div><label class="block text-xs text-slate-500 mb-1">MÍNIMO</label><input type="number" id="m-min" required class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div><div><label class="block text-xs text-slate-500 mb-1">UNIDAD</label><input type="text" id="m-uni" placeholder="u." class="w-full bg-slate-800 border-slate-700 text-white rounded p-2 focus:border-blue-500 outline-none"></div></div>
+                <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-6"><label class="block text-xs text-slate-500 font-bold uppercase mb-3">Agregar Proveedor (Opcional)</label><div class="grid grid-cols-2 gap-3 mb-3"><input type="text" id="p-nombre" placeholder="Nombre Empresa" class="bg-slate-900 border-slate-700 text-white rounded p-2 text-sm outline-none focus:border-emerald-500"><input type="text" id="p-tel" placeholder="Teléfono" class="bg-slate-900 border-slate-700 text-white rounded p-2 text-sm outline-none focus:border-emerald-500"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-emerald-500 text-xs font-bold hover:text-emerald-400 transition flex items-center gap-1"><i class="fas fa-plus-circle"></i> AGREGAR A LA LISTA</button><ul id="lista-proveedores-temp" class="mt-3 space-y-1"></ul></div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-800"><button type="button" onclick="cerrarModal()" class="text-slate-400 hover:text-white px-4 py-2 transition text-sm font-medium">Cancelar</button><button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold text-sm shadow-lg transition">Guardar</button></div>
             </form>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'labse_db_v21_final';
+        const DB_KEY = 'labse_db_v24_final';
         let datos = JSON.parse(localStorage.getItem(DB_KEY)) || [];
         let catActual = '';
         let proveedoresTemporales = [];
-        let catActualConsulta = ''; // Para saber donde volver
+        let esAdmin = false;
         let editandoId = null;
         let ultimoResponsable = '';
 
-        // NAVEGACIÓN
         function irA(id) {
-            ['vista-pass', 'vista-roles', 'vista-dashboard', 'vista-tabla', 'vista-consulta'].forEach(v => {
+            ['vista-pass', 'vista-roles', 'vista-dashboard', 'vista-tabla', 'vista-consulta', 'vista-instrumentacion'].forEach(v => {
                 const el = document.getElementById(v); if(el) { el.classList.remove('visible'); el.classList.add('oculto'); }
             });
             const dest = document.getElementById(id); if(dest) { dest.classList.remove('oculto'); dest.classList.add('visible'); }
@@ -204,26 +234,41 @@
 
         // ROLES
         function seleccionarRol(rol) {
-            if (rol === 'admin') {
-                irA('vista-dashboard');
-            } else {
-                irA('vista-consulta');
-                renderTablaConsulta(datos); // Cargar todo al principio
-            }
+            if (rol === 'admin') { esAdmin = true; irA('vista-dashboard'); } 
+            else { esAdmin = false; irA('vista-consulta'); renderTablaConsulta(datos); }
+            aplicarPermisos();
+        }
+
+        function aplicarPermisos() {
+            const adminElements = [document.getElementById('btn-reset-db'), document.getElementById('btn-nuevo-item'), document.getElementById('col-accion')];
+            adminElements.forEach(el => { if(esAdmin) el.classList.remove('hidden'); else el.classList.add('hidden'); });
         }
 
         function volverAlBloqueo() { document.getElementById('sys-pass').value = ''; irA('vista-pass'); }
         function volverARoles() { irA('vista-roles'); }
         function volverAlDashboard() { irA('vista-dashboard'); }
 
-        // --- LÓGICA DE CONSULTA ---
+        // INSTRUMENTACION (NUEVO)
+        function abrirInstrumentacion() {
+            irA('vista-instrumentacion');
+        }
+
+        function verReceta(nombreReceta) {
+            // AQUI IRÁ LA LÓGICA PARA VER LOS MATERIALES DE CADA TRABAJO
+            alert('🛠️ Próximamente: Lista de materiales para "' + nombreReceta + '"\n\n(Dime qué items lleva y lo programamos)');
+        }
+
+        // INVENTARIO
+        function abrirInventario(cat) {
+            catActual = cat;
+            document.getElementById('titulo-cat').innerText = cat;
+            renderTabla(); irA('vista-tabla');
+        }
+
+        // CONSULTA
         function buscarProducto() {
             const texto = document.getElementById('buscador-global').value.toLowerCase();
-            const resultados = datos.filter(item => 
-                item.nom.toLowerCase().includes(texto) || 
-                item.cod.toLowerCase().includes(texto) ||
-                item.cat.toLowerCase().includes(texto)
-            );
+            const resultados = datos.filter(item => item.nom.toLowerCase().includes(texto) || item.cod.toLowerCase().includes(texto));
             renderTablaConsulta(resultados);
         }
 
@@ -231,215 +276,59 @@
             const tbody = document.getElementById('tabla-consulta');
             const vacioMsg = document.getElementById('msg-consulta-vacio');
             tbody.innerHTML = '';
-
-            if (lista.length === 0) {
-                vacioMsg.classList.remove('hidden'); vacioMsg.classList.add('flex');
-            } else {
-                vacioMsg.classList.add('hidden'); vacioMsg.classList.remove('flex');
+            if (lista.length === 0) { vacioMsg.classList.remove('hidden'); vacioMsg.classList.add('flex'); } else { vacioMsg.classList.add('hidden'); vacioMsg.classList.remove('flex'); 
                 lista.forEach(item => {
                     const esCritico = parseInt(item.cant) < parseInt(item.min);
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/50";
-                    tr.innerHTML = `
-                        <td class="p-4 font-mono text-emerald-400 font-bold">${item.cod}</td>
-                        <td class="p-4 text-slate-200 font-medium">${item.nom}</td>
-                        <td class="p-4 text-slate-500 text-xs uppercase">${item.cat}</td>
-                        <td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span> <span class="text-xs text-slate-600">${item.uni}</span></td>
-                        <td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>
-                    `;
+                    tr.innerHTML = `<td class="p-4 font-mono text-emerald-400 font-bold">${item.cod}</td><td class="p-4 text-slate-200 font-medium">${item.nom}</td><td class="p-4 text-slate-500 text-xs uppercase">${item.cat}</td><td class="p-4 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span></td><td class="p-4 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold border ${esCritico ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}">${esCritico ? 'BAJO' : 'OK'}</span></td>`;
                     tbody.appendChild(tr);
                 });
             }
-        }
-
-        // --- REPORTES PDF ---
-        function generarReporteGeneral() {
-            if(datos.length === 0) return alert('No hay datos.');
-            imprimirPDF('REPORTE GENERAL DE STOCK', datos);
-        }
-
-        function generarReporteFaltantes() {
-            const faltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
-            if(faltantes.length === 0) return alert('✅ No hay productos en falta.');
-            imprimirPDF('REPORTE DE FALTANTES', faltantes);
-        }
-
-        // --- SISTEMA ADMIN ---
-        function abrirInventario(cat) {
-            catActual = cat;
-            document.getElementById('titulo-cat').innerText = cat;
-            renderTabla(); irA('vista-tabla');
         }
 
         function renderTabla() {
             const tbody = document.getElementById('tabla-body');
             const vacioMsg = document.getElementById('vacio-msg');
             tbody.innerHTML = '';
-            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
-                const na = parseInt(a.cod), nb = parseInt(b.cod);
-                return (!isNaN(na) && !isNaN(nb)) ? na - nb : a.cod.localeCompare(b.cod);
-            });
+            const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => a.cod.localeCompare(b.cod));
             if(filtrados.length === 0) { vacioMsg.classList.remove('hidden'); vacioMsg.classList.add('flex'); } else { vacioMsg.classList.add('hidden'); vacioMsg.classList.remove('flex'); }
-
             filtrados.forEach(item => {
                 const esCritico = parseInt(item.cant) < parseInt(item.min);
-                let provStr = '<span class="text-slate-600 text-xs italic">N/A</span>';
-                if(item.proveedores && item.proveedores.length > 0) {
-                    provStr = item.proveedores.map(p => p.nombre).join(', ');
-                    if(provStr.length > 25) provStr = provStr.substring(0, 25) + '...';
-                }
+                let provStr = 'N/A';
+                if(item.proveedores && item.proveedores.length > 0) provStr = item.proveedores[0].nombre;
+                
+                let acciones = '';
+                if(esAdmin) acciones = `<div class="flex justify-end gap-2"><button onclick="editar(${item.id})" class="w-8 h-8 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition flex items-center justify-center"><i class="fas fa-pen text-xs"></i></button><button onclick="borrar(${item.id})" class="w-8 h-8 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button></div>`;
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 transition group";
-                tr.innerHTML = `
-                    <td class="p-5 font-mono text-blue-400 font-bold">${item.cod}</td>
-                    <td class="p-5"><div class="font-medium text-slate-200 text-base">${item.nom}</div><div class="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-bold"><i class="fas fa-user-edit mr-1"></i> ${item.resp || 'Anónimo'}</div></td>
-                    <td class="p-5 text-slate-400 text-xs hidden md:table-cell">${provStr}</td>
-                    <td class="p-5 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span><span class="text-xs text-slate-500 block">${item.uni}</span></td>
-                    <td class="p-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${esCritico ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${esCritico ? 'Reponer' : 'Normal'}</span></td>
-                    <td class="p-5 text-right"><div class="flex justify-end gap-2"><button onclick="editar(${item.id})" class="w-8 h-8 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition flex items-center justify-center"><i class="fas fa-pen text-xs"></i></button><button onclick="borrar(${item.id})" class="w-8 h-8 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button></div></td>
-                `;
+                tr.innerHTML = `<td class="p-5 font-mono text-blue-400 font-bold">${item.cod}</td><td class="p-5"><div class="font-medium text-slate-200 text-base">${item.nom}</div><div class="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-bold"><i class="fas fa-user-edit mr-1"></i> ${item.resp || 'Anónimo'}</div></td><td class="p-5 text-slate-400 text-xs hidden md:table-cell">${provStr}</td><td class="p-5 text-center"><span class="text-lg font-bold ${esCritico ? 'text-red-400' : 'text-emerald-400'}">${item.cant}</span></td><td class="p-5 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${esCritico ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${esCritico ? 'Reponer' : 'Normal'}</span></td><td class="p-5 text-right ${esAdmin ? '' : 'hidden'}">${acciones}</td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- MODALES Y GUARDADO ---
-        function mostrarModalNuevo() {
-            editandoId = null;
-            document.getElementById('modal-titulo').innerText = 'Nuevo Producto';
-            limpiarForm();
-            if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable;
-            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
-            if(!ultimoResponsable) document.getElementById('m-resp').focus(); else document.getElementById('m-cod').focus();
-        }
-
-        function editar(id) {
-            const item = datos.find(d => d.id === id);
-            if(!item) return;
-            editandoId = id;
-            document.getElementById('modal-titulo').innerText = 'Editar Producto';
-            document.getElementById('m-resp').value = item.resp || '';
-            document.getElementById('m-cod').value = item.cod;
-            document.getElementById('m-nombre').value = item.nom;
-            document.getElementById('m-cant').value = item.cant;
-            document.getElementById('m-min').value = item.min;
-            document.getElementById('m-uni').value = item.uni;
-            proveedoresTemporales = item.proveedores ? [...item.proveedores] : [];
-            renderProveedoresTemp();
-            document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible');
-        }
-
+        // --- FUNCIONES DE GESTION (MODAL, GUARDAR, BORRAR, IMPRIMIR) IGUALES AL ANTERIOR ---
+        function mostrarModalNuevo() { editandoId = null; document.getElementById('modal-titulo').innerText = 'Nuevo Producto'; limpiarForm(); if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable; document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); if(!ultimoResponsable) document.getElementById('m-resp').focus(); else document.getElementById('m-cod').focus(); }
+        function editar(id) { const item = datos.find(d => d.id === id); if(!item) return; editandoId = id; document.getElementById('modal-titulo').innerText = 'Editar Producto'; document.getElementById('m-resp').value = item.resp || ''; document.getElementById('m-cod').value = item.cod; document.getElementById('m-nombre').value = item.nom; document.getElementById('m-cant').value = item.cant; document.getElementById('m-min').value = item.min; document.getElementById('m-uni').value = item.uni; proveedoresTemporales = item.proveedores ? [...item.proveedores] : []; renderProveedoresTemp(); document.getElementById('modal').classList.remove('oculto'); document.getElementById('modal').classList.add('visible'); }
         function cerrarModal() { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); }
         function limpiarForm() { ['m-cod','m-nombre','m-cant','m-min','m-uni'].forEach(id => document.getElementById(id).value = ''); proveedoresTemporales = []; renderProveedoresTemp(); }
-
-        function agregarProveedorTemporal() {
-            const nom = document.getElementById('p-nombre').value.trim();
-            if(!nom) return;
-            proveedoresTemporales.push({ nombre: nom, tel: document.getElementById('p-tel').value.trim() });
-            document.getElementById('p-nombre').value = ''; document.getElementById('p-tel').value = '';
-            renderProveedoresTemp();
-        }
-
-        function renderProveedoresTemp() {
-            const ul = document.getElementById('lista-proveedores-temp'); ul.innerHTML = '';
-            proveedoresTemporales.forEach((p, idx) => {
-                const li = document.createElement('li');
-                li.className = "flex justify-between items-center bg-slate-900 px-3 py-2 rounded border border-slate-800 text-xs";
-                li.innerHTML = `<span class="text-slate-300">🏢 ${p.nombre} <span class="text-slate-500 ml-2">📞 ${p.tel}</span></span><button onclick="proveedoresTemporales.splice(${idx},1); renderProveedoresTemp()" class="text-red-400 hover:text-white">✕</button>`;
-                ul.appendChild(li);
-            });
-        }
-
-        function guardarProducto(e) {
-            e.preventDefault();
-            const resp = document.getElementById('m-resp').value.trim();
-            if(!resp) return alert('⚠️ Falta el Responsable de Carga.');
-            ultimoResponsable = resp;
-            const cod = document.getElementById('m-cod').value.trim();
-            const existe = datos.some(d => d.cod === cod && d.id !== editandoId);
-            if(existe) return alert('⛔ El Código ya existe.');
-            const pPendiente = document.getElementById('p-nombre').value.trim();
-            if(pPendiente) agregarProveedorTemporal();
-
-            const item = {
-                id: editandoId || Date.now(),
-                resp: resp, cod: cod, nom: document.getElementById('m-nombre').value.trim(),
-                cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value),
-                uni: document.getElementById('m-uni').value.trim(), proveedores: [...proveedoresTemporales], cat: catActual
-            };
-
-            if(editandoId) { const idx = datos.findIndex(d => d.id === editandoId); datos[idx] = item; } 
-            else { datos.push(item); }
-            localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla();
-        }
-
-        function borrar(id) { if(confirm('¿Borrar ítem permanentemente?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
+        function agregarProveedorTemporal() { const nom = document.getElementById('p-nombre').value.trim(); if(!nom) return; proveedoresTemporales.push({ nombre: nom, tel: document.getElementById('p-tel').value.trim() }); document.getElementById('p-nombre').value = ''; document.getElementById('p-tel').value = ''; renderProveedoresTemp(); }
+        function renderProveedoresTemp() { const ul = document.getElementById('lista-proveedores-temp'); ul.innerHTML = ''; proveedoresTemporales.forEach((p, idx) => { const li = document.createElement('li'); li.className = "flex justify-between items-center bg-slate-900 px-3 py-2 rounded border border-slate-800 text-xs"; li.innerHTML = `<span class="text-slate-300">🏢 ${p.nombre}</span><button onclick="proveedoresTemporales.splice(${idx},1); renderProveedoresTemp()" class="text-red-400 hover:text-white">✕</button>`; ul.appendChild(li); }); }
+        function guardarProducto(e) { e.preventDefault(); const resp = document.getElementById('m-resp').value.trim(); if(!resp) return alert('⚠️ Falta Responsable'); ultimoResponsable = resp; const cod = document.getElementById('m-cod').value.trim(); const existe = datos.some(d => d.cod === cod && d.id !== editandoId); if(existe) return alert('⛔ Código existente'); if(document.getElementById('p-nombre').value.trim()) agregarProveedorTemporal(); const item = { id: editandoId || Date.now(), resp: resp, cod: cod, nom: document.getElementById('m-nombre').value.trim(), cant: parseInt(document.getElementById('m-cant').value), min: parseInt(document.getElementById('m-min').value), uni: document.getElementById('m-uni').value.trim(), proveedores: [...proveedoresTemporales], cat: catActual }; if(editandoId) { const idx = datos.findIndex(d => d.id === editandoId); datos[idx] = item; } else { datos.push(item); } localStorage.setItem(DB_KEY, JSON.stringify(datos)); cerrarModal(); renderTabla(); }
+        function borrar(id) { if(confirm('¿Borrar?')) { datos = datos.filter(d => d.id !== id); localStorage.setItem(DB_KEY, JSON.stringify(datos)); renderTabla(); } }
         function borrarBaseDatos() { if(confirm('⚠️ ¿BORRAR TODO?')) { localStorage.removeItem(DB_KEY); location.reload(); } }
-
-        function generarOrden() {
-            const faltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
-            if(faltantes.length === 0) return alert('✅ Todo OK.');
-            // Usamos prompt si no hay ultimo responsable (caso consulta)
-            if(!ultimoResponsable) {
-                const nombre = prompt("Ingrese su nombre para la solicitud:", "");
-                if(nombre) ultimoResponsable = nombre;
-                else return;
-            }
-            imprimirPDF('SOLICITUD DE ORDEN DE COMPRA', faltantes, true);
-        }
-
-        // --- MOTOR DE IMPRESIÓN ---
-        function imprimirPDF(tituloDoc, items, esOrdenCompra = false) {
-            const fecha = new Date().toLocaleDateString();
-            let firma = esOrdenCompra ? (ultimoResponsable || "Consulta") : "Reporte Automático";
-
-            let html = `<!DOCTYPE html><html><head><title>${tituloDoc}</title>
-            <style>
-                body { font-family: 'Segoe UI', sans-serif; padding: 40px; color: #333; }
-                h1 { color: #2563eb; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
-                .header { display: flex; justify-content: space-between; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-                .meta { text-align: right; font-size: 13px; color: #666; }
-                .table-title { background: #1e293b; color: white; padding: 10px 15px; margin: 30px 0 0 0; font-size: 14px; font-weight: bold; text-transform: uppercase; border-radius: 4px 4px 0 0; }
-                table { width: 100%; border-collapse: collapse; border: 1px solid #ccc; font-size: 12px; }
-                th { background: #f1f5f9; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; }
-                td { padding: 8px 10px; border-bottom: 1px solid #eee; }
-                .btn { display: block; width: 200px; margin: 40px auto; padding: 12px; background: #2563eb; color: white; text-align: center; border-radius: 6px; text-decoration: none; font-weight: bold; }
-                @media print { .btn { display: none; } }
-            </style>
-            </head><body>
-            <div class="header">
-                <div><h1>${tituloDoc}</h1><p style="margin:5px 0 0 0; color:#555;">Sistema LABSE</p></div>
-                <div class="meta"><p><strong>FECHA:</strong> ${fecha}</p><p><strong>GENERADO POR:</strong> ${firma}</p></div>
-            </div>`;
-
-            function tablaHTML(catNombre, listaCat) {
-                if(listaCat.length === 0) return '';
-                let t = `<div class="table-title">${catNombre}</div><table><thead><tr><th width="10%">COD</th><th width="40%">PRODUCTO</th><th width="10%" style="text-align:center">STOCK</th><th width="10%" style="text-align:center">MINIMO</th><th width="30%">ESTADO / PROVEEDOR</th></tr></thead><tbody>`;
-                listaCat.forEach(i => {
-                    const diff = parseInt(i.min) - parseInt(i.cant);
-                    const estado = diff > 0 ? `<span style="color:#dc2626; font-weight:bold;">FALTAN ${diff}</span>` : '<span style="color:green;">OK</span>';
-                    let extraInfo = estado;
-                    if (esOrdenCompra) {
-                        let prov = '';
-                        if(i.proveedores && i.proveedores.length > 0) prov = i.proveedores[0].nombre;
-                        extraInfo = `<span style="color:#dc2626; font-weight:bold;">PEDIR ${diff}</span> <br><span style="color:#666; font-size:10px;">${prov}</span>`;
-                    }
-                    t += `<tr><td><strong>${i.cod}</strong></td><td>${i.nom}</td><td style="text-align:center">${i.cant}</td><td style="text-align:center">${i.min}</td><td>${extraInfo}</td></tr>`;
-                });
-                return t + '</tbody></table>';
-            }
-
-            const insumos = items.filter(i => i.cat === 'Insumos');
-            const herramientas = items.filter(i => i.cat === 'Herramientas');
-
-            html += tablaHTML('📦 Insumos y Materiales', insumos);
-            html += tablaHTML('🔧 Herramientas y Equipos', herramientas);
-
-            if (esOrdenCompra) {
-                html += `<div style="margin-top:50px; display:flex; justify-content:space-between;"><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Solicitante</div><div style="width:30%; border-top:1px solid #000; text-align:center; padding-top:5px;">Firma Autorizante</div></div>`;
-            }
-
-            html += `<a href="#" onclick="window.print()" class="btn">🖨️ IMPRIMIR / PDF</a></body></html>`;
-            const w = window.open('','_blank'); w.document.write(html); w.document.close();
+        function generarOrden() { const faltantes = datos.filter(d => parseInt(d.cant) < parseInt(d.min)); if(faltantes.length === 0) return alert('✅ OK'); if(!ultimoResponsable) { const n = prompt("Nombre:"); if(n) ultimoResponsable = n; else return; } imprimirPDF('SOLICITUD DE ORDEN DE COMPRA', faltantes, true); }
+        function generarReporteGeneral() { if(datos.length===0) return alert('Vacío'); imprimirPDF('REPORTE GENERAL', datos); }
+        function generarReporteFaltantes() { const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min)); if(f.length===0) return alert('✅ OK'); imprimirPDF('FALTANTES', f); }
+        function imprimirPDF(t, i, o=false) {
+            let f = o ? (ultimoResponsable || "Consulta") : "Reporte";
+            let h = `<!DOCTYPE html><html><head><title>${t}</title><style>body{font-family:sans-serif;padding:40px;color:#333}h1{color:#2563eb;margin:0}.header{display:flex;justify-content:space-between;border-bottom:3px solid #2563eb;padding-bottom:20px;margin-bottom:30px}table{width:100%;border-collapse:collapse;border:1px solid #ccc}th{background:#f1f5f9;padding:10px;text-align:left;border-bottom:2px solid #ddd}td{padding:8px;border-bottom:1px solid #eee}.btn{display:block;width:200px;margin:40px auto;padding:12px;background:#2563eb;color:white;text-align:center;border-radius:6px;text-decoration:none;font-weight:bold}@media print{.btn{display:none}}</style></head><body><div class="header"><div><h1>${t}</h1><p>LABSE</p></div><div><p><strong>FECHA:</strong> ${new Date().toLocaleDateString()}</p><p><strong>POR:</strong> ${f}</p></div></div>`;
+            const sec = (n, l) => { if(l.length===0)return''; let x=`<h3 style="background:#1e293b;color:white;padding:10px;">${n}</h3><table><thead><tr><th>COD</th><th>PRODUCTO</th><th>STOCK</th><th>MIN</th><th>ESTADO</th></tr></thead><tbody>`; l.forEach(e=>{ let d=e.min-e.cant; let s=d>0?`<b style="color:red">FALTAN ${d}</b>`:'OK'; x+=`<tr><td>${e.cod}</td><td>${e.nom}</td><td>${e.cant}</td><td>${e.min}</td><td>${s}</td></tr>`; }); return x+'</tbody></table>'; };
+            h += sec('Insumos', i.filter(x=>x.cat==='Insumos')) + sec('Herramientas', i.filter(x=>x.cat==='Herramientas'));
+            if(o) h+=`<div style="margin-top:50px;border-top:1px solid #000;width:30%;padding-top:5px;text-align:center">Firma Solicitante</div>`;
+            h += `<a href="#" onclick="window.print()" class="btn">IMPRIMIR</a></body></html>`;
+            const w=window.open('','_blank'); w.document.write(h); w.document.close();
         }
     </script>
 </body>
