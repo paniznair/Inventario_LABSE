@@ -23,7 +23,7 @@
         
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
 
-        /* NUEVO: TOAST NOTIFICATION */
+        /* TOAST */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border-left: 4px solid #3b82f6; animation: slideIn 0.3s ease-out; font-size: 14px; display: flex; align-items: center; gap: 10px; min-width: 300px; }
         .toast.error { border-left-color: #ef4444; }
@@ -32,13 +32,13 @@
     </style>
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
-            console.error(message); // Log silencioso
+            console.error(message); 
         };
     </script>
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.3 UI Premium</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.5 Fecha Global</div>
 
     <div id="toast-container"></div>
 
@@ -135,7 +135,6 @@
             </div>
             <h3 class="text-white font-bold text-2xl mb-2" id="modal-resp-titulo">Generar Documento</h3>
             <p class="text-slate-400 text-sm mb-8" id="modal-resp-desc">Confirma quién es el responsable.</p>
-            
             <form onsubmit="confirmarGenerarDocumento(event)">
                 <input type="text" id="input-responsable-pdf" placeholder="Nombre y Apellido" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl py-3 px-4 mb-6 outline-none focus:border-blue-500 text-center text-lg shadow-inner">
                 <div class="flex gap-4">
@@ -148,7 +147,13 @@
 
     <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
         <header class="w-full p-6 flex justify-between items-center bg-transparent relative z-10">
-            <div><div class="text-2xl font-black text-slate-100">LABSE <span class="text-blue-500">.CLOUD</span></div></div>
+            <div>
+                <div class="text-2xl font-black text-slate-100">LABSE <span class="text-blue-500">.CLOUD</span></div>
+                <div id="last-update-global" class="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-1">
+                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    Calculando...
+                </div>
+            </div>
             <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition px-3 py-2 text-sm font-bold">SALIR</button>
         </header>
         <div class="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
@@ -172,7 +177,10 @@
         <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
             <div class="flex items-center gap-4">
                 <button onclick="volverAlDashboard()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
-                <h2 id="titulo-cat" class="text-xl font-bold text-white">Inventario</h2>
+                <div>
+                    <h2 id="titulo-cat" class="text-xl font-bold text-white">Inventario</h2>
+                    <p id="last-update-table" class="text-[10px] text-slate-500 font-mono">Actualizado: ...</p>
+                </div>
             </div>
             <button id="btn-nuevo-item" onclick="mostrarModalNuevo()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition">+ Nuevo</button>
         </div>
@@ -393,6 +401,10 @@
             onSnapshot(productosCol, (snapshot) => {
                 datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                 document.getElementById('loader').classList.add('oculto');
+                
+                // CAMBIO V65: CALCULAR FECHA MÁS RECIENTE
+                calcularFechaGlobal();
+
                 if(catActual) renderTabla();
                 if(document.getElementById('vista-consulta').classList.contains('visible')) aplicarFiltrosConsulta();
             }, (error) => {
@@ -411,6 +423,32 @@
                     }
                 }
             });
+
+            // --- FUNCION NUEVA V65: FECHA GLOBAL ---
+            function calcularFechaGlobal() {
+                if(!datos.length) return;
+                
+                // Obtener todas las fechas válidas
+                const fechas = datos
+                    .filter(d => d.updatedAt) // Solo los que tienen fecha
+                    .map(d => d.updatedAt.toDate()); // Convertir a JS Date
+
+                if(fechas.length > 0) {
+                    // Ordenar descendente (más nueva primero)
+                    fechas.sort((a, b) => b - a);
+                    const ultima = fechas[0];
+                    
+                    const strFecha = ultima.toLocaleDateString() + ' ' + ultima.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    // Actualizar en Dashboard y Tabla
+                    const texto = `Última act: ${strFecha}`;
+                    document.getElementById('last-update-global').innerText = texto;
+                    document.getElementById('last-update-table').innerText = texto;
+                } else {
+                    document.getElementById('last-update-global').innerText = "Sin movimientos recientes";
+                    document.getElementById('last-update-table').innerText = "Sin movimientos";
+                }
+            }
 
             // --- FUNCIONES GLOBALES ---
 
@@ -436,15 +474,10 @@
                 const pass = document.getElementById('admin-pass-input').value.trim();
                 if(pass === 'labse2026') {
                     esAdmin = true;
-                    // Mostrar botones admin globales
                     const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
                     btnsAdmin.forEach(b => { if(b) b.classList.remove('hidden'); });
-                    // Boton agregar subtarea
-                    const btnAddSub = document.getElementById('btn-add-subtarea');
-                    if(btnAddSub) btnAddSub.style.display = 'block';
-                    const btnAddMat = document.getElementById('btn-add-mat'); // este es legacy
+                    const btnAddMat = document.getElementById('btn-add-mat');
                     if(btnAddMat) btnAddMat.style.display = 'block';
-
                     window.irA('vista-dashboard');
                 } else {
                     window.mostrarToast("Contraseña Incorrecta", 'error');
@@ -663,11 +696,7 @@
                             await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
                             window.mostrarToast("Item actualizado");
                         }, async () => {
-                            // NO CAMBIA (SOLO CANTIDAD) - Necesito manejar el 'cancelar' del confirm como 'no cambiar tipo' pero 'si guardar cantidad'
-                            // Hack simple: Ejecutar guardado directo si cancela el confirm es complejo aqui.
-                            // Mejor simplificamos: Solo editamos cantidad con el prompt. Para cambiar tipo, que lo borre y cree.
-                            // Pero implementemos solo cambio de cantidad por ahora para no complicar la UX.
-                            
+                            // NO CAMBIA (SOLO CANTIDAD)
                             const newSubs = [...tareaActual.subtareas];
                             newSubs[subIdx].materiales[matIdx].cant = parseInt(nuevaCant);
                             await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
@@ -855,7 +884,8 @@
                     min:parseInt(document.getElementById('m-min').value), 
                     uni:document.getElementById('m-uni').value, 
                     proveedores:proveedoresTemporales, 
-                    cat:catActual
+                    cat:catActual,
+                    updatedAt: new Date() // FECHA DE ACTUALIZACIÓN
                 }; 
                 
                 try {
