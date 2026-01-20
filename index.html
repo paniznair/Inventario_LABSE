@@ -19,6 +19,8 @@
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         #sys-pass::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
         #sys-pass:focus::placeholder { color: #334155; }
+        /* Estilos para botones activos */
+        .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
@@ -74,7 +76,7 @@
                     <i class="fas fa-tasks text-4xl text-purple-400 mb-4"></i><h3 class="text-2xl font-bold text-white">Instrumentación</h3><p class="text-slate-400 text-sm">Planificación de Trabajos</p>
                 </div>
             </div>
-            <button onclick="generarOrden()" class="mt-12 px-8 py-4 rounded-2xl bg-slate-800 text-white font-bold hover:bg-slate-700 border border-slate-700 transition w-full max-w-lg">GENERAR ORDEN DE COMPRA</button>
+            <button onclick="generarOrden()" class="mt-12 px-8 py-4 rounded-2xl bg-slate-800 text-white font-bold hover:bg-slate-700 border border-slate-700 transition w-full max-w-lg">GENERAR ORDEN DE COMPRA (PDF)</button>
             <div class="absolute bottom-4 text-xs text-emerald-500 flex items-center gap-2"><div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div> Conectado a Firebase</div>
         </div>
     </div>
@@ -94,7 +96,8 @@
                         <tr>
                             <th class="p-5 border-b border-slate-800">Cód</th>
                             <th class="p-5 border-b border-slate-800">Producto</th>
-                            <th class="p-5 border-b border-slate-800 hidden md:table-cell">Ubicación</th> <th class="p-5 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-5 border-b border-slate-800 hidden md:table-cell">Ubicación</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-5 border-b border-slate-800 text-center">Estado</th>
                             <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
                         </tr>
@@ -126,15 +129,30 @@
         </header>
         <div class="flex-1 overflow-hidden flex flex-col max-w-6xl mx-auto w-full p-6">
             <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar producto o ubicación..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
+                <input type="text" id="buscador-global" onkeyup="aplicarFiltrosConsulta()" placeholder="Buscar producto o ubicación..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
                 <div class="flex gap-2">
-                    <button onclick="generarReporteGeneral()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 rounded-xl text-xs font-bold border border-slate-700">REPORTE</button>
-                    <button onclick="generarReporteFaltantes()" class="bg-slate-800 hover:bg-slate-700 text-red-400 px-4 rounded-xl text-xs font-bold border border-slate-700">FALTANTES</button>
-                    <button onclick="generarOrden()" class="bg-slate-800 hover:bg-slate-700 text-purple-400 px-4 rounded-xl text-xs font-bold border border-slate-700">SOLICITAR</button>
+                    <button id="btn-todos" onclick="setFiltroConsulta('todos')" class="btn-filtro-activo bg-slate-800 hover:bg-slate-700 text-white px-6 rounded-xl text-xs font-bold border border-slate-700 transition">TODOS</button>
+                    <button id="btn-faltantes" onclick="setFiltroConsulta('faltantes')" class="bg-slate-800 hover:bg-slate-700 text-red-400 px-6 rounded-xl text-xs font-bold border border-slate-700 transition">FALTANTES</button>
+                    <button onclick="generarOrden()" class="bg-slate-800 hover:bg-slate-700 text-purple-400 px-6 rounded-xl text-xs font-bold border border-slate-700 transition">SOLICITAR (PDF)</button>
                 </div>
             </div>
             <div class="flex-1 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-auto p-4">
-                <table class="w-full text-left text-sm text-slate-300"><tbody id="tabla-consulta" class="divide-y divide-slate-800"></tbody></table>
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold sticky top-0">
+                        <tr>
+                            <th class="p-4 border-b border-slate-800">Cód</th>
+                            <th class="p-4 border-b border-slate-800">Producto</th>
+                            <th class="p-4 border-b border-slate-800">Ubicación</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-consulta" class="divide-y divide-slate-800"></tbody>
+                </table>
+                <div id="consulta-vacio" class="text-center py-20 hidden flex-col items-center">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-2xl mb-4">🔍</div>
+                    <p class="text-slate-500">No hay coincidencias.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -213,12 +231,15 @@
         let tareaActual = null;
         let editandoId = null;
         let ultimoResponsable = '';
+        
+        // VARIABLE NUEVA PARA FILTRO
+        let filtroConsultaActual = 'todos'; // 'todos' | 'faltantes'
 
         onSnapshot(productosCol, (snapshot) => {
             datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             document.getElementById('loader').classList.add('oculto');
             if(catActual) renderTabla();
-            if(document.getElementById('vista-consulta').classList.contains('visible')) buscarProducto();
+            if(document.getElementById('vista-consulta').classList.contains('visible')) aplicarFiltrosConsulta();
         }, (error) => {
             console.error("Error BD:", error);
             alert("Error conectando a la base de datos.");
@@ -250,7 +271,10 @@
             btnsAdmin.forEach(b => { if(b) b.classList.toggle('hidden', !esAdmin); });
             const btnAddMat = document.getElementById('btn-add-mat');
             if(btnAddMat) btnAddMat.style.display = esAdmin ? 'block' : 'none';
-            if(esAdmin) window.irA('vista-dashboard'); else { window.irA('vista-consulta'); window.buscarProducto(); }
+            if(esAdmin) window.irA('vista-dashboard'); else { 
+                window.irA('vista-consulta'); 
+                window.setFiltroConsulta('todos'); // Reset al entrar
+            }
         };
 
         window.volverAlBloqueo = () => { document.getElementById('sys-pass').value=''; window.irA('vista-pass'); };
@@ -275,7 +299,6 @@
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) < parseInt(item.min);
-                // CAMBIO V39: Renderizar Ubicación
                 let ubi = item.ubicacion ? `<span class="text-yellow-500/80 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>${item.ubicacion}</span>` : '<span class="text-slate-600 text-xs">-</span>';
                 
                 let tr = document.createElement('tr');
@@ -411,7 +434,6 @@
             document.getElementById('m-resp').value=d.resp||''; 
             document.getElementById('m-cod').value=d.cod; 
             document.getElementById('m-nombre').value=d.nom; 
-            // CAMBIO V39: Cargar Ubicación al editar
             document.getElementById('m-ubicacion').value=d.ubicacion||'';
             document.getElementById('m-cant').value=d.cant; 
             document.getElementById('m-min').value=d.min; 
@@ -443,7 +465,6 @@
                 resp:r, 
                 cod:c, 
                 nom:document.getElementById('m-nombre').value,
-                // CAMBIO V39: Guardar Ubicación
                 ubicacion:document.getElementById('m-ubicacion').value,
                 cant:parseInt(document.getElementById('m-cant').value), 
                 min:parseInt(document.getElementById('m-min').value), 
@@ -466,31 +487,80 @@
 
         window.borrar = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'productos', id)); } };
 
-        // CONSULTAS Y REPORTES
-        window.buscarProducto = () => { 
-            const t=document.getElementById('buscador-global').value.toLowerCase(); 
-            // CAMBIO V39: Buscar también por ubicación
-            const r=datos.filter(d=>(d.nom.toLowerCase().includes(t)||d.cod.toLowerCase().includes(t)||(d.ubicacion && d.ubicacion.toLowerCase().includes(t)))); 
-            const b=document.getElementById('tabla-consulta'); b.innerHTML=''; 
-            r.forEach(i=>{ 
-                // CAMBIO V39: Mostrar ubicación en consulta
+        // --- NUEVA LÓGICA DE FILTROS EN CONSULTA (V40) ---
+        window.setFiltroConsulta = (tipo) => {
+            filtroConsultaActual = tipo;
+            // Actualizar estilo botones
+            document.getElementById('btn-todos').classList.toggle('btn-filtro-activo', tipo === 'todos');
+            document.getElementById('btn-todos').classList.toggle('text-white', tipo === 'todos');
+            document.getElementById('btn-todos').classList.toggle('bg-slate-800', tipo !== 'todos');
+            
+            document.getElementById('btn-faltantes').classList.toggle('btn-filtro-activo', tipo === 'faltantes');
+            document.getElementById('btn-faltantes').classList.toggle('text-white', tipo === 'faltantes');
+            document.getElementById('btn-faltantes').classList.toggle('text-red-400', tipo !== 'faltantes');
+
+            // Volver a renderizar
+            window.aplicarFiltrosConsulta();
+        };
+
+        window.aplicarFiltrosConsulta = () => { 
+            const texto = document.getElementById('buscador-global').value.toLowerCase();
+            const tabla = document.getElementById('tabla-consulta');
+            const vacio = document.getElementById('consulta-vacio');
+            tabla.innerHTML = '';
+
+            let resultados = datos.filter(d => {
+                // Filtro Texto
+                const coincideTexto = d.nom.toLowerCase().includes(texto) || 
+                                      d.cod.toLowerCase().includes(texto) || 
+                                      (d.ubicacion && d.ubicacion.toLowerCase().includes(texto));
+                // Filtro Estado
+                if (filtroConsultaActual === 'faltantes') {
+                    const esFaltante = parseInt(d.cant) < parseInt(d.min);
+                    return coincideTexto && esFaltante;
+                }
+                return coincideTexto;
+            });
+
+            if (resultados.length === 0) {
+                vacio.classList.remove('hidden');
+                vacio.classList.add('flex');
+            } else {
+                vacio.classList.add('hidden');
+                vacio.classList.remove('flex');
+            }
+
+            resultados.forEach(i => { 
+                const critico = parseInt(i.cant) < parseInt(i.min);
                 let ubi = i.ubicacion ? `<br><span class="text-yellow-500/70 text-[10px]"><i class="fas fa-map-marker-alt"></i> ${i.ubicacion}</span>` : '';
-                b.innerHTML+=`<tr class="border-b border-slate-800"><td class="p-4 font-mono text-emerald-400">${i.cod}</td><td class="p-4 text-white">${i.nom}${ubi}</td><td class="p-4 text-xs text-slate-500">${i.cat}</td><td class="p-4 text-center text-white">${i.cant}</td></tr>`; 
+                let estadoBadge = critico 
+                    ? `<span class="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-500/30">FALTA</span>`
+                    : `<span class="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">OK</span>`;
+                
+                tabla.innerHTML += `
+                    <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
+                        <td class="p-4 font-mono text-emerald-400">${i.cod}</td>
+                        <td class="p-4 text-white">
+                            <div class="font-bold">${i.nom}</div>
+                            <div class="text-xs text-slate-500">${i.cat}</div>
+                        </td>
+                        <td class="p-4 text-xs text-yellow-500/80">${i.ubicacion || '-'}</td>
+                        <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
+                        <td class="p-4 text-center">${estadoBadge}</td>
+                    </tr>`; 
             }); 
         };
         
-        window.generarOrden = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); if(!ultimoResponsable){const n=prompt("Nombre:");if(n)ultimoResponsable=n;else return;} window.imprimirPDF('ORDEN', f, true); };
-        window.generarReporteGeneral = () => { if(!datos.length)return alert('Vacío'); window.imprimirPDF('GENERAL', datos); };
-        window.generarReporteFaltantes = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); window.imprimirPDF('FALTANTES', f); };
+        // Mantenemos las funciones de impresión por si acaso
+        window.generarOrden = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('No hay faltantes para solicitar.'); if(!ultimoResponsable){const n=prompt("Nombre Responsable:");if(n)ultimoResponsable=n;else return;} window.imprimirPDF('ORDEN DE COMPRA', f, true); };
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
         window.imprimirPDF = (t,l,o=false) => {
-            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:5px}</style></head><body><h1>${t}</h1><p>Fecha: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>COD</th><th>DESC</th><th>UBICACIÓN</th><th>CANT</th><th>ESTADO</th></tr></thead><tbody>`;
+            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}td,th{border:1px solid #ccc;padding:8px;text-align:left}th{background:#eee}</style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
             l.forEach(x=>{ 
                 const d=x.min-x.cant; 
-                // CAMBIO V39: Columna Ubicación en PDF
                 h+=`<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion||'-'}</td><td>${x.cant}</td><td>${d>0?'FALTA '+d:'OK'}</td></tr>`; 
             });
-            h+='</tbody></table></body></html>'; const w=window.open(''); w.document.write(h); w.document.close();
+            h+='</tbody></table><script>window.print();<\/script></body></html>'; const w=window.open(''); w.document.write(h); w.document.close();
         };
 
         window.irA('vista-pass');
