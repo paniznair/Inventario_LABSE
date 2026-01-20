@@ -6,6 +6,7 @@
     <title>LABSE - Gestión Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
         .oculto { display: none !important; }
@@ -16,7 +17,6 @@
         .scroll-fino::-webkit-scrollbar { width: 6px; }
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        /* Estilo específico para el placeholder sutil */
         #sys-pass::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
         #sys-pass:focus::placeholder { color: #334155; }
     </style>
@@ -91,7 +91,13 @@
             <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
-                        <tr><th class="p-5 border-b border-slate-800">Cód</th><th class="p-5 border-b border-slate-800">Producto</th><th class="p-5 border-b border-slate-800 hidden md:table-cell">Prov</th><th class="p-5 border-b border-slate-800 text-center">Stock</th><th class="p-5 border-b border-slate-800 text-center">Estado</th><th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th></tr>
+                        <tr>
+                            <th class="p-5 border-b border-slate-800">Cód</th>
+                            <th class="p-5 border-b border-slate-800">Producto</th>
+                            <th class="p-5 border-b border-slate-800 hidden md:table-cell">Ubicación</th> <th class="p-5 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Estado</th>
+                            <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
+                        </tr>
                     </thead>
                     <tbody id="tabla-body" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
                 </table>
@@ -120,7 +126,7 @@
         </header>
         <div class="flex-1 overflow-hidden flex flex-col max-w-6xl mx-auto w-full p-6">
             <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
+                <input type="text" id="buscador-global" onkeyup="buscarProducto()" placeholder="Buscar producto o ubicación..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
                 <div class="flex gap-2">
                     <button onclick="generarReporteGeneral()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 rounded-xl text-xs font-bold border border-slate-700">REPORTE</button>
                     <button onclick="generarReporteFaltantes()" class="bg-slate-800 hover:bg-slate-700 text-red-400 px-4 rounded-xl text-xs font-bold border border-slate-700">FALTANTES</button>
@@ -169,6 +175,9 @@
             <form onsubmit="guardarProducto(event)">
                 <input type="text" id="m-resp" placeholder="Responsable *" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 mb-4 focus:border-blue-500 outline-none" required>
                 <div class="grid grid-cols-4 gap-4 mb-4"><input type="text" id="m-cod" placeholder="Código" required class="col-span-1 bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-nombre" placeholder="Nombre" required class="col-span-3 bg-slate-800 text-white border-slate-700 rounded p-2"></div>
+                <div class="mb-4">
+                    <input type="text" id="m-ubicacion" placeholder="Ubicación (Ej: Estante A1, Cajón 3) - 5S" class="w-full bg-slate-800 text-white border border-slate-700 rounded p-2 focus:border-yellow-500 outline-none">
+                </div>
                 <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
                 <div class="bg-slate-950/50 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold">Guardar</button>
@@ -180,7 +189,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // TUS CREDENCIALES (NO TOCAR)
+        // TUS CREDENCIALES
         const firebaseConfig = {
             apiKey: "AIzaSyDGdmmkyzzxtkQTUK-siCPxJOgGN3N4isQ",
             authDomain: "sistema-labse.firebaseapp.com",
@@ -191,29 +200,23 @@
             measurementId: "G-BEPZRJ8EJ1"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const productosCol = collection(db, 'productos');
         const tareasCol = collection(db, 'tareas');
 
-        // Variables Globales
         let datos = [];
         let tareas = [];
         let catActual = '';
         let proveedoresTemporales = [];
         let esAdmin = false;
         let tareaActual = null;
-        let editandoId = null; // En firebase será el ID del documento
+        let editandoId = null;
         let ultimoResponsable = '';
 
-        // ESCUCHAR CAMBIOS EN TIEMPO REAL (Productos)
         onSnapshot(productosCol, (snapshot) => {
             datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             document.getElementById('loader').classList.add('oculto');
-            if(document.getElementById('vista-pass').classList.contains('oculto') && !esAdmin) {
-                 // Si ya pasó el login, refrescar
-            }
             if(catActual) renderTabla();
             if(document.getElementById('vista-consulta').classList.contains('visible')) buscarProducto();
         }, (error) => {
@@ -221,21 +224,15 @@
             alert("Error conectando a la base de datos.");
         });
 
-        // ESCUCHAR CAMBIOS EN TIEMPO REAL (Tareas)
         onSnapshot(tareasCol, (snapshot) => {
             tareas = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             if(document.getElementById('vista-instrumentacion').classList.contains('visible')) renderTareas();
-            // Actualizar modal si está abierto
             if(tareaActual) {
                 const tActualizada = tareas.find(t => t.id === tareaActual.id);
-                if(tActualizada) {
-                    tareaActual = tActualizada;
-                    renderMaterialesTarea();
-                }
+                if(tActualizada) { tareaActual = tActualizada; renderMaterialesTarea(); }
             }
         });
 
-        // --- FUNCIONES EXPORTADAS A WINDOW (Para que el HTML las vea) ---
         window.irA = (id) => {
             document.querySelectorAll('body > div').forEach(el => {
                 if(el.id.startsWith('vista-')) el.classList.add('oculto');
@@ -278,15 +275,16 @@
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) < parseInt(item.min);
-                let prov = item.proveedores && item.proveedores.length ? item.proveedores[0].nombre : '-';
+                // CAMBIO V39: Renderizar Ubicación
+                let ubi = item.ubicacion ? `<span class="text-yellow-500/80 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>${item.ubicacion}</span>` : '<span class="text-slate-600 text-xs">-</span>';
+                
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
                 
                 let btns = '';
-                // OJO: Pasamos el ID como string entre comillas
                 if(esAdmin) btns = `<div class="flex justify-end gap-2"><button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button><button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button></div>`;
 
-                tr.innerHTML = `<td class="p-4 font-mono text-blue-400 font-bold">${item.cod}</td><td class="p-4">${item.nom}</td><td class="p-4 text-xs hidden md:table-cell">${prov}</td><td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td><td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td><td class="p-4 text-right">${btns}</td>`;
+                tr.innerHTML = `<td class="p-4 font-mono text-blue-400 font-bold">${item.cod}</td><td class="p-4">${item.nom}</td><td class="p-4 hidden md:table-cell">${ubi}</td><td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td><td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td><td class="p-4 text-right">${btns}</td>`;
                 tbody.appendChild(tr);
             });
         };
@@ -413,6 +411,8 @@
             document.getElementById('m-resp').value=d.resp||''; 
             document.getElementById('m-cod').value=d.cod; 
             document.getElementById('m-nombre').value=d.nom; 
+            // CAMBIO V39: Cargar Ubicación al editar
+            document.getElementById('m-ubicacion').value=d.ubicacion||'';
             document.getElementById('m-cant').value=d.cant; 
             document.getElementById('m-min').value=d.min; 
             document.getElementById('m-uni').value=d.uni; 
@@ -423,7 +423,7 @@
         };
 
         window.cerrarModal = () => { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); };
-        window.limpiarForm = () => { ['m-cod','m-nombre','m-cant','m-min','m-uni'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; window.renderProveedoresTemp(); };
+        window.limpiarForm = () => { ['m-cod','m-nombre','m-cant','m-min','m-uni','m-ubicacion'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; window.renderProveedoresTemp(); };
         window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
         window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
         
@@ -434,7 +434,6 @@
             ultimoResponsable=r; 
             const c=document.getElementById('m-cod').value; 
             
-            // Validar Código duplicado (excluyendo el que editamos)
             if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); 
             
             if(document.getElementById('p-nombre').value) window.agregarProveedorTemporal(); 
@@ -443,7 +442,9 @@
             const obj = {
                 resp:r, 
                 cod:c, 
-                nom:document.getElementById('m-nombre').value, 
+                nom:document.getElementById('m-nombre').value,
+                // CAMBIO V39: Guardar Ubicación
+                ubicacion:document.getElementById('m-ubicacion').value,
                 cant:parseInt(document.getElementById('m-cant').value), 
                 min:parseInt(document.getElementById('m-min').value), 
                 uni:document.getElementById('m-uni').value, 
@@ -466,18 +467,32 @@
         window.borrar = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'productos', id)); } };
 
         // CONSULTAS Y REPORTES
-        window.buscarProducto = () => { const t=document.getElementById('buscador-global').value.toLowerCase(); const r=datos.filter(d=>d.nom.toLowerCase().includes(t)||d.cod.toLowerCase().includes(t)); const b=document.getElementById('tabla-consulta'); b.innerHTML=''; r.forEach(i=>{ b.innerHTML+=`<tr class="border-b border-slate-800"><td class="p-4 font-mono text-emerald-400">${i.cod}</td><td class="p-4 text-white">${i.nom}</td><td class="p-4 text-xs text-slate-500">${i.cat}</td><td class="p-4 text-center text-white">${i.cant}</td></tr>`; }); };
+        window.buscarProducto = () => { 
+            const t=document.getElementById('buscador-global').value.toLowerCase(); 
+            // CAMBIO V39: Buscar también por ubicación
+            const r=datos.filter(d=>(d.nom.toLowerCase().includes(t)||d.cod.toLowerCase().includes(t)||(d.ubicacion && d.ubicacion.toLowerCase().includes(t)))); 
+            const b=document.getElementById('tabla-consulta'); b.innerHTML=''; 
+            r.forEach(i=>{ 
+                // CAMBIO V39: Mostrar ubicación en consulta
+                let ubi = i.ubicacion ? `<br><span class="text-yellow-500/70 text-[10px]"><i class="fas fa-map-marker-alt"></i> ${i.ubicacion}</span>` : '';
+                b.innerHTML+=`<tr class="border-b border-slate-800"><td class="p-4 font-mono text-emerald-400">${i.cod}</td><td class="p-4 text-white">${i.nom}${ubi}</td><td class="p-4 text-xs text-slate-500">${i.cat}</td><td class="p-4 text-center text-white">${i.cant}</td></tr>`; 
+            }); 
+        };
+        
         window.generarOrden = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); if(!ultimoResponsable){const n=prompt("Nombre:");if(n)ultimoResponsable=n;else return;} window.imprimirPDF('ORDEN', f, true); };
         window.generarReporteGeneral = () => { if(!datos.length)return alert('Vacío'); window.imprimirPDF('GENERAL', datos); };
         window.generarReporteFaltantes = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('OK'); window.imprimirPDF('FALTANTES', f); };
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
         window.imprimirPDF = (t,l,o=false) => {
-            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:5px}</style></head><body><h1>${t}</h1><p>Fecha: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>COD</th><th>DESC</th><th>CANT</th><th>ESTADO</th></tr></thead><tbody>`;
-            l.forEach(x=>{ const d=x.min-x.cant; h+=`<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.cant}</td><td>${d>0?'FALTA '+d:'OK'}</td></tr>`; });
+            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:5px}</style></head><body><h1>${t}</h1><p>Fecha: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>COD</th><th>DESC</th><th>UBICACIÓN</th><th>CANT</th><th>ESTADO</th></tr></thead><tbody>`;
+            l.forEach(x=>{ 
+                const d=x.min-x.cant; 
+                // CAMBIO V39: Columna Ubicación en PDF
+                h+=`<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion||'-'}</td><td>${x.cant}</td><td>${d>0?'FALTA '+d:'OK'}</td></tr>`; 
+            });
             h+='</tbody></table></body></html>'; const w=window.open(''); w.document.write(h); w.document.close();
         };
 
-        // Mostrar login al cargar (cuando firebase termine de conectar, el loader desaparece)
         window.irA('vista-pass');
     </script>
 </body>
