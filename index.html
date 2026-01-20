@@ -26,6 +26,8 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
+    <div class="fixed bottom-2 right-2 text-[10px] text-slate-600 z-[100] opacity-50 font-mono">v5.3 PDF Fix</div>
+
     <div id="loader" class="loading-overlay">
         <div class="text-center">
             <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-4"></i>
@@ -375,16 +377,12 @@
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) < parseInt(item.min);
-                // CAMBIO V51: Alineación de celdas
                 let ubi = item.ubicacion ? `<span class="text-yellow-500/80 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>${item.ubicacion}</span>` : '<span class="text-slate-600 text-xs">-</span>';
-                
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
-                
                 let btns = '';
                 if(esAdmin) btns = `<div class="flex justify-end gap-2"><button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button><button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button></div>`;
-
-                // Aquí se aplica la alineación por celda
+                
                 tr.innerHTML = `
                     <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
                     <td class="p-4 text-center">${item.nom}</td>
@@ -630,7 +628,7 @@
             }); 
         };
         
-        // --- MODAL Y FUNCIONES PARA RESPONSABLE PDF ---
+        // --- MODAL Y FUNCIONES PARA RESPONSABLE PDF (VERSION V53: PDF Centrado) ---
         window.generarOrden = () => { 
             const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
             if (!f.length) return alert('No hay faltantes para solicitar.');
@@ -663,7 +661,15 @@
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
         
         window.imprimirPDF = (t, l, o = false) => {
-            let h = `<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}td,th{border:1px solid #ccc;padding:8px;text-align:left}th{background:#eee}</style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
+            // CAMBIO V53: CSS para centrar encabezados y columna stock (4ta)
+            let h = `<html><head><title>${t}</title><style>
+                body{font-family:sans-serif;padding:20px}
+                table{width:100%;border-collapse:collapse;margin-top:20px}
+                td,th{border:1px solid #ccc;padding:8px}
+                th{background:#eee; text-align: center;} /* Centrar encabezados */
+                td{text-align: left;}
+                td:nth-child(4) { text-align: center; } /* Centrar Stock (col 4) */
+            </style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
             l.forEach(x => { 
                 const d = x.min - x.cant; 
                 h += `<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion || '-'}</td><td>${x.cant}</td><td>${d > 0 ? 'FALTA ' + d : 'OK'}</td></tr>`; 
