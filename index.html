@@ -19,7 +19,6 @@
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         #sys-pass::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
         #sys-pass:focus::placeholder { color: #334155; }
-        /* Estilos para botones activos */
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
     </style>
 </head>
@@ -207,7 +206,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // TUS CREDENCIALES
         const firebaseConfig = {
             apiKey: "AIzaSyDGdmmkyzzxtkQTUK-siCPxJOgGN3N4isQ",
             authDomain: "sistema-labse.firebaseapp.com",
@@ -231,9 +229,7 @@
         let tareaActual = null;
         let editandoId = null;
         let ultimoResponsable = '';
-        
-        // VARIABLE NUEVA PARA FILTRO
-        let filtroConsultaActual = 'todos'; // 'todos' | 'faltantes'
+        let filtroConsultaActual = 'todos';
 
         onSnapshot(productosCol, (snapshot) => {
             datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -273,7 +269,7 @@
             if(btnAddMat) btnAddMat.style.display = esAdmin ? 'block' : 'none';
             if(esAdmin) window.irA('vista-dashboard'); else { 
                 window.irA('vista-consulta'); 
-                window.setFiltroConsulta('todos'); // Reset al entrar
+                window.setFiltroConsulta('todos'); 
             }
         };
 
@@ -416,7 +412,6 @@
             res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
         };
 
-        // CRUD FIREBASE
         window.mostrarModalNuevo = () => { 
             if(!catActual) return alert('Por favor, selecciona Insumos o Herramientas primero.');
             editandoId=null; 
@@ -487,10 +482,8 @@
 
         window.borrar = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'productos', id)); } };
 
-        // --- NUEVA LÓGICA DE FILTROS EN CONSULTA (V40) ---
         window.setFiltroConsulta = (tipo) => {
             filtroConsultaActual = tipo;
-            // Actualizar estilo botones
             document.getElementById('btn-todos').classList.toggle('btn-filtro-activo', tipo === 'todos');
             document.getElementById('btn-todos').classList.toggle('text-white', tipo === 'todos');
             document.getElementById('btn-todos').classList.toggle('bg-slate-800', tipo !== 'todos');
@@ -499,7 +492,6 @@
             document.getElementById('btn-faltantes').classList.toggle('text-white', tipo === 'faltantes');
             document.getElementById('btn-faltantes').classList.toggle('text-red-400', tipo !== 'faltantes');
 
-            // Volver a renderizar
             window.aplicarFiltrosConsulta();
         };
 
@@ -510,11 +502,9 @@
             tabla.innerHTML = '';
 
             let resultados = datos.filter(d => {
-                // Filtro Texto
                 const coincideTexto = d.nom.toLowerCase().includes(texto) || 
                                       d.cod.toLowerCase().includes(texto) || 
                                       (d.ubicacion && d.ubicacion.toLowerCase().includes(texto));
-                // Filtro Estado
                 if (filtroConsultaActual === 'faltantes') {
                     const esFaltante = parseInt(d.cant) < parseInt(d.min);
                     return coincideTexto && esFaltante;
@@ -551,16 +541,33 @@
             }); 
         };
         
-        // Mantenemos las funciones de impresión por si acaso
-        window.generarOrden = () => { const f=datos.filter(d=>parseInt(d.cant)<parseInt(d.min)); if(!f.length)return alert('No hay faltantes para solicitar.'); if(!ultimoResponsable){const n=prompt("Nombre Responsable:");if(n)ultimoResponsable=n;else return;} window.imprimirPDF('ORDEN DE COMPRA', f, true); };
+        // --- CAMBIO V41: Optimización de Generación de PDF ---
+        window.generarOrden = () => { 
+            const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
+            if (!f.length) return alert('No hay faltantes para solicitar.');
+            
+            // Siempre preguntamos (o mostramos el último) para confirmar
+            let n = prompt("Ingrese el nombre del Responsable:", ultimoResponsable || "");
+            
+            if (n && n.trim() !== "") {
+                ultimoResponsable = n; // Guardamos para la próxima sugerencia
+                window.imprimirPDF('ORDEN DE COMPRA', f, true);
+            }
+            // Si cancela, no hacemos nada
+        };
+
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
-        window.imprimirPDF = (t,l,o=false) => {
-            let h=`<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}td,th{border:1px solid #ccc;padding:8px;text-align:left}th{background:#eee}</style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
-            l.forEach(x=>{ 
-                const d=x.min-x.cant; 
-                h+=`<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion||'-'}</td><td>${x.cant}</td><td>${d>0?'FALTA '+d:'OK'}</td></tr>`; 
+        
+        window.imprimirPDF = (t, l, o = false) => {
+            let h = `<html><head><title>${t}</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:20px}td,th{border:1px solid #ccc;padding:8px;text-align:left}th{background:#eee}</style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
+            l.forEach(x => { 
+                const d = x.min - x.cant; 
+                h += `<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion || '-'}</td><td>${x.cant}</td><td>${d > 0 ? 'FALTA ' + d : 'OK'}</td></tr>`; 
             });
-            h+='</tbody></table><script>window.print();<\/script></body></html>'; const w=window.open(''); w.document.write(h); w.document.close();
+            h += '</tbody></table><script>window.print();<\/script></body></html>'; 
+            const w = window.open(''); 
+            w.document.write(h); 
+            w.document.close();
         };
 
         window.irA('vista-pass');
