@@ -571,11 +571,21 @@
                 });
             };
 
+            // --- NUEVO V60: CONTROL DE DUPLICADOS EN LA MISMA SUBTAREA ---
             window.addMatToTask = async (cod, nom, tipo) => {
+                // Verificar si ya existe en ESTA subtarea
+                const subtareaActual = tareaActual.subtareas[subtaskActivaIdx];
+                const existe = subtareaActual.materiales.some(m => m.cod === cod);
+
+                if (existe) {
+                    alert(`⚠️ ¡El producto "${nom}" ya está agregado en esta subtarea!`);
+                    return; // Detiene la función
+                }
+
                 const label = tipo === 'ind' ? 'POR OPERARIO' : 'TOTAL FIJO (GRUPAL)';
                 const c = prompt(`Cantidad de "${nom}" (${label}):`);
+                
                 if(c && !isNaN(c)) { 
-                    // Agregamos a la subtarea activa
                     const newSubs = [...tareaActual.subtareas];
                     newSubs[subtaskActivaIdx].materiales.push({cod: cod, cant: parseInt(c), tipo: tipo});
                     
@@ -592,7 +602,7 @@
                 } 
             };
 
-            // --- CÁLCULO DE DISPONIBILIDAD GLOBAL (AGREGANDO TODAS LAS SUBTAREAS) ---
+            // --- CÁLCULO DE DISPONIBILIDAD GLOBAL ---
             window.calcularDisponibilidad = () => {
                 const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
                 const res = document.getElementById('mt-resultado'); res.innerHTML = '';
@@ -605,7 +615,6 @@
                         const cantReq = m.tipo === 'fijo' ? m.cant : (m.cant * ops);
                         if (!necesidades[m.cod]) necesidades[m.cod] = { nec: 0, esFijo: m.tipo === 'fijo' };
                         necesidades[m.cod].nec += cantReq;
-                        // Si algun uso es por operario, marcamos que varia, aunque la logica de stock es por total
                     });
                 });
 
