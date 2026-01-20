@@ -138,9 +138,9 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
                         <tr>
-                            <th class="p-5 border-b border-slate-800">Cód</th>
-                            <th class="p-5 border-b border-slate-800">Producto</th>
-                            <th class="p-5 border-b border-slate-800 hidden md:table-cell">Ubicación</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Cód</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Producto</th>
+                            <th class="p-5 border-b border-slate-800 hidden md:table-cell text-center">Ubicación</th>
                             <th class="p-5 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-5 border-b border-slate-800 text-center">Estado</th>
                             <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
@@ -184,9 +184,9 @@
                 <table class="w-full text-left text-sm text-slate-300">
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold sticky top-0">
                         <tr>
-                            <th class="p-4 border-b border-slate-800">Cód</th>
-                            <th class="p-4 border-b border-slate-800">Producto</th>
-                            <th class="p-4 border-b border-slate-800">Ubicación</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Cód</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Producto</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Ubicación</th>
                             <th class="p-4 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-4 border-b border-slate-800 text-center">Estado</th>
                         </tr>
@@ -375,12 +375,24 @@
 
             filtrados.forEach(item => {
                 const critico = parseInt(item.cant) < parseInt(item.min);
+                // CAMBIO V51: Alineación de celdas
                 let ubi = item.ubicacion ? `<span class="text-yellow-500/80 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>${item.ubicacion}</span>` : '<span class="text-slate-600 text-xs">-</span>';
+                
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
+                
                 let btns = '';
                 if(esAdmin) btns = `<div class="flex justify-end gap-2"><button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button><button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button></div>`;
-                tr.innerHTML = `<td class="p-4 font-mono text-blue-400 font-bold">${item.cod}</td><td class="p-4">${item.nom}</td><td class="p-4 hidden md:table-cell">${ubi}</td><td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td><td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td><td class="p-4 text-right">${btns}</td>`;
+
+                // Aquí se aplica la alineación por celda
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
+                    <td class="p-4 text-center">${item.nom}</td>
+                    <td class="p-4 hidden md:table-cell text-center">${ubi}</td>
+                    <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
+                    <td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td>
+                    <td class="p-4 text-right">${btns}</td>
+                `;
                 tbody.appendChild(tr);
             });
         };
@@ -606,12 +618,12 @@
                 
                 tabla.innerHTML += `
                     <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
-                        <td class="p-4 font-mono text-emerald-400">${i.cod}</td>
-                        <td class="p-4 text-white">
+                        <td class="p-4 font-mono text-emerald-400 text-center">${i.cod}</td>
+                        <td class="p-4 text-white text-center">
                             <div class="font-bold">${i.nom}</div>
                             <div class="text-xs text-slate-500">${i.cat}</div>
                         </td>
-                        <td class="p-4 text-xs text-yellow-500/80">${i.ubicacion || '-'}</td>
+                        <td class="p-4 text-xs text-yellow-500/80 text-center">${i.ubicacion || '-'}</td>
                         <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
                         <td class="p-4 text-center">${estadoBadge}</td>
                     </tr>`; 
