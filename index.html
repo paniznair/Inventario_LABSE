@@ -18,8 +18,8 @@
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
-        #sys-pass::placeholder, #admin-pass-input::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
-        #sys-pass:focus::placeholder, #admin-pass-input:focus::placeholder { color: #334155; }
+        input::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
+        input:focus::placeholder { color: #334155; }
         
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
     </style>
@@ -82,6 +82,24 @@
                 <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.98] text-lg tracking-wide">Entrar</button>
             </form>
             <button onclick="volverARoles()" class="mt-8 text-slate-500 hover:text-white text-sm transition font-bold">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-responsable" class="oculto fixed inset-0 z-[70] bg-black/80 items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl">
+            <div class="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-file-invoice text-3xl text-blue-400"></i>
+            </div>
+            <h3 class="text-white font-bold text-2xl mb-2">Generar Solicitud</h3>
+            <p class="text-slate-400 text-sm mb-8">Confirma quién es el responsable de esta orden de compra.</p>
+            
+            <form onsubmit="confirmarGenerarOrden(event)">
+                <input type="text" id="input-responsable-pdf" placeholder="Nombre y Apellido" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl py-3 px-4 mb-6 outline-none focus:border-blue-500 text-center text-lg shadow-inner">
+                <div class="flex gap-4">
+                    <button type="button" onclick="cerrarModalResponsable()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold text-sm transition border border-slate-700">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition transform active:scale-95">Generar PDF</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -288,7 +306,6 @@
 
         window.verificarPassword = (e) => { e.preventDefault(); if(document.getElementById('sys-pass').value.trim() === 'labse') window.irA('vista-roles'); else alert('Incorrecto'); };
 
-        // --- NUEVO: FUNCIONES DE LOGIN SECUNDARIO PARA ADMIN ---
         window.irALoginAdmin = () => {
             window.irA('vista-admin-auth');
             document.getElementById('admin-pass-input').value = '';
@@ -300,12 +317,10 @@
             const pass = document.getElementById('admin-pass-input').value.trim();
             if(pass === 'labse2026') {
                 esAdmin = true;
-                // Mostrar botones de administración
                 const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
                 btnsAdmin.forEach(b => { if(b) b.classList.remove('hidden'); });
                 const btnAddMat = document.getElementById('btn-add-mat');
                 if(btnAddMat) btnAddMat.style.display = 'block';
-                
                 window.irA('vista-dashboard');
             } else {
                 alert("Contraseña incorrecta. Acceso denegado.");
@@ -315,12 +330,10 @@
         window.seleccionarRol = (rol) => {
             if(rol === 'visita') { 
                 esAdmin = false;
-                // Ocultar botones admin
                 const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
                 btnsAdmin.forEach(b => { if(b) b.classList.add('hidden'); });
                 const btnAddMat = document.getElementById('btn-add-mat');
                 if(btnAddMat) btnAddMat.style.display = 'none';
-                
                 window.irA('vista-consulta'); 
                 window.setFiltroConsulta('todos'); 
             }
@@ -330,7 +343,6 @@
                 btnsAdmin.forEach(b => { if(b) b.classList.add('hidden'); });
                 const btnAddMat = document.getElementById('btn-add-mat');
                 if(btnAddMat) btnAddMat.style.display = 'none';
-
                 window.irA('vista-instrumentacion'); 
                 window.renderTareas(); 
             }
@@ -606,16 +618,34 @@
             }); 
         };
         
+        // --- MODAL Y FUNCIONES PARA RESPONSABLE PDF ---
         window.generarOrden = () => { 
             const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
             if (!f.length) return alert('No hay faltantes para solicitar.');
             
-            let n = prompt("Ingrese el nombre del Responsable:", ultimoResponsable || "");
+            // Cargar el último responsable si existe
+            document.getElementById('input-responsable-pdf').value = ultimoResponsable || '';
+            // Mostrar modal
+            document.getElementById('modal-responsable').classList.remove('oculto');
+            document.getElementById('modal-responsable').classList.add('visible');
+            document.getElementById('input-responsable-pdf').focus();
+        };
+
+        window.cerrarModalResponsable = () => {
+            document.getElementById('modal-responsable').classList.remove('visible');
+            document.getElementById('modal-responsable').classList.add('oculto');
+        };
+
+        window.confirmarGenerarOrden = (e) => {
+            e.preventDefault();
+            const n = document.getElementById('input-responsable-pdf').value.trim();
+            if (!n) return alert("Por favor, ingresa un nombre.");
             
-            if (n && n.trim() !== "") {
-                ultimoResponsable = n;
-                window.imprimirPDF('ORDEN DE COMPRA', f, true);
-            }
+            ultimoResponsable = n;
+            window.cerrarModalResponsable();
+            
+            const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
+            window.imprimirPDF('ORDEN DE COMPRA', f, true);
         };
 
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
