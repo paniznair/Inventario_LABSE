@@ -26,7 +26,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 right-2 text-[10px] text-slate-600 z-[100] opacity-50 font-mono">v5.3 PDF Fix</div>
+    <div class="fixed bottom-2 right-2 text-[10px] text-slate-600 z-[100] opacity-50 font-mono">v5.5 PDF Comprar</div>
 
     <div id="loader" class="loading-overlay">
         <div class="text-center">
@@ -243,7 +243,7 @@
                     <input type="text" id="m-ubicacion" placeholder="Ubicación (Ej: Estante A1, Cajón 3) - 5S" class="w-full bg-slate-800 text-white border border-slate-700 rounded p-2 focus:border-yellow-500 outline-none">
                 </div>
                 <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
-                <div class="bg-slate-950/50 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
+                <div class="bg-slate-950 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold">Guardar</button>
             </form>
         </div>
@@ -531,111 +531,12 @@
         window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
         window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
         
-        window.guardarProducto = async (e) => { 
-            e.preventDefault(); 
-            const r=document.getElementById('m-resp').value; 
-            if(!r) return alert('Falta Responsable'); 
-            ultimoResponsable=r; 
-            const c=document.getElementById('m-cod').value; 
-            
-            if(datos.some(d=>d.cod===c && d.id!==editandoId)) return alert('Código existe'); 
-            
-            if(document.getElementById('p-nombre').value) window.agregarProveedorTemporal(); 
-            if(!catActual) return alert('Error categoría');
-
-            const obj = {
-                resp:r, 
-                cod:c, 
-                nom:document.getElementById('m-nombre').value,
-                ubicacion:document.getElementById('m-ubicacion').value,
-                cant:parseInt(document.getElementById('m-cant').value), 
-                min:parseInt(document.getElementById('m-min').value), 
-                uni:document.getElementById('m-uni').value, 
-                proveedores:proveedoresTemporales, 
-                cat:catActual
-            }; 
-            
-            try {
-                if(editandoId){ 
-                    await updateDoc(doc(db, 'productos', editandoId), obj);
-                } else { 
-                    await addDoc(productosCol, obj);
-                }
-                window.cerrarModal(); 
-            } catch (err) {
-                alert('Error al guardar: ' + err.message);
-            }
-        };
-
-        window.borrar = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'productos', id)); } };
-
-        window.setFiltroConsulta = (tipo) => {
-            filtroConsultaActual = tipo;
-            document.getElementById('btn-todos').classList.toggle('btn-filtro-activo', tipo === 'todos');
-            document.getElementById('btn-todos').classList.toggle('text-white', tipo === 'todos');
-            document.getElementById('btn-todos').classList.toggle('bg-slate-800', tipo !== 'todos');
-            
-            document.getElementById('btn-faltantes').classList.toggle('btn-filtro-activo', tipo === 'faltantes');
-            document.getElementById('btn-faltantes').classList.toggle('text-white', tipo === 'faltantes');
-            document.getElementById('btn-faltantes').classList.toggle('text-red-400', tipo !== 'faltantes');
-
-            window.aplicarFiltrosConsulta();
-        };
-
-        window.aplicarFiltrosConsulta = () => { 
-            const texto = document.getElementById('buscador-global').value.toLowerCase();
-            const tabla = document.getElementById('tabla-consulta');
-            const vacio = document.getElementById('consulta-vacio');
-            tabla.innerHTML = '';
-
-            let resultados = datos.filter(d => {
-                const coincideTexto = d.nom.toLowerCase().includes(texto) || 
-                                      d.cod.toLowerCase().includes(texto) || 
-                                      (d.ubicacion && d.ubicacion.toLowerCase().includes(texto));
-                if (filtroConsultaActual === 'faltantes') {
-                    const esFaltante = parseInt(d.cant) < parseInt(d.min);
-                    return coincideTexto && esFaltante;
-                }
-                return coincideTexto;
-            });
-
-            if (resultados.length === 0) {
-                vacio.classList.remove('hidden');
-                vacio.classList.add('flex');
-            } else {
-                vacio.classList.add('hidden');
-                vacio.classList.remove('flex');
-            }
-
-            resultados.forEach(i => { 
-                const critico = parseInt(i.cant) < parseInt(i.min);
-                let ubi = i.ubicacion ? `<br><span class="text-yellow-500/70 text-[10px]"><i class="fas fa-map-marker-alt"></i> ${i.ubicacion}</span>` : '';
-                let estadoBadge = critico 
-                    ? `<span class="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-500/30">FALTA</span>`
-                    : `<span class="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">OK</span>`;
-                
-                tabla.innerHTML += `
-                    <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
-                        <td class="p-4 font-mono text-emerald-400 text-center">${i.cod}</td>
-                        <td class="p-4 text-white text-center">
-                            <div class="font-bold">${i.nom}</div>
-                            <div class="text-xs text-slate-500">${i.cat}</div>
-                        </td>
-                        <td class="p-4 text-xs text-yellow-500/80 text-center">${i.ubicacion || '-'}</td>
-                        <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
-                        <td class="p-4 text-center">${estadoBadge}</td>
-                    </tr>`; 
-            }); 
-        };
-        
-        // --- MODAL Y FUNCIONES PARA RESPONSABLE PDF (VERSION V53: PDF Centrado) ---
+        // --- MODAL Y FUNCIONES PARA RESPONSABLE PDF (VERSION V55: CAMBIO ETIQUETA "COMPRAR") ---
         window.generarOrden = () => { 
             const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
             if (!f.length) return alert('No hay faltantes para solicitar.');
             
-            // Cargar el último responsable si existe
             document.getElementById('input-responsable-pdf').value = ultimoResponsable || '';
-            // Mostrar modal
             document.getElementById('modal-responsable').classList.remove('oculto');
             document.getElementById('modal-responsable').classList.add('visible');
             document.getElementById('input-responsable-pdf').focus();
@@ -661,18 +562,23 @@
         window.imprimirPlan = () => { alert('Imprimiendo plan de trabajo...'); };
         
         window.imprimirPDF = (t, l, o = false) => {
-            // CAMBIO V53: CSS para centrar encabezados y columna stock (4ta)
+            // CAMBIO V55: Etiqueta "COMPRAR" y formato "10 Metros"
             let h = `<html><head><title>${t}</title><style>
                 body{font-family:sans-serif;padding:20px}
                 table{width:100%;border-collapse:collapse;margin-top:20px}
                 td,th{border:1px solid #ccc;padding:8px}
-                th{background:#eee; text-align: center;} /* Centrar encabezados */
+                th{background:#eee; text-align: center;} 
                 td{text-align: left;}
-                td:nth-child(4) { text-align: center; } /* Centrar Stock (col 4) */
-            </style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>ESTADO</th></tr></thead><tbody>`;
+                td:nth-child(4) { text-align: center; } 
+                td:nth-child(5) { text-align: center; font-weight: bold; } /* Centrar y negrita para COMPRAR */
+            </style></head><body><h1>${t}</h1><p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p><table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>COMPRAR</th></tr></thead><tbody>`;
             l.forEach(x => { 
                 const d = x.min - x.cant; 
-                h += `<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion || '-'}</td><td>${x.cant}</td><td>${d > 0 ? 'FALTA ' + d : 'OK'}</td></tr>`; 
+                const unidad = x.uni || 'u.';
+                // Solo muestra la cantidad y unidad si falta, sino un guion
+                const textoCompra = d > 0 ? `${d} ${unidad}` : '-';
+                
+                h += `<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion || '-'}</td><td>${x.cant}</td><td>${textoCompra}</td></tr>`; 
             });
             h += '</tbody></table><script>window.print();<\/script></body></html>'; 
             const w = window.open(''); 
