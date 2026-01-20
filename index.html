@@ -31,7 +31,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 right-2 text-[10px] text-slate-600 z-[100] opacity-50 font-mono">v5.7 - Sistema OK</div>
+    <div class="fixed bottom-2 right-2 text-[10px] text-slate-600 z-[100] opacity-50 font-mono">v5.8 Lógica Ind/Grup</div>
 
     <div id="loader" class="loading-overlay">
         <div class="text-center">
@@ -216,12 +216,12 @@
             </div>
             <div class="flex-1 overflow-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-4"><h4 class="text-blue-400 font-bold text-xs uppercase">Materiales (x Operario)</h4><button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700 hover:bg-slate-700" id="btn-add-mat">+ Item</button></div>
-                    <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-900 text-slate-400 text-xs uppercase"><tr><th class="p-3">Item</th><th class="p-3 text-center">Cant.</th><th class="p-3 text-right"></th></tr></thead><tbody id="mt-lista-materiales" class="divide-y divide-slate-800"></tbody></table><div id="mt-vacio" class="p-8 text-center text-slate-500 text-xs">Sin materiales.</div></div>
+                    <div class="flex justify-between items-center mb-4"><h4 class="text-blue-400 font-bold text-xs uppercase">Materiales (Definir uso)</h4><button onclick="agregarMaterialATrabajo()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700 hover:bg-slate-700" id="btn-add-mat">+ Item</button></div>
+                    <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-900 text-slate-400 text-xs uppercase"><tr><th class="p-3">Item</th><th class="p-3 text-center">Tipo</th><th class="p-3 text-center">Cant.</th><th class="p-3 text-right"></th></tr></thead><tbody id="mt-lista-materiales" class="divide-y divide-slate-800"></tbody></table><div id="mt-vacio" class="p-8 text-center text-slate-500 text-xs">Sin materiales.</div></div>
                 </div>
                 <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 flex flex-col">
                     <h4 class="text-emerald-400 font-bold text-xs uppercase mb-4">Simular Ejecución</h4>
-                    <div class="mb-6"><label class="block text-slate-300 text-sm mb-2">Operarios:</label><div class="flex gap-2"><input type="number" id="mt-operarios" value="1" min="1" class="bg-slate-900 border border-slate-600 text-white rounded px-4 py-2 w-24 text-center font-bold outline-none" onchange="calcularDisponibilidad()"><button onclick="calcularDisponibilidad()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm flex-1">Verificar Stock</button></div></div>
+                    <div class="mb-6"><label class="block text-slate-300 text-sm mb-2">Cantidad de Operarios:</label><div class="flex gap-2"><input type="number" id="mt-operarios" value="1" min="1" class="bg-slate-900 border border-slate-600 text-white rounded px-4 py-2 w-24 text-center font-bold outline-none" onchange="calcularDisponibilidad()"><button onclick="calcularDisponibilidad()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm flex-1">Verificar Stock</button></div></div>
                     <div id="mt-resultado" class="flex-1 overflow-auto space-y-3"><div class="text-center text-slate-500 text-sm mt-10">Define operarios para calcular.</div></div>
                     <button onclick="imprimirPlan()" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold text-xs">IMPRIMIR REPORTE</button>
                 </div>
@@ -274,7 +274,7 @@
             const productosCol = collection(db, 'productos');
             const tareasCol = collection(db, 'tareas');
 
-            // Exponer DB a window para funciones globales (opcional, pero util si se refactoriza)
+            // Exponer DB
             window.db = db;
             window.productosCol = productosCol;
             window.tareasCol = tareasCol;
@@ -438,14 +438,27 @@
             };
             window.cerrarModalTrabajo = () => { document.getElementById('modal-trabajo').classList.remove('visible'); document.getElementById('modal-trabajo').classList.add('oculto'); };
             
+            // --- NUEVA LÓGICA V58: MOSTRAR TIPO (👤/📦) EN LISTA DE MATERIALES ---
             window.renderMaterialesTarea = () => {
                 const tb = document.getElementById('mt-lista-materiales'); tb.innerHTML = '';
                 document.getElementById('mt-vacio').style.display = tareaActual.materiales.length ? 'none' : 'block';
+                
                 tareaActual.materiales.forEach((m, idx) => {
                     const item = datos.find(d => d.cod === m.cod);
+                    // Determinar Icono
+                    const esFijo = m.tipo === 'fijo';
+                    const icon = esFijo ? '📦 Fijo' : '👤 x Op.';
+                    const color = esFijo ? 'text-yellow-500' : 'text-blue-400';
+
                     let tr = document.createElement('tr'); tr.className = "border-b border-slate-800 text-slate-300";
                     let btn = esAdmin ? `<button onclick="delMatTarea(${idx})" class="text-red-500 hover:text-white">✕</button>` : '';
-                    tr.innerHTML = `<td class="p-3"><div class="font-bold text-white">${m.cod}</div><div class="text-xs text-slate-500">${item?item.nom:'Item Borrado'}</div></td><td class="p-3 text-center">${m.cant}</td><td class="p-3 text-right">${btn}</td>`;
+                    
+                    tr.innerHTML = `
+                        <td class="p-3"><div class="font-bold text-white">${m.cod}</div><div class="text-xs text-slate-500">${item?item.nom:'Item Borrado'}</div></td>
+                        <td class="p-3 text-center text-[10px] uppercase font-bold ${color}">${icon}</td>
+                        <td class="p-3 text-center">${m.cant}</td>
+                        <td class="p-3 text-right">${btn}</td>
+                    `;
                     tb.appendChild(tr);
                 });
             };
@@ -461,6 +474,8 @@
                 document.getElementById('modal-buscador').classList.remove('visible'); 
                 document.getElementById('modal-buscador').classList.add('oculto'); 
             };
+            
+            // --- NUEVA LÓGICA V58: BUSCADOR CON 2 BOTONES (INDIVIDUAL / GRUPAL) ---
             window.filtrarBuscadorModal = () => {
                 const txt = document.getElementById('mb-input').value.toLowerCase();
                 const l = document.getElementById('mb-lista'); l.innerHTML = '';
@@ -475,19 +490,30 @@
                 }
                 matches.forEach(d => {
                     let div = document.createElement('div'); 
-                    div.className = "p-3 border-b border-slate-800 hover:bg-slate-800 cursor-pointer flex justify-between items-center group";
-                    div.onclick = async () => {
-                        const c = prompt(`Cantidad de "${d.nom}" necesaria POR OPERARIO:`);
-                        if(c && !isNaN(c)) { 
-                            const newMats = [...tareaActual.materiales, {cod: d.cod, cant: parseInt(c)}];
-                            await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), {materiales: newMats});
-                            window.cerrarBuscador(); 
-                        }
-                    };
-                    div.innerHTML = `<div><span class="text-sm text-slate-300 font-bold block">${d.nom}</span><span class="text-xs text-slate-500">${d.cat} | Stock: ${d.cant}</span></div><span class="text-xs bg-slate-700 px-2 py-1 rounded text-white group-hover:bg-blue-600 transition">Agregar</span>`;
+                    div.className = "p-3 border-b border-slate-800 flex justify-between items-center group";
+                    // Botones de acción
+                    const btnInd = `<button onclick="addMatToTask('${d.cod}', '${d.nom}', 'ind')" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/50 px-2 py-1 rounded hover:bg-blue-600 hover:text-white transition mr-2">👤 x Op</button>`;
+                    const btnGrp = `<button onclick="addMatToTask('${d.cod}', '${d.nom}', 'fijo')" class="text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-600/50 px-2 py-1 rounded hover:bg-yellow-600 hover:text-white transition">📦 Fijo</button>`;
+
+                    div.innerHTML = `
+                        <div><span class="text-sm text-slate-300 font-bold block">${d.nom}</span><span class="text-xs text-slate-500">${d.cat} | Stock: ${d.cant}</span></div>
+                        <div class="flex">${btnInd}${btnGrp}</div>
+                    `;
                     l.appendChild(div);
                 });
             };
+
+            // Funcion auxiliar para agregar (para limpiar el HTML del buscador)
+            window.addMatToTask = async (cod, nom, tipo) => {
+                const label = tipo === 'ind' ? 'POR OPERARIO' : 'TOTAL FIJO (GRUPAL)';
+                const c = prompt(`Cantidad de "${nom}" (${label}):`);
+                if(c && !isNaN(c)) { 
+                    const newMats = [...tareaActual.materiales, {cod: cod, cant: parseInt(c), tipo: tipo}];
+                    await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), {materiales: newMats});
+                    window.cerrarBuscador(); 
+                }
+            };
+
             window.delMatTarea = async (idx) => { 
                 if(confirm("¿Quitar?")) { 
                     const newMats = [...tareaActual.materiales];
@@ -496,21 +522,32 @@
                 } 
             };
 
+            // --- NUEVA LÓGICA V58: CALCULO DE DISPONIBILIDAD CON TIPOS ---
             window.calcularDisponibilidad = () => {
                 const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
                 const res = document.getElementById('mt-resultado'); res.innerHTML = '';
+                
                 if(!tareaActual.materiales.length) { res.innerHTML = '<div class="text-yellow-500 text-center">Lista vacía</div>'; return; }
+                
                 let ok = true;
                 tareaActual.materiales.forEach(m => {
                     const item = datos.find(d => d.cod === m.cod);
-                    const nec = m.cant * ops;
+                    
+                    // CALCULO CLAVE: Si es fijo, nec = cant. Si es ind, nec = cant * ops.
+                    const esFijo = m.tipo === 'fijo';
+                    const nec = esFijo ? m.cant : (m.cant * ops);
+                    
                     const stock = item ? parseInt(item.cant) : 0;
                     const falta = nec - stock;
                     if(falta > 0) ok = false;
+                    
                     let div = document.createElement('div'); div.className = `p-3 rounded border flex justify-between text-sm ${falta>0?'bg-red-500/10 border-red-500/30':'bg-emerald-500/10 border-emerald-500/30'}`;
-                    div.innerHTML = `<div><div class="font-bold text-white">${item?item.nom:m.cod}</div><div class="text-xs text-slate-400">Nec: ${nec} | Stock: ${stock}</div></div><div class="text-right font-bold ${falta>0?'text-red-400':'text-emerald-400'}">${falta>0?'FALTA '+falta:'OK'}</div>`;
+                    const labelTipo = esFijo ? '<span class="text-yellow-500 text-[10px] border border-yellow-500/50 px-1 rounded ml-1">FIJO</span>' : '';
+
+                    div.innerHTML = `<div><div class="font-bold text-white">${item?item.nom:m.cod} ${labelTipo}</div><div class="text-xs text-slate-400">Nec: ${nec} | Stock: ${stock}</div></div><div class="text-right font-bold ${falta>0?'text-red-400':'text-emerald-400'}">${falta>0?'FALTA '+falta:'OK'}</div>`;
                     res.appendChild(div);
                 });
+                
                 res.prepend(document.createElement('div')); 
                 res.firstChild.className = `text-center p-2 rounded font-bold text-sm mb-4 ${ok?'bg-emerald-600 text-white':'bg-red-600 text-white'}`;
                 res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
