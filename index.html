@@ -275,15 +275,40 @@
         window.verificarPassword = (e) => { e.preventDefault(); if(document.getElementById('sys-pass').value.trim() === 'labse') window.irA('vista-roles'); else alert('Incorrecto'); };
 
         window.seleccionarRol = (rol) => {
-            esAdmin = (rol === 'admin');
-            const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
-            btnsAdmin.forEach(b => { if(b) b.classList.toggle('hidden', !esAdmin); });
-            const btnAddMat = document.getElementById('btn-add-mat');
-            if(btnAddMat) btnAddMat.style.display = esAdmin ? 'block' : 'none';
-            
-            if(rol === 'admin') window.irA('vista-dashboard');
-            else if(rol === 'visita') { window.irA('vista-consulta'); window.setFiltroConsulta('todos'); }
-            else if(rol === 'operario') { window.irA('vista-instrumentacion'); window.renderTareas(); }
+            if(rol === 'admin') {
+                // CAMBIO V48: PROTECCIÓN DE CONTRASEÑA ADICIONAL
+                const passAdmin = prompt("Ingrese la contraseña de Administración:");
+                if(passAdmin === 'labse2026') {
+                    esAdmin = true;
+                    // Mostrar botones admin
+                    const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
+                    btnsAdmin.forEach(b => { if(b) b.classList.remove('hidden'); });
+                    const btnAddMat = document.getElementById('btn-add-mat');
+                    if(btnAddMat) btnAddMat.style.display = 'block';
+                    
+                    window.irA('vista-dashboard');
+                } else {
+                    alert("Contraseña incorrecta. Acceso denegado.");
+                }
+            }
+            else {
+                // PERFILES SIN CONTRASEÑA ADICIONAL (Solo la inicial)
+                esAdmin = false;
+                // Ocultar botones admin
+                const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
+                btnsAdmin.forEach(b => { if(b) b.classList.add('hidden'); });
+                const btnAddMat = document.getElementById('btn-add-mat');
+                if(btnAddMat) btnAddMat.style.display = 'none';
+
+                if(rol === 'visita') { 
+                    window.irA('vista-consulta'); 
+                    window.setFiltroConsulta('todos'); 
+                }
+                else if(rol === 'operario') { 
+                    window.irA('vista-instrumentacion'); 
+                    window.renderTareas(); 
+                }
+            }
         };
 
         window.volverAlBloqueo = () => { document.getElementById('sys-pass').value=''; window.irA('vista-pass'); };
