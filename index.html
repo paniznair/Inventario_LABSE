@@ -38,7 +38,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.5 Fecha Global</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.6 PDF Proveedores</div>
 
     <div id="toast-container"></div>
 
@@ -1016,27 +1016,52 @@
                 }
             };
             
+            // --- CAMBIO V66: COLUMNA PROVEEDOR EN PDF ORDEN DE COMPRA ---
             window.imprimirPDFOrden = (lista) => {
                 let h = `<html><head><title>Orden de Compra</title><style>
                     body{font-family:sans-serif;padding:20px}
                     h1, p {text-align:center;}
                     table{width:100%;border-collapse:collapse;margin-top:20px}
-                    td,th{border:1px solid #ccc;padding:8px}
+                    td,th{border:1px solid #ccc;padding:8px; font-size:12px;}
                     th{background:#eee; text-align: center;} 
                     td{text-align: left;}
-                    td:nth-child(4) { text-align: center; } 
-                    td:nth-child(5) { text-align: center; font-weight: bold; } 
+                    .text-center { text-align: center; }
+                    .font-bold { font-weight: bold; }
                 </style></head><body>
                 <h1>ORDEN DE COMPRA</h1>
                 <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p>
-                <table><thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>UBICACIÓN</th><th>STOCK ACTUAL</th><th>COMPRAR</th></tr></thead><tbody>`;
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CÓDIGO</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th>UBICACIÓN</th>
+                            <th>STOCK ACTUAL</th>
+                            <th>COMPRAR</th>
+                            <th>PROVEEDOR SUGERIDO</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
                 
                 lista.forEach(x => { 
                     const d = x.min - x.cant; 
                     const unidad = x.uni || 'u.';
                     const textoCompra = d > 0 ? `${d} ${unidad}` : '-';
                     
-                    h += `<tr><td>${x.cod}</td><td>${x.nom}</td><td>${x.ubicacion || '-'}</td><td>${x.cant}</td><td>${textoCompra}</td></tr>`; 
+                    // Obtener proveedores
+                    let provTexto = '-';
+                    if (x.proveedores && x.proveedores.length > 0) {
+                        provTexto = x.proveedores.map(p => `<div>${p.nombre} (${p.tel || 'S/T'})</div>`).join('');
+                    }
+
+                    h += `<tr>
+                        <td>${x.cod}</td>
+                        <td>${x.nom}</td>
+                        <td>${x.ubicacion || '-'}</td>
+                        <td class="text-center">${x.cant}</td>
+                        <td class="text-center font-bold">${textoCompra}</td>
+                        <td>${provTexto}</td>
+                    </tr>`; 
                 });
                 h += '</tbody></table><script>window.print();<\/script></body></html>'; 
                 const w = window.open(''); 
