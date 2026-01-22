@@ -29,6 +29,11 @@
         .toast.error { border-left-color: #ef4444; }
         .toast.success { border-left-color: #10b981; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* TOOLTIP CUSTOM */
+        .tooltip { position: relative; display: inline-block; }
+        .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-size: 10px; }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
     </style>
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
@@ -38,7 +43,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.9 Alineación Izq</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.0 Obs & Vencimientos</div>
 
     <div id="toast-container"></div>
 
@@ -294,6 +299,10 @@
                 <div class="mb-4">
                     <input type="text" id="m-ubicacion" placeholder="Ubicación (Ej: Estante A1, Cajón 3) - 5S" class="w-full bg-slate-800 text-white border border-slate-700 rounded p-2 focus:border-yellow-500 outline-none">
                 </div>
+                <div class="mb-4">
+                    <textarea id="m-obs" placeholder="Observaciones (Vencimiento, Mantenimiento, Notas...)" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 focus:border-blue-500 outline-none h-20 text-sm"></textarea>
+                </div>
+                
                 <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
                 <div class="bg-slate-950 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold">Guardar</button>
@@ -541,16 +550,17 @@
                             </div>`;
                     }
                     
-                    // FECHA DE ACTUALIZACION (Oculta en la tabla, pero se usa para el calculo global)
-                    let fechaStr = '-';
-                    if (item.updatedAt) {
-                        const date = item.updatedAt.toDate(); 
-                        fechaStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    // CAMBIO V70: ICONO DE OBSERVACIÓN
+                    let obsIcon = '';
+                    if (item.obs && item.obs.trim() !== '') {
+                        obsIcon = `<div class="tooltip ml-2 inline-block"><i class="fas fa-info-circle text-blue-400 cursor-help"></i><span class="tooltiptext">${item.obs}</span></div>`;
                     }
 
                     tr.innerHTML = `
                         <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
-                        <td class="p-4 text-left">${item.nom}</td> <td class="p-4 hidden md:table-cell text-left">${ubi}</td> <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
+                        <td class="p-4 text-left"><div class="flex items-center">${item.nom} ${obsIcon}</div></td> 
+                        <td class="p-4 hidden md:table-cell text-left">${ubi}</td>
+                        <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
                         <td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td>
                         <td class="p-4 text-right">${btns}</td>
                     `;
@@ -862,6 +872,7 @@
                 document.getElementById('m-cant').value=d.cant; 
                 document.getElementById('m-min').value=d.min; 
                 document.getElementById('m-uni').value=d.uni; 
+                document.getElementById('m-obs').value=d.obs||''; // CAMBIO V70: Cargar obs al editar
                 proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; 
                 window.renderProveedoresTemp(); 
                 document.getElementById('modal').classList.remove('oculto'); 
@@ -869,7 +880,7 @@
             };
 
             window.cerrarModal = () => { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); };
-            window.limpiarForm = () => { ['m-cod','m-nombre','m-cant','m-min','m-uni','m-ubicacion'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; window.renderProveedoresTemp(); };
+            window.limpiarForm = () => { ['m-cod','m-nombre','m-cant','m-min','m-uni','m-ubicacion', 'm-obs'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; window.renderProveedoresTemp(); };
             window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
             window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
             
@@ -908,9 +919,10 @@
                     cant:parseInt(document.getElementById('m-cant').value), 
                     min:parseInt(document.getElementById('m-min').value), 
                     uni:document.getElementById('m-uni').value, 
+                    obs:document.getElementById('m-obs').value, // CAMBIO V70: Guardar Obs
                     proveedores:proveedoresTemporales, 
                     cat:catActual,
-                    updatedAt: new Date() // FECHA DE ACTUALIZACIÓN
+                    updatedAt: new Date()
                 }; 
                 
                 try {
@@ -980,15 +992,19 @@
                         ? `<span class="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-500/30">FALTA</span>`
                         : `<span class="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">OK</span>`;
                     
+                    // CAMBIO V70: ICONO OBS EN CONSULTA TAMBIEN
+                    let obsIcon = '';
+                    if (i.obs && i.obs.trim() !== '') {
+                        obsIcon = `<div class="tooltip ml-2 inline-block"><i class="fas fa-info-circle text-blue-400 cursor-help"></i><span class="tooltiptext">${i.obs}</span></div>`;
+                    }
+
                     tabla.innerHTML += `
                         <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
                             <td class="p-4 font-mono text-emerald-400 text-center">${i.cod}</td>
-                            <td class="p-4 text-white text-center">
-                                <div class="font-bold">${i.nom}</div>
+                            <td class="p-4 text-white text-left"> <div class="font-bold flex items-center">${i.nom} ${obsIcon}</div>
                                 <div class="text-xs text-slate-500">${i.cat}</div>
                             </td>
-                            <td class="p-4 text-xs text-yellow-500/80 text-center">${i.ubicacion || '-'}</td>
-                            <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
+                            <td class="p-4 text-xs text-yellow-500/80 text-left">${i.ubicacion || '-'}</td> <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
                             <td class="p-4 text-center">${estadoBadge}</td>
                         </tr>`; 
                 }); 
@@ -1067,6 +1083,7 @@
                             <th>STOCK ACTUAL</th>
                             <th>COMPRAR</th>
                             <th>PROVEEDOR SUGERIDO</th>
+                            <th>OBSERVACIONES</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -1085,9 +1102,10 @@
                         <td>${x.cod}</td>
                         <td>${x.nom}</td>
                         <td>${x.ubicacion || '-'}</td>
-                        <td>${x.cant}</td>
-                        <td class="font-bold">${textoCompra}</td>
+                        <td class="text-center">${x.cant}</td>
+                        <td class="text-center font-bold">${textoCompra}</td>
                         <td>${provTexto}</td>
+                        <td>${x.obs || '-'}</td>
                     </tr>`; 
                 });
                 h += '</tbody></table><script>window.print();<\/script></body></html>'; 
@@ -1145,6 +1163,7 @@
                                     <th class="text-center">A RETIRAR</th>
                                     <th class="text-center">Stock</th>
                                     <th class="text-center">Estado</th>
+                                    <th>Observaciones</th>
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -1167,6 +1186,7 @@
                             <td class="text-center" style="font-weight:bold; font-size:1.1em;">${necesario} ${unidad}</td>
                             <td class="text-center">${stock}</td>
                             <td class="text-center">${estado}</td>
+                            <td>${item ? (item.obs || '-') : '-'}</td>
                         </tr>`;
                     });
 
