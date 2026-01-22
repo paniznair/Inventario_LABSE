@@ -38,7 +38,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.7 PDF Alineación</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.8 Mover Categoría</div>
 
     <div id="toast-container"></div>
 
@@ -534,8 +534,24 @@
                     let tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
                     let btns = '';
-                    if(esAdmin) btns = `<div class="flex justify-end gap-2"><button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button><button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button></div>`;
+                    // CAMBIO V68: AGREGAR BOTÓN MOVER CATEGORÍA
+                    if(esAdmin) {
+                        const targetCat = catActual === 'Insumos' ? 'Herramientas' : 'Insumos';
+                        btns = `
+                            <div class="flex justify-end gap-2">
+                                <button onclick="moverCategoria('${item.id}', '${item.nom}', '${targetCat}')" class="text-purple-400 hover:text-white" title="Mover a ${targetCat}">🔁</button>
+                                <button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button>
+                                <button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button>
+                            </div>`;
+                    }
                     
+                    // FECHA DE ACTUALIZACION (Oculta en la tabla, pero se usa para el calculo global)
+                    let fechaStr = '-';
+                    if (item.updatedAt) {
+                        const date = item.updatedAt.toDate(); 
+                        fechaStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }
+
                     tr.innerHTML = `
                         <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
                         <td class="p-4 text-center">${item.nom}</td>
@@ -863,6 +879,21 @@
             window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
             window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
             
+            // --- NUEVA FUNCIONALIDAD V68: MOVER CATEGORÍA ---
+            window.moverCategoria = (id, nombre, nuevaCat) => {
+                window.confirmCustom("Mover Categoría", `¿Mover "${nombre}" a ${nuevaCat}?`, async () => {
+                    try {
+                        await window.updateDoc(window.doc(window.db, 'productos', id), {
+                            cat: nuevaCat,
+                            updatedAt: new Date()
+                        });
+                        window.mostrarToast(`Producto movido a ${nuevaCat}`);
+                    } catch (e) {
+                        window.mostrarToast("Error al mover producto", 'error');
+                    }
+                });
+            };
+
             window.guardarProducto = async (e) => { 
                 e.preventDefault(); 
                 const r=document.getElementById('m-resp').value; 
@@ -1016,7 +1047,6 @@
                 }
             };
             
-            // --- CAMBIO V67: ALINEACIÓN IZQUIERDA EN PDFS ---
             window.imprimirPDFOrden = (lista) => {
                 let h = `<html><head><title>Orden de Compra</title><style>
                     body{font-family:sans-serif;padding:20px}
