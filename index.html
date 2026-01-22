@@ -38,7 +38,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.6 PDF Proveedores</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.7 PDF Alineación</div>
 
     <div id="toast-container"></div>
 
@@ -1016,7 +1016,7 @@
                 }
             };
             
-            // --- CAMBIO V66: COLUMNA PROVEEDOR EN PDF ORDEN DE COMPRA ---
+            // --- CAMBIO V67: ALINEACIÓN IZQUIERDA EN PDFS ---
             window.imprimirPDFOrden = (lista) => {
                 let h = `<html><head><title>Orden de Compra</title><style>
                     body{font-family:sans-serif;padding:20px}
@@ -1024,8 +1024,11 @@
                     table{width:100%;border-collapse:collapse;margin-top:20px}
                     td,th{border:1px solid #ccc;padding:8px; font-size:12px;}
                     th{background:#eee; text-align: center;} 
-                    td{text-align: left;}
-                    .text-center { text-align: center; }
+                    
+                    /* ALINEACIÓN IZQUIERDA PARA PRODUCTO Y UBICACIÓN */
+                    td:nth-child(2), td:nth-child(3) { text-align: left; }
+                    
+                    td:nth-child(1), td:nth-child(4), td:nth-child(5) { text-align: center; } 
                     .font-bold { font-weight: bold; }
                 </style></head><body>
                 <h1>ORDEN DE COMPRA</h1>
@@ -1048,7 +1051,6 @@
                     const unidad = x.uni || 'u.';
                     const textoCompra = d > 0 ? `${d} ${unidad}` : '-';
                     
-                    // Obtener proveedores
                     let provTexto = '-';
                     if (x.proveedores && x.proveedores.length > 0) {
                         provTexto = x.proveedores.map(p => `<div>${p.nombre} (${p.tel || 'S/T'})</div>`).join('');
@@ -1058,8 +1060,8 @@
                         <td>${x.cod}</td>
                         <td>${x.nom}</td>
                         <td>${x.ubicacion || '-'}</td>
-                        <td class="text-center">${x.cant}</td>
-                        <td class="text-center font-bold">${textoCompra}</td>
+                        <td>${x.cant}</td>
+                        <td class="font-bold">${textoCompra}</td>
                         <td>${provTexto}</td>
                     </tr>`; 
                 });
@@ -1081,8 +1083,11 @@
                     table{width:100%; border-collapse:collapse; font-size:13px;}
                     td,th{border:1px solid #ccc; padding:6px 10px;}
                     th{background:#f9f9f9; text-transform:uppercase; font-size:11px;}
+                    
+                    /* ALINEACIÓN IZQUIERDA EN PLAN DE TRABAJO */
+                    td:nth-child(2) { text-align: left; }
+                    
                     .text-center{text-align:center;}
-                    .text-right{text-align:right;}
                     .falta {color:red; font-weight:bold;}
                     .ok {color:green;}
                 </style></head><body>
@@ -1131,7 +1136,7 @@
                         const estado = falta > 0 ? `<span class="falta">FALTA ${falta}</span>` : `<span class="ok">OK</span>`;
 
                         h += `<tr>
-                            <td>${m.cod}</td>
+                            <td class="text-center">${m.cod}</td>
                             <td>${nombreItem}</td>
                             <td class="text-center">${esFijo ? 'Fijo' : 'x Op.'}</td>
                             <td class="text-center" style="font-weight:bold; font-size:1.1em;">${necesario} ${unidad}</td>
