@@ -38,7 +38,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.8 Mover Categoría</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v6.9 Alineación Izq</div>
 
     <div id="toast-container"></div>
 
@@ -190,9 +190,7 @@
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
                         <tr>
                             <th class="p-5 border-b border-slate-800 text-center">Cód</th>
-                            <th class="p-5 border-b border-slate-800 text-center">Producto</th>
-                            <th class="p-5 border-b border-slate-800 hidden md:table-cell text-center">Ubicación</th>
-                            <th class="p-5 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-5 border-b border-slate-800 text-left">Producto</th> <th class="p-5 border-b border-slate-800 hidden md:table-cell text-left">Ubicación</th> <th class="p-5 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-5 border-b border-slate-800 text-center">Estado</th>
                             <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
                         </tr>
@@ -236,9 +234,7 @@
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold sticky top-0">
                         <tr>
                             <th class="p-4 border-b border-slate-800 text-center">Cód</th>
-                            <th class="p-4 border-b border-slate-800 text-center">Producto</th>
-                            <th class="p-4 border-b border-slate-800 text-center">Ubicación</th>
-                            <th class="p-4 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-4 border-b border-slate-800 text-left">Producto</th> <th class="p-4 border-b border-slate-800 text-left">Ubicación</th> <th class="p-4 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-4 border-b border-slate-800 text-center">Estado</th>
                         </tr>
                     </thead>
@@ -554,9 +550,7 @@
 
                     tr.innerHTML = `
                         <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
-                        <td class="p-4 text-center">${item.nom}</td>
-                        <td class="p-4 hidden md:table-cell text-center">${ubi}</td>
-                        <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
+                        <td class="p-4 text-left">${item.nom}</td> <td class="p-4 hidden md:table-cell text-left">${ubi}</td> <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
                         <td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td>
                         <td class="p-4 text-right">${btns}</td>
                     `;
@@ -1047,6 +1041,7 @@
                 }
             };
             
+            // --- CAMBIO V67: ALINEACIÓN IZQUIERDA EN PDFS ---
             window.imprimirPDFOrden = (lista) => {
                 let h = `<html><head><title>Orden de Compra</title><style>
                     body{font-family:sans-serif;padding:20px}
