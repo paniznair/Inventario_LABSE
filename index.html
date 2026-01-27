@@ -30,7 +30,7 @@
         .toast.success { border-left-color: #10b981; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* TOOLTIP CUSTOM */
+        /* TOOLTIP */
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-size: 10px; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
@@ -43,7 +43,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.0 Obs & Vencimientos</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.2 Paniz Camila</div>
 
     <div id="toast-container"></div>
 
@@ -195,7 +195,9 @@
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
                         <tr>
                             <th class="p-5 border-b border-slate-800 text-center">Cód</th>
-                            <th class="p-5 border-b border-slate-800 text-left">Producto</th> <th class="p-5 border-b border-slate-800 hidden md:table-cell text-left">Ubicación</th> <th class="p-5 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-5 border-b border-slate-800 text-left">Producto</th>
+                            <th class="p-5 border-b border-slate-800 hidden md:table-cell text-left">Ubicación</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-5 border-b border-slate-800 text-center">Estado</th>
                             <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
                         </tr>
@@ -239,7 +241,9 @@
                     <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold sticky top-0">
                         <tr>
                             <th class="p-4 border-b border-slate-800 text-center">Cód</th>
-                            <th class="p-4 border-b border-slate-800 text-left">Producto</th> <th class="p-4 border-b border-slate-800 text-left">Ubicación</th> <th class="p-4 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-4 border-b border-slate-800 text-left">Producto</th>
+                            <th class="p-4 border-b border-slate-800 text-left">Ubicación</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Stock</th>
                             <th class="p-4 border-b border-slate-800 text-center">Estado</th>
                         </tr>
                     </thead>
@@ -922,7 +926,7 @@
                     obs:document.getElementById('m-obs').value, // CAMBIO V70: Guardar Obs
                     proveedores:proveedoresTemporales, 
                     cat:catActual,
-                    updatedAt: new Date()
+                    updatedAt: new Date() // FECHA DE ACTUALIZACIÓN
                 }; 
                 
                 try {
@@ -1193,7 +1197,8 @@
                     h += `</tbody></table></div>`;
                 });
 
-                h += `<div style="margin-top:50px; text-align:center; font-size:12px; color:#999;">Generado por LABSE Cloud System</div>`;
+                // CAMBIO V72: PIE DE PÁGINA PERSONALIZADO
+                h += `<div style="margin-top:50px; text-align:center; font-size:12px; color:#999;">Generado por Paniz Camila</div>`;
                 h += '<script>window.print();<\/script></body></html>'; 
                 
                 const w = window.open(''); 
