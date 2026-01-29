@@ -23,14 +23,12 @@
         
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
 
-        /* TOAST */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border-left: 4px solid #3b82f6; animation: slideIn 0.3s ease-out; font-size: 14px; display: flex; align-items: center; gap: 10px; min-width: 300px; }
         .toast.error { border-left-color: #ef4444; }
         .toast.success { border-left-color: #10b981; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* TOOLTIP */
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-size: 10px; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
@@ -43,7 +41,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.3 PDF Compacto</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.5 Fix Comillas</div>
 
     <div id="toast-container"></div>
 
@@ -543,12 +541,12 @@
                     let tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
                     let btns = '';
-                    // CAMBIO V68: AGREGAR BOTÓN MOVER CATEGORÍA
+                    // CAMBIO V68: AGREGAR BOTÓN MOVER CATEGORÍA - CAMBIO V75 FIX
                     if(esAdmin) {
                         const targetCat = catActual === 'Insumos' ? 'Herramientas' : 'Insumos';
                         btns = `
                             <div class="flex justify-end gap-2">
-                                <button onclick="moverCategoria('${item.id}', '${item.nom}', '${targetCat}')" class="text-purple-400 hover:text-white" title="Mover a ${targetCat}">🔁</button>
+                                <button onclick="moverCategoria('${item.id}', '${targetCat}')" class="text-purple-400 hover:text-white" title="Mover a ${targetCat}">🔁</button>
                                 <button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button>
                                 <button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button>
                             </div>`;
@@ -763,6 +761,7 @@
                 document.getElementById('modal-buscador').classList.add('oculto'); 
             };
             
+            // CAMBIO V75 FIX: NO PASAR NOMBRE AL HTML
             window.filtrarBuscadorModal = () => {
                 const txt = document.getElementById('mb-input').value.toLowerCase();
                 const l = document.getElementById('mb-lista'); l.innerHTML = '';
@@ -778,8 +777,9 @@
                 matches.forEach(d => {
                     let div = document.createElement('div'); 
                     div.className = "p-3 border-b border-slate-800 flex justify-between items-center group";
-                    const btnInd = `<button onclick="addMatToTask('${d.cod}', '${d.nom}', 'ind')" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/50 px-2 py-1 rounded hover:bg-blue-600 hover:text-white transition mr-2">👤 x Op</button>`;
-                    const btnGrp = `<button onclick="addMatToTask('${d.cod}', '${d.nom}', 'fijo')" class="text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-600/50 px-2 py-1 rounded hover:bg-yellow-600 hover:text-white transition">📦 Fijo</button>`;
+                    // FIX: Solo pasamos el código
+                    const btnInd = `<button onclick="addMatToTask('${d.cod}', 'ind')" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/50 px-2 py-1 rounded hover:bg-blue-600 hover:text-white transition mr-2">👤 x Op</button>`;
+                    const btnGrp = `<button onclick="addMatToTask('${d.cod}', 'fijo')" class="text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-600/50 px-2 py-1 rounded hover:bg-yellow-600 hover:text-white transition">📦 Fijo</button>`;
 
                     div.innerHTML = `
                         <div><span class="text-sm text-slate-300 font-bold block">${d.nom}</span><span class="text-xs text-slate-500">${d.cat} | Stock: ${d.cant}</span></div>
@@ -789,7 +789,11 @@
                 });
             };
 
-            window.addMatToTask = async (cod, nom, tipo) => {
+            // CAMBIO V75 FIX: BUSCAR NOMBRE POR CODIGO
+            window.addMatToTask = async (cod, tipo) => {
+                const item = datos.find(d => d.cod === cod);
+                const nom = item ? item.nom : 'Item';
+
                 const subtareaActual = tareaActual.subtareas[subtaskActivaIdx];
                 const existe = subtareaActual.materiales.some(m => m.cod === cod);
 
@@ -888,8 +892,11 @@
             window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
             window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
             
-            // --- NUEVA FUNCIONALIDAD V68: MOVER CATEGORÍA ---
-            window.moverCategoria = (id, nombre, nuevaCat) => {
+            // --- NUEVA FUNCIONALIDAD V68: MOVER CATEGORÍA - CAMBIO V75 FIX ---
+            window.moverCategoria = (id, nuevaCat) => {
+                const item = datos.find(d => d.id === id);
+                const nombre = item ? item.nom : 'Producto';
+                
                 window.confirmCustom("Mover Categoría", `¿Mover "${nombre}" a ${nuevaCat}?`, async () => {
                     try {
                         await window.updateDoc(window.doc(window.db, 'productos', id), {
@@ -1121,13 +1128,17 @@
             window.imprimirPDFPlan = () => {
                 const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
                 
+                // CAMBIO V74: COLOR CELESTE EN TÍTULOS DE SUBTAREAS
                 let h = `<html><head><title>Plan de Trabajo</title><style>
                     body{font-family: 'Segoe UI', sans-serif; padding:40px; color:#333;}
                     .header {text-align:center; margin-bottom:30px; border-bottom: 2px solid #333; padding-bottom:10px;}
                     .meta {display:flex; justify-content:space-between; margin-bottom:20px; font-size:14px;}
-                    .subtarea-bloque {margin-bottom:20px; page-break-inside: avoid;}
-                    .subtarea-titulo {background:#eee; padding:5px 10px; font-weight:bold; border:1px solid #ccc; border-bottom:none;}
-                    table{width:100%; border-collapse:collapse; font-size:13px;}
+                    .subtarea-bloque {margin-bottom:20px; page-break-inside: avoid; page-break-after: auto;}
+                    
+                    /* TÍTULO CELESTE */
+                    .subtarea-titulo {background:#e0f2fe; padding:8px 12px; font-weight:bold; border:1px solid #bae6fd; border-bottom:none; color: #0c4a6e;}
+                    
+                    table{width:100%; border-collapse:collapse; font-size:13px; page-break-inside: avoid;}
                     td,th{border:1px solid #ccc; padding:6px 10px;}
                     th{background:#f9f9f9; text-transform:uppercase; font-size:11px;}
                     
@@ -1197,7 +1208,8 @@
                     h += `</tbody></table></div>`;
                 });
 
-                h += `<div style="margin-top:50px; text-align:center; font-size:12px; color:#999;">Generado por LABSE Cloud System</div>`;
+                // CAMBIO V72: PIE DE PÁGINA PERSONALIZADO
+                h += `<div style="margin-top:50px; text-align:center; font-size:12px; color:#999;">Generado por Paniz Camila</div>`;
                 h += '<script>window.print();<\/script></body></html>'; 
                 
                 const w = window.open(''); 
