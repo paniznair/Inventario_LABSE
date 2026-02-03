@@ -2,13 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LABSE - Gestión Cloud</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
+    
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; touch-action: manipulation; }
         .oculto { display: none !important; }
         .visible { display: flex !important; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
@@ -41,7 +48,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
-    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.5 Fix Comillas</div>
+    <div class="fixed bottom-2 left-2 text-[10px] text-slate-700 z-[100] font-mono">v7.6 PWA Ready</div>
 
     <div id="toast-container"></div>
 
@@ -404,6 +411,13 @@
                 document.getElementById('modal-confirm').classList.add('oculto');
             };
             // --------------------------------------
+
+            // REGISTRO DE SERVICE WORKER PARA PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("Service Worker Registrado"))
+                .catch(err => console.error("Error SW", err));
+            }
 
             onSnapshot(productosCol, (snapshot) => {
                 datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -1129,22 +1143,26 @@
                 const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
                 
                 // CAMBIO V74: COLOR CELESTE EN TÍTULOS DE SUBTAREAS
+                // CAMBIO V73: CSS PARA EVITAR CORTES Y ESPACIOS BLANCOS
                 let h = `<html><head><title>Plan de Trabajo</title><style>
                     body{font-family: 'Segoe UI', sans-serif; padding:40px; color:#333;}
-                    .header {text-align:center; margin-bottom:30px; border-bottom: 2px solid #333; padding-bottom:10px;}
-                    .meta {display:flex; justify-content:space-between; margin-bottom:20px; font-size:14px;}
-                    .subtarea-bloque {margin-bottom:20px; page-break-inside: avoid; page-break-after: auto;}
+                    .header {text-align:center; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom:10px;}
+                    .meta {display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px;}
                     
-                    /* TÍTULO CELESTE */
+                    /* CLAVE: EVITAR SALTO DE PAGINA DENTRO DEL BLOQUE */
+                    .subtarea-bloque {
+                        margin-bottom:15px; 
+                        page-break-inside: avoid; 
+                        break-inside: avoid;
+                    }
+                    
                     .subtarea-titulo {background:#e0f2fe; padding:8px 12px; font-weight:bold; border:1px solid #bae6fd; border-bottom:none; color: #0c4a6e;}
                     
-                    table{width:100%; border-collapse:collapse; font-size:13px; page-break-inside: avoid;}
-                    td,th{border:1px solid #ccc; padding:6px 10px;}
-                    th{background:#f9f9f9; text-transform:uppercase; font-size:11px;}
+                    table{width:100%; border-collapse:collapse; font-size:12px;}
+                    td,th{border:1px solid #ccc; padding:5px 8px;}
+                    th{background:#f9f9f9; text-transform:uppercase; font-size:10px;}
                     
-                    /* ALINEACIÓN IZQUIERDA EN PLAN DE TRABAJO */
                     td:nth-child(2) { text-align: left; }
-                    
                     .text-center{text-align:center;}
                     .falta {color:red; font-weight:bold;}
                     .ok {color:green;}
