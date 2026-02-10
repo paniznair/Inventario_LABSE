@@ -15,13 +15,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* Ajustamos el body para que el fondo general siga siendo oscuro para el resto de la app, pero permitimos el inicio claro */
+        /* El body sigue siendo oscuro para el resto de la app */
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; touch-action: manipulation; }
+        
         .oculto { display: none !important; }
         .visible { display: flex !important; }
-        /* Ajuste para que el split screen funcione bien */
-        .visible.split-screen { display: grid !important; } 
-        
+        /* NUEVO: Regla especial para que el login dividido se vea bien */
+        .visible.split-screen { display: grid !important; }
+
         .fade-in { animation: fadeIn 0.3s ease-out; }
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); border-color: #3b82f6; }
@@ -29,13 +30,14 @@
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
-        /* Placeholder para modo oscuro general */
+        /* Placeholder general (modo oscuro) */
         input::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
         input:focus::placeholder { color: #334155; }
 
-        /* Estilos específicos para inputs en fondo claro (Login nuevo) */
-        .light-theme-input::placeholder { color: #94a3b8; } /* Slate-400 */
-        .light-theme-input:focus::placeholder { color: #cbd5e1; } /* Slate-300 */
+        /* NUEVO: Estilos para inputs en fondo claro (Login nuevo) */
+        .light-theme-input { color: #1e293b; } /* Texto oscuro */
+        .light-theme-input::placeholder { color: #94a3b8; } /* Placeholder gris claro */
+        .light-theme-input:focus::placeholder { color: #cbd5e1; }
         
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
 
@@ -77,25 +79,24 @@
                 <p class="text-2xl text-blue-200 font-light tracking-wide">Sistema de Gestión de Inventario</p>
                 <div class="mt-8 h-1 w-20 bg-blue-500 rounded-full"></div>
             </div>
-             <div class="absolute bottom-4 left-4 text-[10px] text-blue-300/50 font-mono">v8.4 Split Design</div>
         </div>
 
         <div class="flex flex-col justify-center items-center p-8 md:p-16 bg-white h-full relative">
             
-            <div class="absolute top-8 right-8 text-blue-900 font-black tracking-widest hidden md:block">LABSE</div>
+            <div class="absolute top-8 right-8 text-blue-900 font-black tracking-widest hidden md:block opacity-50">LABSE</div>
 
             <div class="w-full max-w-sm">
-                <div class="mb-12">
-                    <h2 class="text-4xl font-bold text-slate-900 mb-3">Bienvenido</h2>
-                    <p class="text-slate-500 text-lg">Ingrese la clave de acceso general para continuar.</p>
+                <div class="mb-10">
+                    <h2 class="text-4xl font-bold text-slate-900 mb-3 tracking-tight">Bienvenido</h2>
+                    <p class="text-slate-500 text-lg">Inicie sesión para continuar.</p>
                 </div>
 
-                <form onsubmit="verificarPassword(event)" class="flex flex-col gap-6">
+                <form onsubmit="verificarPassword(event)" class="flex flex-col gap-5">
                     <div>
-                        <label for="sys-pass" class="block text-sm font-medium text-slate-700 mb-2 ml-1">Contraseña</label>
-                        <input type="password" id="sys-pass" placeholder="••••••" class="light-theme-input w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-xl py-4 px-5 outline-none transition-all text-lg focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100">
+                        <label for="sys-pass" class="block text-sm font-semibold text-slate-700 mb-2 ml-1">Contraseña de Acceso</label>
+                        <input type="password" id="sys-pass" placeholder="••••••" class="light-theme-input w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-4 px-5 outline-none transition-all text-lg focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 shadow-sm">
                     </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition transform active:scale-[0.98] text-lg tracking-wide mt-2">INGRESAR</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 transition transform active:scale-[0.98] text-lg tracking-wide mt-4">INGRESAR</button>
                 </form>
                 
             </div>
@@ -511,7 +512,7 @@
                 document.querySelectorAll('body > div').forEach(el => {
                     if(el.id.startsWith('vista-')) el.classList.add('oculto');
                     if(el.id.startsWith('vista-')) el.classList.remove('visible');
-                    // Mover el truco del split-screen aquí
+                    // CAMBIO V85: Gestionar la clase split-screen
                     if(el.id === 'vista-pass' && id === 'vista-pass') {
                         el.classList.add('split-screen');
                     } else {
