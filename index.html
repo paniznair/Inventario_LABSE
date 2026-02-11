@@ -19,37 +19,32 @@
         .oculto { display: none !important; }
         .visible { display: flex !important; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
-        
-        /* Estilos Portada Nueva */
-        .hero-side {
-            background-image: url('portada.png');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(30, 58, 138, 0.7); /* Azul translúcido */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: center;
-        }
-
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); border-color: #3b82f6; }
+        .scroll-fino::-webkit-scrollbar { width: 6px; }
+        .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
+        .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
+        input::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
+        input:focus::placeholder { color: #334155; }
+        
+        .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
+
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border-left: 4px solid #3b82f6; animation: slideIn 0.3s ease-out; font-size: 14px; display: flex; align-items: center; gap: 10px; min-width: 300px; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.success { border-left-color: #10b981; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
+
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-size: 10px; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
     </style>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error(message); 
+        };
+    </script>
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
 
@@ -62,46 +57,38 @@
         </div>
     </div>
 
-    <div id="vista-pass" class="oculto fixed inset-0 z-50 w-full h-full flex bg-white fade-in">
-        <div class="hidden md:flex md:w-1/2 hero-side">
-            <div class="hero-overlay">
-                <h1 class="text-6xl font-black text-white uppercase tracking-tighter">LABSE</h1>
-                <p class="text-xl text-blue-100 mt-2 font-light">Sistema de Gestión de Inventario</p>
-            </div>
-        </div>
-
-        <div class="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-20 bg-white relative">
-            <div class="absolute top-10 right-10 text-slate-900 font-black text-xl tracking-tight">LABSE</div>
+    <div id="vista-pass" class="oculto fixed inset-0 z-50 w-full h-full bg-slate-950 items-center justify-center flex-col fade-in p-6">
+        <div class="bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl w-full max-w-md text-center">
             
-            <div class="max-w-md w-full mx-auto">
-                <h2 class="text-4xl font-bold text-slate-900 mb-2">Bienvenido</h2>
-                <p class="text-slate-500 mb-10">Inicie sesión para continuar</p>
-                
-                <form onsubmit="verificarPassword(event)" class="flex flex-col gap-4">
-                    <div class="relative">
-                        <input type="password" id="sys-pass" placeholder="Contraseña de acceso" 
-                            class="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-4 px-6 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10">
-                    </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition transform active:scale-[0.98] text-lg uppercase tracking-wide">
-                        Ingresar
-                    </button>
-                    <a href="#" class="text-right text-sm text-slate-400 hover:text-blue-600 transition">Olvidé mi contraseña</a>
-                </form>
+            <div class="mb-12">
+                <h1 class="text-3xl font-black text-white uppercase leading-snug tracking-tight">
+                    Gestión de Inventario <span class="text-blue-500">LABSE</span>
+                </h1>
             </div>
+            
+            <form onsubmit="verificarPassword(event)" class="flex flex-col gap-6">
+                <div class="relative group">
+                    <input type="password" id="sys-pass" placeholder="Contraseña" class="w-full bg-slate-950 text-white border border-slate-700 rounded-2xl py-4 text-center outline-none transition-all text-lg focus:border-blue-500 focus:bg-slate-900/50 focus:shadow-blue-500/20 focus:shadow-lg">
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.98] text-lg tracking-wide">Iniciar Sesión</button>
+            </form>
         </div>
     </div>
 
     <div id="vista-roles" class="oculto fixed inset-0 z-40 w-full h-full bg-slate-950 items-center justify-center flex-col fade-in p-6">
         <div class="text-center mb-8"><h2 class="text-3xl font-bold text-white">Seleccionar Perfil</h2></div>
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full px-4">
             <button onclick="irALoginAdmin()" class="group bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:border-blue-500/50 flex flex-col items-center gap-4 text-center cursor-pointer shadow-xl transition-all">
                 <i class="fas fa-user-cog text-4xl text-blue-400 group-hover:scale-110 transition"></i>
                 <div><h3 class="text-xl font-bold text-white">Administración</h3><p class="text-slate-400 text-xs mt-1">Gestión total</p></div>
             </button>
+
             <button onclick="seleccionarRol('visita')" class="group bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:border-emerald-500/50 flex flex-col items-center gap-4 text-center cursor-pointer shadow-xl transition-all">
                 <i class="fas fa-search text-4xl text-emerald-400 group-hover:scale-110 transition"></i>
                 <div><h3 class="text-xl font-bold text-white">Consulta</h3><p class="text-slate-400 text-xs mt-1">Ver Stock</p></div>
             </button>
+
             <button onclick="seleccionarRol('operario')" class="group bg-slate-900 border border-slate-800 p-8 rounded-3xl hover:border-purple-500/50 flex flex-col items-center gap-4 text-center cursor-pointer shadow-xl transition-all">
                 <i class="fas fa-tasks text-4xl text-purple-400 group-hover:scale-110 transition"></i>
                 <div><h3 class="text-xl font-bold text-white">Instrumentación</h3><p class="text-slate-400 text-xs mt-1">Tareas</p></div>
@@ -110,12 +97,240 @@
         <button onclick="volverAlBloqueo()" class="mt-12 text-slate-500 hover:text-white text-sm transition"><i class="fas fa-arrow-left"></i> Volver</button>
     </div>
 
+    <div id="vista-admin-auth" class="oculto fixed inset-0 z-50 w-full h-full bg-slate-950 items-center justify-center flex-col fade-in p-6">
+        <div class="bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl w-full max-w-md text-center">
+            <div class="mb-10">
+                <h1 class="text-xl font-bold text-white tracking-widest uppercase mb-2">ACCESO</h1>
+                <h2 class="text-3xl font-black text-blue-500 tracking-tight">ADMINISTRADOR</h2>
+            </div>
+            <form onsubmit="verificarPassAdmin(event)" class="flex flex-col gap-6">
+                <div class="relative group">
+                    <input type="password" id="admin-pass-input" placeholder="Contraseña Admin" class="w-full bg-slate-950 text-white border border-slate-700 rounded-2xl py-4 text-center outline-none transition-all text-lg focus:border-blue-500 focus:bg-slate-900/50 focus:shadow-blue-500/20 focus:shadow-lg">
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-[0.98] text-lg tracking-wide">Entrar</button>
+            </form>
+            <button onclick="volverARoles()" class="mt-8 text-slate-500 hover:text-white text-sm transition font-bold">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="oculto fixed inset-0 z-[80] bg-black/80 items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl">
+            <div class="w-12 h-12 bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-2xl text-yellow-500"></i>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-2" id="mc-titulo">¿Estás seguro?</h3>
+            <p class="text-slate-400 text-sm mb-6" id="mc-desc">Esta acción no se puede deshacer.</p>
+            <div class="flex gap-3">
+                <button onclick="cerrarConfirm()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl font-bold text-sm transition">Cancelar</button>
+                <button id="mc-btn-ok" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-xl font-bold text-sm shadow-lg transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-input" class="oculto fixed inset-0 z-[80] bg-black/80 items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl">
+            <h3 class="text-white font-bold text-lg mb-4" id="mi-titulo">Ingresar Datos</h3>
+            <form onsubmit="submitInput(event)">
+                <input type="text" id="mi-value" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl py-3 px-4 mb-6 outline-none focus:border-blue-500 text-center" autocomplete="off">
+                <div class="flex gap-3">
+                    <button type="button" onclick="cerrarInput()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl font-bold text-sm transition">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-xl font-bold text-sm shadow-lg transition">Aceptar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-responsable" class="oculto fixed inset-0 z-[70] bg-black/80 items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-8 text-center shadow-2xl">
+            <div class="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-file-invoice text-3xl text-blue-400"></i>
+            </div>
+            <h3 class="text-white font-bold text-2xl mb-2" id="modal-resp-titulo">Generar Documento</h3>
+            <p class="text-slate-400 text-sm mb-8" id="modal-resp-desc">Confirma quién es el responsable.</p>
+            <form onsubmit="confirmarGenerarDocumento(event)">
+                <input type="text" id="input-responsable-pdf" placeholder="Nombre y Apellido" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl py-3 px-4 mb-6 outline-none focus:border-blue-500 text-center text-lg shadow-inner">
+                <div class="flex gap-4">
+                    <button type="button" onclick="cerrarModalResponsable()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-bold text-sm transition border border-slate-700">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition transform active:scale-95">Generar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="vista-dashboard" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
+        <header class="w-full p-6 flex justify-between items-center bg-transparent relative z-10">
+            <div>
+                <h1 class="text-lg md:text-xl font-black text-white tracking-tight uppercase">
+                    Gestión de Inventario <span class="text-blue-500">LABSE</span>
+                </h1>
+                <div id="last-update-global" class="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-1">
+                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    Calculando...
+                </div>
+            </div>
+            <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition px-3 py-2 text-sm font-bold">SALIR</button>
+        </header>
+        <div class="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl px-4">
+                <div onclick="abrirInventario('Insumos')" class="bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 hover:border-blue-500/50 card-hover transition-all">
+                    <i class="fas fa-boxes text-4xl text-blue-400 mb-4"></i><h3 class="text-2xl font-bold text-white">Insumos</h3><p class="text-slate-400 text-sm">Consumibles</p>
+                </div>
+                <div onclick="abrirInventario('Herramientas')" class="bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 hover:border-indigo-500/50 card-hover transition-all">
+                    <i class="fas fa-tools text-4xl text-indigo-400 mb-4"></i><h3 class="text-2xl font-bold text-white">Herramientas</h3><p class="text-slate-400 text-sm">Activos fijos</p>
+                </div>
+                <div onclick="abrirInstrumentacion()" class="bg-slate-900 rounded-3xl p-8 cursor-pointer border border-slate-800 hover:border-purple-500/50 card-hover transition-all">
+                    <i class="fas fa-tasks text-4xl text-purple-400 mb-4"></i><h3 class="text-2xl font-bold text-white">Instrumentación</h3><p class="text-slate-400 text-sm">Planificación de Trabajos</p>
+                </div>
+            </div>
+            <button onclick="generarOrden()" class="mt-12 px-8 py-4 rounded-2xl bg-slate-800 text-white font-bold hover:bg-slate-700 border border-slate-700 transition w-full max-w-lg">GENERAR ORDEN DE COMPRA (PDF)</button>
+            <div class="absolute bottom-4 text-xs text-emerald-500 flex items-center gap-2"><div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div> Conectado a Firebase</div>
+        </div>
+    </div>
+
+    <div id="vista-tabla" class="oculto w-full h-full flex-col bg-slate-950 fade-in">
+        <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-4">
+                <button onclick="volverAlDashboard()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                <div>
+                    <h2 id="titulo-cat" class="text-xl font-bold text-white">Inventario</h2>
+                    <p id="last-update-table" class="text-[10px] text-slate-500 font-mono">Actualizado: ...</p>
+                </div>
+            </div>
+            <button id="btn-nuevo-item" onclick="mostrarModalNuevo()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition">+ Nuevo</button>
+        </div>
+        <div class="flex-1 overflow-auto p-4 md:p-8">
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold">
+                        <tr>
+                            <th class="p-5 border-b border-slate-800 text-center">Cód</th>
+                            <th class="p-5 border-b border-slate-800 text-left">Producto</th>
+                            <th class="p-5 border-b border-slate-800 hidden md:table-cell text-left">Ubicación</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-5 border-b border-slate-800 text-center">Estado</th>
+                            <th id="col-accion" class="p-5 border-b border-slate-800 text-right"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
+                </table>
+                <div id="vacio-msg" class="text-center py-20 hidden flex-col items-center"><div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-3xl mb-4">📭</div><p class="text-slate-500">Sin productos.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vista-instrumentacion" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
+        <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 backdrop-blur-md sticky top-0 z-20">
+            <div class="flex items-center gap-4">
+                <button onclick="volverDeInstrumentacion()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                <h2 class="text-xl font-bold text-white text-purple-400">Trabajos de Instrumentación</h2>
+            </div>
+            <button id="btn-nueva-tarea" onclick="agregarTarea()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition hidden">+ Nueva Tarea</button>
+        </div>
+        <div class="flex-1 overflow-auto p-8 flex flex-col items-center">
+            <div id="lista-tareas" class="grid grid-cols-1 gap-4 w-full max-w-4xl"></div>
+        </div>
+    </div>
+
+    <div id="vista-consulta" class="oculto w-full h-full flex-col relative bg-slate-950 fade-in">
+        <header class="w-full p-6 flex justify-between items-center bg-slate-900 border-b border-slate-800 sticky top-0 z-20">
+            <div>
+                <h1 class="text-lg md:text-xl font-black text-white tracking-tight uppercase">
+                    Gestión de Inventario <span class="text-blue-500">LABSE</span>
+                </h1>
+            </div>
+            <button onclick="volverARoles()" class="text-slate-500 hover:text-white transition px-3 py-2 text-sm font-bold">SALIR</button>
+        </header>
+        <div class="flex-1 overflow-hidden flex flex-col max-w-6xl mx-auto w-full p-6">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <input type="text" id="buscador-global" onkeyup="aplicarFiltrosConsulta()" placeholder="Buscar producto o ubicación..." class="flex-1 bg-slate-900 border border-slate-700 text-white rounded-xl py-4 px-6 outline-none text-lg shadow-lg">
+                <div class="flex gap-2">
+                    <button id="btn-todos" onclick="setFiltroConsulta('todos')" class="btn-filtro-activo bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 transition">TODOS</button>
+                    <button id="btn-faltantes" onclick="setFiltroConsulta('faltantes')" class="bg-slate-800 hover:bg-slate-700 text-red-400 px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 transition">FALTANTES</button>
+                    <button onclick="generarOrden()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 transition">SOLICITAR (PDF)</button>
+                </div>
+            </div>
+            <div class="flex-1 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-auto p-4">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase text-xs font-semibold sticky top-0">
+                        <tr>
+                            <th class="p-4 border-b border-slate-800 text-center">Cód</th>
+                            <th class="p-4 border-b border-slate-800 text-left">Producto</th>
+                            <th class="p-4 border-b border-slate-800 text-left">Ubicación</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Stock</th>
+                            <th class="p-4 border-b border-slate-800 text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-consulta" class="divide-y divide-slate-800"></tbody>
+                </table>
+                <div id="consulta-vacio" class="text-center py-20 hidden flex-col items-center">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-2xl mb-4">🔍</div>
+                    <p class="text-slate-500">No hay coincidencias.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-trabajo" class="oculto fixed inset-0 z-50 bg-black/90 backdrop-blur-sm items-center justify-center p-4 fade-in overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-5xl shadow-2xl my-auto relative flex flex-col h-[90vh]">
+            <div class="flex justify-between items-center p-6 border-b border-slate-800">
+                <div><h3 id="mt-titulo" class="text-2xl font-bold text-white">Trabajo</h3><p class="text-slate-400 text-sm">Planificación</p></div>
+                <button onclick="cerrarModalTrabajo()" class="text-slate-500 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="flex flex-col h-full relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-blue-400 font-bold text-xs uppercase">Estructura del Trabajo</h4>
+                        <button onclick="agregarSubtarea()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700 hover:bg-slate-700" id="btn-add-subtarea">+ Subtarea</button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-auto space-y-4" id="lista-subtareas-container">
+                        </div>
+                </div>
+
+                <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 flex flex-col h-fit">
+                    <h4 class="text-emerald-400 font-bold text-xs uppercase mb-4">Simular Ejecución Global</h4>
+                    <div class="mb-6"><label class="block text-slate-300 text-sm mb-2">Cantidad de Operarios:</label><div class="flex gap-2"><input type="number" id="mt-operarios" value="1" min="1" class="bg-slate-900 border border-slate-600 text-white rounded px-4 py-2 w-24 text-center font-bold outline-none" onchange="calcularDisponibilidad()"><button onclick="calcularDisponibilidad()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm flex-1">Verificar Stock</button></div></div>
+                    <div id="mt-resultado" class="flex-1 overflow-auto space-y-3 max-h-[400px]"><div class="text-center text-slate-500 text-sm mt-10">Define operarios para calcular.</div></div>
+                    <button onclick="imprimirPlan()" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold text-xs">IMPRIMIR REPORTE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-buscador" class="oculto fixed inset-0 z-[60] bg-black/80 items-center justify-center p-4 fade-in">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6">
+            <h3 class="text-white font-bold mb-4">Seleccionar Producto</h3>
+            <input type="text" id="mb-input" placeholder="Buscar..." class="w-full bg-slate-950 border border-slate-700 text-white rounded p-2 mb-4 outline-none focus:border-blue-500" onkeyup="filtrarBuscadorModal()">
+            <div class="h-64 overflow-auto bg-slate-950 rounded border border-slate-800 p-1" id="mb-lista"></div>
+            <button onclick="cerrarBuscador()" class="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded font-bold text-sm">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal" class="oculto fixed inset-0 z-50 bg-black/80 backdrop-blur-sm items-center justify-center p-4 fade-in overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl my-auto relative p-6">
+            <div class="flex justify-between mb-4"><h3 id="modal-titulo" class="text-xl font-bold text-white">Producto</h3><button onclick="cerrarModal()" class="text-slate-500 hover:text-white">✕</button></div>
+            <form onsubmit="guardarProducto(event)">
+                <input type="text" id="m-resp" placeholder="Responsable *" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 mb-4 focus:border-blue-500 outline-none" required>
+                <div class="grid grid-cols-4 gap-4 mb-4"><input type="text" id="m-cod" placeholder="Código" required class="col-span-1 bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-nombre" placeholder="Nombre" required class="col-span-3 bg-slate-800 text-white border-slate-700 rounded p-2"></div>
+                <div class="mb-4">
+                    <input type="text" id="m-ubicacion" placeholder="Ubicación (Ej: Estante A1, Cajón 3) - 5S" class="w-full bg-slate-800 text-white border border-slate-700 rounded p-2 focus:border-yellow-500 outline-none">
+                </div>
+                <div class="mb-4">
+                    <textarea id="m-obs" placeholder="Observaciones (Vencimiento, Mantenimiento, Notas...)" class="w-full bg-slate-950 text-white border border-slate-700 rounded p-3 focus:border-blue-500 outline-none h-20 text-sm"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mb-4"><input type="number" id="m-cant" placeholder="Stock" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="number" id="m-min" placeholder="Mínimo" required class="bg-slate-800 text-white border-slate-700 rounded p-2"><input type="text" id="m-uni" placeholder="Unidad" class="bg-slate-800 text-white border-slate-700 rounded p-2"></div>
+                <div class="bg-slate-950 p-4 rounded border border-slate-800 mb-4"><div class="grid grid-cols-2 gap-2 mb-2"><input id="p-nombre" placeholder="Prov. Nombre" class="bg-slate-900 text-white border-slate-700 rounded p-2"><input id="p-tel" placeholder="Teléfono" class="bg-slate-900 text-white border-slate-700 rounded p-2"></div><button type="button" onclick="agregarProveedorTemporal()" class="text-xs text-emerald-500">+ Agregar Prov</button><ul id="lista-proveedores-temp" class="mt-2 text-xs text-slate-400"></ul></div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold">Guardar</button>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
-        // Importaciones de Firebase que ya tienes configuradas
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Tu configuración de Firebase actual
         const firebaseConfig = {
             apiKey: "AIzaSyDGdmmkyzzxtkQTUK-siCPxJOgGN3N4isQ",
             authDomain: "sistema-labse.firebaseapp.com",
@@ -126,14 +341,915 @@
             measurementId: "G-BEPZRJ8EJ1"
         };
 
-        // Mantén exactamente toda la lógica de funciones de JavaScript que me pasaste arriba
-        // para que las tablas, botones y PDF sigan funcionando igual.
-        
         try {
             const app = initializeApp(firebaseConfig);
-            // ... (Copia aquí todo el bloque <script type="module"> que tenías originalmente)
-            // Asegúrate de que la función irA('vista-pass') se ejecute al final como ya estaba.
-        } catch (e) { console.error(e); }
+            const db = getFirestore(app);
+            const productosCol = collection(db, 'productos');
+            const tareasCol = collection(db, 'tareas');
+
+            // Exponer DB
+            window.db = db;
+            window.productosCol = productosCol;
+            window.tareasCol = tareasCol;
+            window.addDoc = addDoc;
+            window.updateDoc = updateDoc;
+            window.deleteDoc = deleteDoc;
+            window.doc = doc;
+
+            let datos = [];
+            let tareas = [];
+            let catActual = '';
+            let proveedoresTemporales = [];
+            let esAdmin = false;
+            let tareaActual = null;
+            let subtaskActivaIdx = 0; // Para saber a que subtarea agregamos items
+            let editandoId = null;
+            let ultimoResponsable = '';
+            let filtroConsultaActual = 'todos';
+            let tipoDocumentoPendiente = ''; 
+            
+            // --- NUEVO SISTEMA DE MODALES (V63) ---
+            window.mostrarToast = (msg, tipo = 'success') => {
+                const c = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                const icon = tipo === 'error' ? '<i class="fas fa-exclamation-circle text-red-500"></i>' : '<i class="fas fa-check-circle text-emerald-500"></i>';
+                t.className = `toast ${tipo}`;
+                t.innerHTML = `${icon}<span>${msg}</span>`;
+                c.appendChild(t);
+                setTimeout(() => t.remove(), 3000);
+            };
+
+            window.promptCustom = (titulo, callback, valorInicial = '') => {
+                document.getElementById('mi-titulo').innerText = titulo;
+                document.getElementById('mi-value').value = valorInicial;
+                document.getElementById('modal-input').classList.remove('oculto');
+                document.getElementById('modal-input').classList.add('visible');
+                document.getElementById('mi-value').focus();
+                
+                // Guardar la funcion a ejecutar al aceptar
+                window.submitInputCallback = callback;
+            };
+
+            window.submitInput = (e) => {
+                e.preventDefault();
+                const val = document.getElementById('mi-value').value;
+                if(window.submitInputCallback) window.submitInputCallback(val);
+                window.cerrarInput();
+            };
+
+            window.cerrarInput = () => {
+                document.getElementById('modal-input').classList.remove('visible');
+                document.getElementById('modal-input').classList.add('oculto');
+            };
+
+            window.confirmCustom = (titulo, desc, callback) => {
+                document.getElementById('mc-titulo').innerText = titulo;
+                document.getElementById('mc-desc').innerText = desc;
+                document.getElementById('modal-confirm').classList.remove('oculto');
+                document.getElementById('modal-confirm').classList.add('visible');
+                
+                document.getElementById('mc-btn-ok').onclick = () => {
+                    callback();
+                    window.cerrarConfirm();
+                };
+            };
+
+            window.cerrarConfirm = () => {
+                document.getElementById('modal-confirm').classList.remove('visible');
+                document.getElementById('modal-confirm').classList.add('oculto');
+            };
+            // --------------------------------------
+
+            // REGISTRO DE SERVICE WORKER PARA PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log("Service Worker Registrado"))
+                .catch(err => console.error("Error SW", err));
+            }
+
+            onSnapshot(productosCol, (snapshot) => {
+                datos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                document.getElementById('loader').classList.add('oculto');
+                
+                // CAMBIO V65: CALCULAR FECHA MÁS RECIENTE
+                calcularFechaGlobal();
+
+                if(catActual) renderTabla();
+                if(document.getElementById('vista-consulta').classList.contains('visible')) aplicarFiltrosConsulta();
+            }, (error) => {
+                console.error("Error BD:", error);
+                window.mostrarToast("Error de conexión", 'error');
+            });
+
+            onSnapshot(tareasCol, (snapshot) => {
+                tareas = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                if(document.getElementById('vista-instrumentacion').classList.contains('visible')) renderTareas();
+                if(tareaActual) {
+                    const tActualizada = tareas.find(t => t.id === tareaActual.id);
+                    if(tActualizada) { 
+                        tareaActual = tActualizada; 
+                        renderMaterialesTarea(); 
+                    }
+                }
+            });
+
+            // --- FUNCION NUEVA V65: FECHA GLOBAL ---
+            function calcularFechaGlobal() {
+                if(!datos.length) return;
+                
+                // Obtener todas las fechas válidas
+                const fechas = datos
+                    .filter(d => d.updatedAt) // Solo los que tienen fecha
+                    .map(d => d.updatedAt.toDate()); // Convertir a JS Date
+
+                if(fechas.length > 0) {
+                    // Ordenar descendente (más nueva primero)
+                    fechas.sort((a, b) => b - a);
+                    const ultima = fechas[0];
+                    
+                    const strFecha = ultima.toLocaleDateString() + ' ' + ultima.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    // Actualizar en Dashboard y Tabla
+                    const texto = `Última act: ${strFecha}`;
+                    document.getElementById('last-update-global').innerText = texto;
+                    document.getElementById('last-update-table').innerText = texto;
+                } else {
+                    document.getElementById('last-update-global').innerText = "Sin movimientos recientes";
+                    document.getElementById('last-update-table').innerText = "Sin movimientos";
+                }
+            }
+
+            // --- FUNCIONES GLOBALES ---
+
+            window.irA = (id) => {
+                document.querySelectorAll('body > div').forEach(el => {
+                    if(el.id.startsWith('vista-')) el.classList.add('oculto');
+                    if(el.id.startsWith('vista-')) el.classList.remove('visible');
+                });
+                const d = document.getElementById(id);
+                if(d) { d.classList.remove('oculto'); d.classList.add('visible'); }
+            };
+
+            window.verificarPassword = (e) => { e.preventDefault(); if(document.getElementById('sys-pass').value.trim() === 'labse') window.irA('vista-roles'); else window.mostrarToast('Contraseña Incorrecta', 'error'); };
+
+            window.irALoginAdmin = () => {
+                window.irA('vista-admin-auth');
+                document.getElementById('admin-pass-input').value = '';
+                document.getElementById('admin-pass-input').focus();
+            };
+
+            window.verificarPassAdmin = (e) => {
+                e.preventDefault();
+                const pass = document.getElementById('admin-pass-input').value.trim();
+                if(pass === 'labse2026') {
+                    esAdmin = true;
+                    const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
+                    btnsAdmin.forEach(b => { if(b) b.classList.remove('hidden'); });
+                    const btnAddMat = document.getElementById('btn-add-mat');
+                    if(btnAddMat) btnAddMat.style.display = 'block';
+                    window.irA('vista-dashboard');
+                } else {
+                    window.mostrarToast("Contraseña Incorrecta", 'error');
+                }
+            };
+
+            window.seleccionarRol = (rol) => {
+                esAdmin = false;
+                const btnsAdmin = [document.getElementById('btn-nuevo-item'), document.getElementById('col-accion'), document.getElementById('btn-nueva-tarea')];
+                btnsAdmin.forEach(b => { if(b) b.classList.add('hidden'); });
+                
+                // Ocultar botones admin en subtareas
+                const btnAddSub = document.getElementById('btn-add-subtarea');
+                if(btnAddSub) btnAddSub.style.display = 'none';
+
+                if(rol === 'visita') { 
+                    window.irA('vista-consulta'); 
+                    window.setFiltroConsulta('todos'); 
+                }
+                else if(rol === 'operario') { 
+                    window.irA('vista-instrumentacion'); 
+                    window.renderTareas(); 
+                }
+            };
+
+            window.volverAlBloqueo = () => { document.getElementById('sys-pass').value=''; window.irA('vista-pass'); };
+            window.volverARoles = () => { window.irA('vista-roles'); };
+            window.volverAlDashboard = () => { window.irA('vista-dashboard'); };
+            
+            window.volverDeInstrumentacion = () => {
+                if(esAdmin) window.irA('vista-dashboard');
+                else window.irA('vista-roles');
+            };
+
+            window.abrirInventario = (cat) => { catActual = cat; document.getElementById('titulo-cat').innerText = cat; window.renderTabla(); window.irA('vista-tabla'); };
+
+            window.renderTabla = () => {
+                const tbody = document.getElementById('tabla-body');
+                const vacio = document.getElementById('vacio-msg');
+                tbody.innerHTML = '';
+                
+                const filtrados = datos.filter(d => d.cat === catActual).sort((a, b) => {
+                    const na = parseInt(a.cod), nb = parseInt(b.cod);
+                    if(!isNaN(na) && !isNaN(nb)) return na - nb;
+                    return String(a.cod).localeCompare(String(b.cod));
+                });
+
+                if(filtrados.length === 0) { vacio.classList.remove('hidden'); vacio.classList.add('flex'); } 
+                else { vacio.classList.add('hidden'); vacio.classList.remove('flex'); }
+
+                filtrados.forEach(item => {
+                    const critico = parseInt(item.cant) < parseInt(item.min);
+                    let ubi = item.ubicacion ? `<span class="text-yellow-500/80 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>${item.ubicacion}</span>` : '<span class="text-slate-600 text-xs">-</span>';
+                    let tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-900/50 border-b border-slate-800 text-slate-300";
+                    let btns = '';
+                    // CAMBIO V68: AGREGAR BOTÓN MOVER CATEGORÍA - CAMBIO V75 FIX
+                    if(esAdmin) {
+                        const targetCat = catActual === 'Insumos' ? 'Herramientas' : 'Insumos';
+                        btns = `
+                            <div class="flex justify-end gap-2">
+                                <button onclick="moverCategoria('${item.id}', '${targetCat}')" class="text-purple-400 hover:text-white" title="Mover a ${targetCat}">🔁</button>
+                                <button onclick="editar('${item.id}')" class="text-blue-400 hover:text-white">✏️</button>
+                                <button onclick="borrar('${item.id}')" class="text-red-400 hover:text-white">🗑️</button>
+                            </div>`;
+                    }
+                    
+                    // CAMBIO V70: ICONO DE OBSERVACIÓN
+                    let obsIcon = '';
+                    if (item.obs && item.obs.trim() !== '') {
+                        obsIcon = `<div class="tooltip ml-2 inline-block"><i class="fas fa-info-circle text-blue-400 cursor-help"></i><span class="tooltiptext">${item.obs}</span></div>`;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="p-4 font-mono text-blue-400 font-bold text-center">${item.cod}</td>
+                        <td class="p-4 text-left"><div class="flex items-center">${item.nom} ${obsIcon}</div></td> 
+                        <td class="p-4 hidden md:table-cell text-left">${ubi}</td>
+                        <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-emerald-400'}">${item.cant}</td>
+                        <td class="p-4 text-center"><span class="text-[10px] px-2 py-1 rounded border ${critico?'border-red-500/50 text-red-400':'border-emerald-500/50 text-emerald-400'}">${critico?'BAJO':'OK'}</span></td>
+                        <td class="p-4 text-right">${btns}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            };
+
+            window.abrirInstrumentacion = () => { window.irA('vista-instrumentacion'); window.renderTareas(); };
+            window.renderTareas = () => {
+                const c = document.getElementById('lista-tareas'); c.innerHTML = '';
+                tareas.forEach(t => {
+                    let div = document.createElement('div');
+                    div.className = "bg-slate-900 p-5 rounded-xl border border-slate-800 hover:border-purple-500 cursor-pointer flex justify-between items-center group transition";
+                    div.onclick = (e) => { if(!e.target.closest('button')) window.abrirDetalleTrabajo(t.id); };
+                    let btns = esAdmin ? `<div class="flex gap-2"><button onclick="editNomTarea('${t.id}', event)" class="p-2 hover:text-blue-400">✏️</button><button onclick="delTarea('${t.id}', event)" class="p-2 hover:text-red-400">🗑️</button></div>` : '<span class="text-slate-600 font-bold">></span>';
+                    div.innerHTML = `<div class="flex items-center gap-4"><span class="text-slate-200 font-bold">${t.nombre}</span></div>${btns}`;
+                    c.appendChild(div);
+                });
+            };
+
+            // REEMPLAZO DE PROMPT NATIVO POR MODAL CUSTOM
+            window.agregarTarea = async () => { 
+                window.promptCustom("Nombre Tarea Principal", async (n) => {
+                    if(n) { 
+                        await window.addDoc(window.tareasCol, {nombre: n, subtareas: []}); 
+                        window.mostrarToast("Tarea creada");
+                    }
+                });
+            };
+
+            window.editNomTarea = async (id, e) => { 
+                e.stopPropagation(); 
+                const t = tareas.find(x=>x.id===id); 
+                window.promptCustom("Nuevo nombre de tarea", async (n) => {
+                    if(n) { 
+                        await window.updateDoc(window.doc(window.db, 'tareas', id), {nombre: n}); 
+                        window.mostrarToast("Nombre actualizado");
+                    }
+                }, t.nombre);
+            };
+
+            window.delTarea = async (id, e) => { 
+                e.stopPropagation(); 
+                window.confirmCustom("Eliminar Tarea", "Se borrará toda la planificación.", async () => {
+                    await window.deleteDoc(window.doc(window.db, 'tareas', id)); 
+                    window.mostrarToast("Tarea eliminada", 'error');
+                });
+            };
+
+            window.abrirDetalleTrabajo = (id) => {
+                tareaActual = tareas.find(t => t.id === id);
+                if(!tareaActual.subtareas) {
+                    tareaActual.subtareas = [{ nombre: "Listado General", materiales: tareaActual.materiales || [] }];
+                }
+                document.getElementById('mt-titulo').innerText = tareaActual.nombre;
+                document.getElementById('modal-trabajo').classList.remove('oculto'); document.getElementById('modal-trabajo').classList.add('visible');
+                window.renderMaterialesTarea();
+                document.getElementById('mt-resultado').innerHTML = '<div class="text-center text-slate-500 text-sm mt-10">Define operarios.</div>';
+            };
+            window.cerrarModalTrabajo = () => { document.getElementById('modal-trabajo').classList.remove('visible'); document.getElementById('modal-trabajo').classList.add('oculto'); };
+            
+            // --- NUEVA LÓGICA V61: EDICIÓN TOTAL ---
+            window.renderMaterialesTarea = () => {
+                const container = document.getElementById('lista-subtareas-container'); 
+                container.innerHTML = '';
+                
+                const btnAddSub = document.getElementById('btn-add-subtarea');
+                if(btnAddSub) btnAddSub.style.display = esAdmin ? 'block' : 'none';
+
+                tareaActual.subtareas.forEach((sub, subIdx) => {
+                    const bloque = document.createElement('div');
+                    bloque.className = "bg-slate-950 rounded-xl border border-slate-800 overflow-hidden";
+                    
+                    // Header Subtarea con Edición
+                    const header = document.createElement('div');
+                    header.className = "bg-slate-900 p-3 border-b border-slate-800 flex justify-between items-center";
+                    const btnEditSub = esAdmin ? `<button onclick="editNombreSubtarea(${subIdx})" class="text-slate-500 hover:text-white px-2">✏️</button>` : '';
+                    const btnDelSub = esAdmin ? `<button onclick="delSubtarea(${subIdx})" class="text-red-500 hover:text-white px-2">🗑️</button>` : '';
+                    
+                    header.innerHTML = `
+                        <div class="flex items-center">
+                            <h5 class="text-slate-300 font-bold text-sm uppercase tracking-wide">${sub.nombre}</h5>
+                            ${btnEditSub}
+                        </div>
+                        <div class="flex items-center gap-2">${btnDelSub}<button onclick="agregarMaterialATrabajo(${subIdx})" class="text-[10px] bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded border border-blue-500 ${esAdmin?'':'hidden'}">+ Item</button></div>`;
+                    
+                    // Tabla Materiales
+                    const table = document.createElement('table');
+                    table.className = "w-full text-left text-sm";
+                    table.innerHTML = `<thead class="text-slate-500 text-[10px] uppercase"><tr><th class="p-3">Item</th><th class="p-3 text-center">Tipo</th><th class="p-3 text-center">Cant.</th><th class="p-3 text-right"></th></tr></thead><tbody class="divide-y divide-slate-800 text-slate-300"></tbody>`;
+                    
+                    const tbody = table.querySelector('tbody');
+                    if(sub.materiales.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-xs text-slate-600">Sin items.</td></tr>';
+                    } else {
+                        sub.materiales.forEach((m, matIdx) => {
+                            const item = datos.find(d => d.cod === m.cod);
+                            const esFijo = m.tipo === 'fijo';
+                            const icon = esFijo ? '📦 Fijo' : '👤 x Op.';
+                            const color = esFijo ? 'text-yellow-500' : 'text-blue-400';
+                            
+                            // Botones acciones por material
+                            let acciones = '';
+                            if(esAdmin){
+                                acciones = `
+                                    <button onclick="editMatTarea(${subIdx}, ${matIdx})" class="text-blue-400 hover:text-white mr-2">✏️</button>
+                                    <button onclick="delMatTarea(${subIdx}, ${matIdx})" class="text-red-500 hover:text-white">✕</button>
+                                `;
+                            }
+                            
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="p-3"><div class="font-bold text-white">${m.cod}</div><div class="text-xs text-slate-500">${item?item.nom:'Item Borrado'}</div></td>
+                                <td class="p-3 text-center text-[10px] uppercase font-bold ${color}">${icon}</td>
+                                <td class="p-3 text-center">${m.cant}</td>
+                                <td class="p-3 text-right">${acciones}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+
+                    bloque.appendChild(header);
+                    bloque.appendChild(table);
+                    container.appendChild(bloque);
+                });
+            };
+
+            // --- NUEVAS FUNCIONES DE EDICIÓN CON MODALES ---
+            window.editNombreSubtarea = async (subIdx) => {
+                const actual = tareaActual.subtareas[subIdx].nombre;
+                window.promptCustom("Editar nombre subtarea", async (nuevo) => {
+                    if(nuevo && nuevo !== actual){
+                        const newSubs = [...tareaActual.subtareas];
+                        newSubs[subIdx].nombre = nuevo;
+                        await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                        window.mostrarToast("Subtarea actualizada");
+                    }
+                }, actual);
+            };
+
+            window.editMatTarea = async (subIdx, matIdx) => {
+                const item = tareaActual.subtareas[subIdx].materiales[matIdx];
+                const actualTipo = item.tipo;
+                
+                window.promptCustom(`Editar cantidad (${actualTipo === 'ind' ? 'x Op' : 'Fijo'})`, async (nuevaCant) => {
+                    if(!isNaN(nuevaCant) && nuevaCant > 0){
+                        // Preguntar si cambia tipo
+                        window.confirmCustom("¿Cambiar Tipo?", `¿Cambiar a ${actualTipo === 'ind' ? 'FIJO' : 'POR OPERARIO'}?`, async () => {
+                            // SI CAMBIA
+                            const newSubs = [...tareaActual.subtareas];
+                            newSubs[subIdx].materiales[matIdx].cant = parseInt(nuevaCant);
+                            newSubs[subIdx].materiales[matIdx].tipo = (actualTipo === 'ind' ? 'fijo' : 'ind');
+                            await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                            window.mostrarToast("Item actualizado");
+                        }, async () => {
+                            // NO CAMBIA (SOLO CANTIDAD)
+                            const newSubs = [...tareaActual.subtareas];
+                            newSubs[subIdx].materiales[matIdx].cant = parseInt(nuevaCant);
+                            await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                            window.mostrarToast("Cantidad actualizada");
+                        });
+                    }
+                }, item.cant);
+            };
+
+            window.agregarSubtarea = async () => {
+                window.promptCustom("Nombre Subtarea", async (nombre) => {
+                    if(nombre) {
+                        const newSubs = [...tareaActual.subtareas, { nombre: nombre, materiales: [] }];
+                        await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                        window.mostrarToast("Subtarea agregada");
+                    }
+                });
+            };
+
+            window.delSubtarea = async (subIdx) => {
+                window.confirmCustom("Eliminar Subtarea", "Se borrarán todos sus items.", async () => {
+                    const newSubs = [...tareaActual.subtareas];
+                    newSubs.splice(subIdx, 1);
+                    await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                    window.mostrarToast("Subtarea eliminada", 'error');
+                });
+            };
+
+            window.agregarMaterialATrabajo = (subIdx) => { 
+                if(datos.length === 0) return window.mostrarToast('Inventario vacío', 'error');
+                subtaskActivaIdx = subIdx; 
+                document.getElementById('modal-buscador').classList.remove('oculto'); 
+                document.getElementById('modal-buscador').classList.add('visible'); 
+                document.getElementById('mb-input').value=''; 
+                window.filtrarBuscadorModal(); 
+            };
+
+            window.cerrarBuscador = () => { 
+                document.getElementById('modal-buscador').classList.remove('visible'); 
+                document.getElementById('modal-buscador').classList.add('oculto'); 
+            };
+            
+            // CAMBIO V75 FIX: NO PASAR NOMBRE AL HTML
+            window.filtrarBuscadorModal = () => {
+                const txt = document.getElementById('mb-input').value.toLowerCase();
+                const l = document.getElementById('mb-lista'); l.innerHTML = '';
+                const matches = datos.filter(d => {
+                    const n = d.nom ? d.nom.toLowerCase() : "";
+                    const c = d.cod ? d.cod.toLowerCase() : "";
+                    return n.includes(txt) || c.includes(txt);
+                });
+                if(matches.length === 0) {
+                    l.innerHTML = '<div class="p-4 text-slate-500 text-center text-sm">No se encontraron productos.</div>';
+                    return;
+                }
+                matches.forEach(d => {
+                    let div = document.createElement('div'); 
+                    div.className = "p-3 border-b border-slate-800 flex justify-between items-center group";
+                    // FIX: Solo pasamos el código
+                    const btnInd = `<button onclick="addMatToTask('${d.cod}', 'ind')" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/50 px-2 py-1 rounded hover:bg-blue-600 hover:text-white transition mr-2">👤 x Op</button>`;
+                    const btnGrp = `<button onclick="addMatToTask('${d.cod}', 'fijo')" class="text-[10px] bg-yellow-600/20 text-yellow-400 border border-yellow-600/50 px-2 py-1 rounded hover:bg-yellow-600 hover:text-white transition">📦 Fijo</button>`;
+
+                    div.innerHTML = `
+                        <div><span class="text-sm text-slate-300 font-bold block">${d.nom}</span><span class="text-xs text-slate-500">${d.cat} | Stock: ${d.cant}</span></div>
+                        <div class="flex">${btnInd}${btnGrp}</div>
+                    `;
+                    l.appendChild(div);
+                });
+            };
+
+            // CAMBIO V75 FIX: BUSCAR NOMBRE POR CODIGO
+            window.addMatToTask = async (cod, tipo) => {
+                const item = datos.find(d => d.cod === cod);
+                const nom = item ? item.nom : 'Item';
+
+                const subtareaActual = tareaActual.subtareas[subtaskActivaIdx];
+                const existe = subtareaActual.materiales.some(m => m.cod === cod);
+
+                if (existe) {
+                    return window.mostrarToast(`¡"${nom}" ya existe en esta subtarea!`, 'error');
+                }
+
+                const label = tipo === 'ind' ? 'POR OPERARIO' : 'TOTAL FIJO (GRUPAL)';
+                
+                window.promptCustom(`Cantidad de "${nom}" (${label})`, async (c) => {
+                    if(c && !isNaN(c)) { 
+                        const newSubs = [...tareaActual.subtareas];
+                        newSubs[subtaskActivaIdx].materiales.push({cod: cod, cant: parseInt(c), tipo: tipo});
+                        
+                        await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                        window.cerrarBuscador(); 
+                        window.mostrarToast("Producto agregado");
+                    }
+                });
+            };
+
+            window.delMatTarea = async (subIdx, matIdx) => { 
+                window.confirmCustom("Quitar Item", "¿Eliminar este producto de la lista?", async () => {
+                    const newSubs = [...tareaActual.subtareas];
+                    newSubs[subIdx].materiales.splice(matIdx, 1);
+                    await window.updateDoc(window.doc(window.db, 'tareas', tareaActual.id), { subtareas: newSubs });
+                    window.mostrarToast("Item eliminado");
+                });
+            };
+
+            window.calcularDisponibilidad = () => {
+                const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
+                const res = document.getElementById('mt-resultado'); res.innerHTML = '';
+                
+                let necesidades = {}; 
+
+                tareaActual.subtareas.forEach(sub => {
+                    sub.materiales.forEach(m => {
+                        const cantReq = m.tipo === 'fijo' ? m.cant : (m.cant * ops);
+                        if (!necesidades[m.cod]) necesidades[m.cod] = { nec: 0, esFijo: m.tipo === 'fijo' };
+                        necesidades[m.cod].nec += cantReq;
+                    });
+                });
+
+                if(Object.keys(necesidades).length === 0) { res.innerHTML = '<div class="text-yellow-500 text-center">Sin materiales definidos.</div>'; return; }
+                
+                let ok = true;
+
+                Object.keys(necesidades).forEach(cod => {
+                    const info = necesidades[cod];
+                    const item = datos.find(d => d.cod === cod);
+                    const stock = item ? parseInt(item.cant) : 0;
+                    const falta = info.nec - stock;
+                    if(falta > 0) ok = false;
+
+                    let div = document.createElement('div'); div.className = `p-3 rounded border flex justify-between text-sm ${falta>0?'bg-red-500/10 border-red-500/30':'bg-emerald-500/10 border-emerald-500/30'}`;
+                    div.innerHTML = `<div><div class="font-bold text-white">${item?item.nom:cod}</div><div class="text-xs text-slate-400">Total Nec: ${info.nec} | Stock: ${stock}</div></div><div class="text-right font-bold ${falta>0?'text-red-400':'text-emerald-400'}">${falta>0?'FALTA '+falta:'OK'}</div>`;
+                    res.appendChild(div);
+                });
+                
+                res.prepend(document.createElement('div')); 
+                res.firstChild.className = `text-center p-2 rounded font-bold text-sm mb-4 ${ok?'bg-emerald-600 text-white':'bg-red-600 text-white'}`;
+                res.firstChild.innerText = ok ? "✅ STOCK SUFICIENTE" : "⚠️ STOCK INSUFICIENTE";
+            };
+
+            window.mostrarModalNuevo = () => { 
+                if(!catActual) return window.mostrarToast('Selecciona categoría primero', 'error');
+                editandoId=null; 
+                document.getElementById('modal-titulo').innerText='Nuevo ' + (catActual==='Insumos'?'Insumo':'Herramienta');
+                window.limpiarForm(); 
+                if(ultimoResponsable) document.getElementById('m-resp').value = ultimoResponsable; 
+                document.getElementById('modal').classList.remove('oculto'); 
+                document.getElementById('modal').classList.add('visible'); 
+            };
+
+            window.editar = (id) => { 
+                const d=datos.find(x=>x.id===id); if(!d)return; 
+                editandoId=id; 
+                document.getElementById('modal-titulo').innerText='Editar'; 
+                document.getElementById('m-resp').value=d.resp||''; 
+                document.getElementById('m-cod').value=d.cod; 
+                document.getElementById('m-nombre').value=d.nom; 
+                document.getElementById('m-ubicacion').value=d.ubicacion||'';
+                document.getElementById('m-cant').value=d.cant; 
+                document.getElementById('m-min').value=d.min; 
+                document.getElementById('m-uni').value=d.uni; 
+                document.getElementById('m-obs').value=d.obs||''; // CAMBIO V70: Cargar obs al editar
+                proveedoresTemporales=d.proveedores?[...d.proveedores]:[]; 
+                window.renderProveedoresTemp(); 
+                document.getElementById('modal').classList.remove('oculto'); 
+                document.getElementById('modal').classList.add('visible'); 
+            };
+
+            window.cerrarModal = () => { document.getElementById('modal').classList.remove('visible'); document.getElementById('modal').classList.add('oculto'); };
+            window.limpiarForm = () => { ['m-cod','m-nombre','m-cant','m-min','m-uni','m-ubicacion', 'm-obs'].forEach(id=>document.getElementById(id).value=''); proveedoresTemporales=[]; window.renderProveedoresTemp(); };
+            window.agregarProveedorTemporal = () => { const n=document.getElementById('p-nombre').value; if(n){ proveedoresTemporales.push({nombre:n, tel:document.getElementById('p-tel').value}); document.getElementById('p-nombre').value=''; document.getElementById('p-tel').value=''; window.renderProveedoresTemp(); } };
+            window.renderProveedoresTemp = () => { const l=document.getElementById('lista-proveedores-temp'); l.innerHTML=''; proveedoresTemporales.forEach((p,i)=>{ l.innerHTML+=`<li>${p.nombre} <button onclick="proveedoresTemporales.splice(${i},1);window.renderProveedoresTemp()" class="text-red-500">x</button></li>`; }); };
+            
+            // --- NUEVA FUNCIONALIDAD V68: MOVER CATEGORÍA - CAMBIO V75 FIX ---
+            window.moverCategoria = (id, nuevaCat) => {
+                const item = datos.find(d => d.id === id);
+                const nombre = item ? item.nom : 'Producto';
+                
+                window.confirmCustom("Mover Categoría", `¿Mover "${nombre}" a ${nuevaCat}?`, async () => {
+                    try {
+                        await window.updateDoc(window.doc(window.db, 'productos', id), {
+                            cat: nuevaCat,
+                            updatedAt: new Date()
+                        });
+                        window.mostrarToast(`Producto movido a ${nuevaCat}`);
+                    } catch (e) {
+                        window.mostrarToast("Error al mover producto", 'error');
+                    }
+                });
+            };
+
+            window.guardarProducto = async (e) => { 
+                e.preventDefault(); 
+                const r=document.getElementById('m-resp').value; 
+                if(!r) return window.mostrarToast('Falta Responsable', 'error'); 
+                ultimoResponsable=r; 
+                const c=document.getElementById('m-cod').value; 
+                
+                if(datos.some(d=>d.cod===c && d.id!==editandoId)) return window.mostrarToast('Código ya existe', 'error'); 
+                
+                if(document.getElementById('p-nombre').value) window.agregarProveedorTemporal(); 
+                if(!catActual) return window.mostrarToast('Error categoría', 'error');
+
+                const obj = {
+                    resp:r, 
+                    cod:c, 
+                    nom:document.getElementById('m-nombre').value,
+                    ubicacion:document.getElementById('m-ubicacion').value,
+                    cant:parseInt(document.getElementById('m-cant').value), 
+                    min:parseInt(document.getElementById('m-min').value), 
+                    uni:document.getElementById('m-uni').value, 
+                    obs:document.getElementById('m-obs').value, // CAMBIO V70: Guardar Obs
+                    proveedores:proveedoresTemporales, 
+                    cat:catActual,
+                    updatedAt: new Date() // FECHA DE ACTUALIZACIÓN
+                }; 
+                
+                try {
+                    if(editandoId){ 
+                        await window.updateDoc(window.doc(window.db, 'productos', editandoId), obj);
+                    } else { 
+                        await window.addDoc(window.productosCol, obj);
+                    }
+                    window.cerrarModal(); 
+                    window.mostrarToast("Guardado correctamente");
+                } catch (err) {
+                    window.mostrarToast("Error al guardar", 'error');
+                }
+            };
+
+            window.borrar = async (id) => { 
+                window.confirmCustom("Borrar Producto", "¿Estás seguro?", async () => {
+                    await window.deleteDoc(window.doc(window.db, 'productos', id)); 
+                    window.mostrarToast("Producto eliminado");
+                });
+            };
+
+            window.setFiltroConsulta = (tipo) => {
+                filtroConsultaActual = tipo;
+                document.getElementById('btn-todos').classList.toggle('btn-filtro-activo', tipo === 'todos');
+                document.getElementById('btn-todos').classList.toggle('text-white', tipo === 'todos');
+                document.getElementById('btn-todos').classList.toggle('bg-slate-800', tipo !== 'todos');
+                
+                document.getElementById('btn-faltantes').classList.toggle('btn-filtro-activo', tipo === 'faltantes');
+                document.getElementById('btn-faltantes').classList.toggle('text-white', tipo === 'faltantes');
+                document.getElementById('btn-faltantes').classList.toggle('text-red-400', tipo !== 'faltantes');
+
+                window.aplicarFiltrosConsulta();
+            };
+
+            window.aplicarFiltrosConsulta = () => { 
+                const texto = document.getElementById('buscador-global').value.toLowerCase();
+                const tabla = document.getElementById('tabla-consulta');
+                const vacio = document.getElementById('consulta-vacio');
+                
+                tabla.innerHTML = '';
+
+                let resultados = datos.filter(d => {
+                    const coincideTexto = d.nom.toLowerCase().includes(texto) || 
+                                          d.cod.toLowerCase().includes(texto) || 
+                                          (d.ubicacion && d.ubicacion.toLowerCase().includes(texto));
+                    
+                    if (filtroConsultaActual === 'faltantes') {
+                        const esFaltante = parseInt(d.cant) < parseInt(d.min);
+                        return coincideTexto && esFaltante;
+                    }
+                    return coincideTexto;
+                });
+
+                if (resultados.length === 0) {
+                    vacio.classList.remove('hidden');
+                    vacio.classList.add('flex');
+                } else {
+                    vacio.classList.add('hidden');
+                    vacio.classList.remove('flex');
+                }
+
+                resultados.forEach(i => { 
+                    const critico = parseInt(i.cant) < parseInt(i.min);
+                    let ubi = i.ubicacion ? `<br><span class="text-yellow-500/70 text-[10px]"><i class="fas fa-map-marker-alt"></i> ${i.ubicacion}</span>` : '';
+                    let estadoBadge = critico 
+                        ? `<span class="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded border border-red-500/30">FALTA</span>`
+                        : `<span class="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">OK</span>`;
+                    
+                    // CAMBIO V70: ICONO OBS EN CONSULTA TAMBIEN
+                    let obsIcon = '';
+                    if (i.obs && i.obs.trim() !== '') {
+                        obsIcon = `<div class="tooltip ml-2 inline-block"><i class="fas fa-info-circle text-blue-400 cursor-help"></i><span class="tooltiptext">${i.obs}</span></div>`;
+                    }
+
+                    tabla.innerHTML += `
+                        <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition">
+                            <td class="p-4 font-mono text-emerald-400 text-center">${i.cod}</td>
+                            <td class="p-4 text-white text-left"> <div class="font-bold flex items-center">${i.nom} ${obsIcon}</div>
+                                <div class="text-xs text-slate-500">${i.cat}</div>
+                            </td>
+                            <td class="p-4 text-xs text-yellow-500/80 text-left">${i.ubicacion || '-'}</td> <td class="p-4 text-center font-bold ${critico?'text-red-400':'text-white'}">${i.cant}</td>
+                            <td class="p-4 text-center">${estadoBadge}</td>
+                        </tr>`; 
+                }); 
+            };
+            
+            window.generarOrden = () => { 
+                const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
+                if (!f.length) return window.mostrarToast('No hay faltantes', 'error');
+                
+                tipoDocumentoPendiente = 'ORDEN';
+                document.getElementById('modal-resp-titulo').innerText = "Generar Orden de Compra";
+                document.getElementById('modal-resp-desc').innerText = "Confirma quién es el responsable de esta solicitud.";
+                abrirModalResponsable();
+            };
+
+            window.imprimirPlan = () => {
+                if(!tareaActual || !tareaActual.subtareas.length) return window.mostrarToast("La tarea no tiene items", 'error');
+                
+                tipoDocumentoPendiente = 'PLAN';
+                document.getElementById('modal-resp-titulo').innerText = "Generar Plan de Trabajo";
+                document.getElementById('modal-resp-desc').innerText = "Confirma quién retira los materiales.";
+                abrirModalResponsable();
+            };
+
+            window.abrirModalResponsable = () => {
+                document.getElementById('input-responsable-pdf').value = ultimoResponsable || '';
+                document.getElementById('modal-responsable').classList.remove('oculto');
+                document.getElementById('modal-responsable').classList.add('visible');
+                document.getElementById('input-responsable-pdf').focus();
+            };
+
+            window.cerrarModalResponsable = () => {
+                document.getElementById('modal-responsable').classList.remove('visible');
+                document.getElementById('modal-responsable').classList.add('oculto');
+            };
+
+            window.confirmarGenerarDocumento = (e) => {
+                e.preventDefault();
+                const n = document.getElementById('input-responsable-pdf').value.trim();
+                if (!n) return window.mostrarToast("Ingresa un nombre", 'error');
+                
+                ultimoResponsable = n;
+                window.cerrarModalResponsable();
+                
+                if (tipoDocumentoPendiente === 'ORDEN') {
+                    const f = datos.filter(d => parseInt(d.cant) < parseInt(d.min));
+                    window.imprimirPDFOrden(f);
+                } else if (tipoDocumentoPendiente === 'PLAN') {
+                    window.imprimirPDFPlan();
+                }
+            };
+            
+            // --- CAMBIO V67: ALINEACIÓN IZQUIERDA EN PDFS ---
+            window.imprimirPDFOrden = (lista) => {
+                let h = `<html><head><title>Orden de Compra</title><style>
+                    body{font-family:sans-serif;padding:20px}
+                    h1, p {text-align:center;}
+                    table{width:100%;border-collapse:collapse;margin-top:20px}
+                    td,th{border:1px solid #ccc;padding:8px; font-size:12px;}
+                    th{background:#eee; text-align: center;} 
+                    
+                    /* ALINEACIÓN IZQUIERDA PARA PRODUCTO Y UBICACIÓN */
+                    td:nth-child(2), td:nth-child(3) { text-align: left; }
+                    
+                    td:nth-child(1), td:nth-child(4), td:nth-child(5) { text-align: center; } 
+                    .font-bold { font-weight: bold; }
+                </style></head><body>
+                <h1>ORDEN DE COMPRA</h1>
+                <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} | <strong>Responsable:</strong> ${ultimoResponsable}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CÓDIGO</th>
+                            <th>DESCRIPCIÓN</th>
+                            <th>UBICACIÓN</th>
+                            <th>STOCK ACTUAL</th>
+                            <th>COMPRAR</th>
+                            <th>PROVEEDOR SUGERIDO</th>
+                            <th>OBSERVACIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                
+                lista.forEach(x => { 
+                    const d = x.min - x.cant; 
+                    const unidad = x.uni || 'u.';
+                    const textoCompra = d > 0 ? `${d} ${unidad}` : '-';
+                    
+                    let provTexto = '-';
+                    if (x.proveedores && x.proveedores.length > 0) {
+                        provTexto = x.proveedores.map(p => `<div>${p.nombre} (${p.tel || 'S/T'})</div>`).join('');
+                    }
+
+                    h += `<tr>
+                        <td>${x.cod}</td>
+                        <td>${x.nom}</td>
+                        <td>${x.ubicacion || '-'}</td>
+                        <td class="text-center">${x.cant}</td>
+                        <td class="text-center font-bold">${textoCompra}</td>
+                        <td>${provTexto}</td>
+                        <td>${x.obs || '-'}</td>
+                    </tr>`; 
+                });
+                h += '</tbody></table><script>window.print();<\/script></body></html>'; 
+                const w = window.open(''); 
+                w.document.write(h); 
+                w.document.close();
+            };
+
+            window.imprimirPDFPlan = () => {
+                const ops = parseInt(document.getElementById('mt-operarios').value) || 1;
+                
+                // CAMBIO V74: COLOR CELESTE EN TÍTULOS DE SUBTAREAS
+                // CAMBIO V73: CSS PARA EVITAR CORTES Y ESPACIOS BLANCOS
+                let h = `<html><head><title>Plan de Trabajo</title><style>
+                    body{font-family: 'Segoe UI', sans-serif; padding:40px; color:#333;}
+                    .header {text-align:center; margin-bottom:20px; border-bottom: 2px solid #333; padding-bottom:10px;}
+                    .meta {display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px;}
+                    
+                    /* CLAVE: EVITAR SALTO DE PAGINA DENTRO DEL BLOQUE */
+                    .subtarea-bloque {
+                        margin-bottom:15px; 
+                        page-break-inside: avoid; 
+                        break-inside: avoid;
+                    }
+                    
+                    .subtarea-titulo {background:#e0f2fe; padding:8px 12px; font-weight:bold; border:1px solid #bae6fd; border-bottom:none; color: #0c4a6e;}
+                    
+                    table{width:100%; border-collapse:collapse; font-size:12px;}
+                    td,th{border:1px solid #ccc; padding:5px 8px;}
+                    th{background:#f9f9f9; text-transform:uppercase; font-size:10px;}
+                    
+                    td:nth-child(2) { text-align: left; }
+                    .text-center{text-align:center;}
+                    .falta {color:red; font-weight:bold;}
+                    .ok {color:green;}
+                </style></head><body>
+                
+                <div class="header">
+                    <h1>PLAN DE TRABAJO DE INSTRUMENTACIÓN</h1>
+                    <h2>${tareaActual.nombre}</h2>
+                </div>
+
+                <div class="meta">
+                    <div><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
+                    <div><strong>Responsable:</strong> ${ultimoResponsable}</div>
+                    <div><strong>Operarios Asignados:</strong> ${ops}</div>
+                </div>
+                
+                <hr style="margin-bottom:20px; border:0; border-top:1px solid #ccc;">
+                `;
+
+                tareaActual.subtareas.forEach(sub => {
+                    if(sub.materiales.length === 0) return;
+
+                    h += `<div class="subtarea-bloque">
+                        <div class="subtarea-titulo">${sub.nombre}</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th class="text-center">Tipo</th>
+                                    <th class="text-center">A RETIRAR</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Estado</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    
+                    sub.materiales.forEach(m => {
+                        const item = datos.find(d => d.cod === m.cod);
+                        const nombreItem = item ? item.nom : 'Ítem desconocido';
+                        const stock = item ? parseInt(item.cant) : 0;
+                        const unidad = item ? (item.uni || 'u.') : '';
+                        
+                        const esFijo = m.tipo === 'fijo';
+                        const necesario = esFijo ? m.cant : (m.cant * ops);
+                        const falta = necesario - stock;
+                        const estado = falta > 0 ? `<span class="falta">FALTA ${falta}</span>` : `<span class="ok">OK</span>`;
+
+                        h += `<tr>
+                            <td class="text-center">${m.cod}</td>
+                            <td>${nombreItem}</td>
+                            <td class="text-center">${esFijo ? 'Fijo' : 'x Op.'}</td>
+                            <td class="text-center" style="font-weight:bold; font-size:1.1em;">${necesario} ${unidad}</td>
+                            <td class="text-center">${stock}</td>
+                            <td class="text-center">${estado}</td>
+                            <td>${item ? (item.obs || '-') : '-'}</td>
+                        </tr>`;
+                    });
+
+                    h += `</tbody></table></div>`;
+                });
+
+                // CAMBIO V72: PIE DE PÁGINA PERSONALIZADO
+                h += `<div style="margin-top:50px; text-align:center; font-size:12px; color:#999;">Generado por Paniz Camila</div>`;
+                h += '<script>window.print();<\/script></body></html>'; 
+                
+                const w = window.open(''); 
+                w.document.write(h); 
+                w.document.close();
+            };
+
+            window.irA('vista-pass');
+
+        } catch (error) {
+            console.error("Critical Error Initialization:", error);
+            alert("Error crítico al iniciar: " + error.message);
+        }
     </script>
 </body>
 </html>
+
