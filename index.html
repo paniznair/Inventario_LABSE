@@ -71,7 +71,7 @@
     <div id="vista-pass" class="oculto fixed inset-0 z-50 w-full h-full bg-white md:grid md:grid-cols-2 fade-in p-0 overflow-hidden">
         
         <div class="relative hidden md:flex flex-col justify-center items-center p-12 bg-blue-900 overflow-hidden">
-            <div class="absolute inset-0 bg-[url('./fondo.jpg')] bg-cover bg-center mix-blend-overlay opacity-60"></div>
+            <div class="absolute inset-0 bg-[url('fondo.jpg')] bg-cover bg-center mix-blend-overlay opacity-60"></div>
             
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-blue-800/90 to-indigo-900/90 z-0"></div>
 
@@ -511,7 +511,7 @@
                 document.querySelectorAll('body > div').forEach(el => {
                     if(el.id.startsWith('vista-')) el.classList.add('oculto');
                     if(el.id.startsWith('vista-')) el.classList.remove('visible');
-                    // CAMBIO V88: Gestionar la clase split-screen
+                    // CAMBIO V85: Gestionar la clase split-screen
                     if(el.id === 'vista-pass' && id === 'vista-pass') {
                         el.classList.add('split-screen');
                     } else {
