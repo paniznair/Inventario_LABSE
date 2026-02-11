@@ -15,56 +15,46 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* ESTILOS GENERALES */
-        body { 
-            background-color: #0f172a; 
-            color: #e2e8f0; 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            overflow: hidden; 
-            touch-action: manipulation; 
-        }
+        /* El body sigue siendo oscuro para el resto de la app */
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; touch-action: manipulation; }
         
-        /* UTILIDADES VISIBILIDAD */
         .oculto { display: none !important; }
         .visible { display: flex !important; }
-        
-        /* REGLA CRÍTICA PARA EL LOGIN */
+        /* NUEVO: Regla especial para que el login dividido se vea bien */
         .visible.split-screen { display: grid !important; }
 
-        /* ANIMACIONES */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); border-color: #3b82f6; }
-        
-        /* SCROLLBAR */
         .scroll-fino::-webkit-scrollbar { width: 6px; }
         .scroll-fino::-webkit-scrollbar-track { background: #1e293b; }
         .scroll-fino::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
-        /* INPUTS */
+        /* Placeholder general (modo oscuro) */
         input::placeholder { color: #475569; opacity: 1; transition: color 0.3s; }
         input:focus::placeholder { color: #334155; }
 
-        .light-theme-input { color: #1e293b; } 
-        .light-theme-input::placeholder { color: #94a3b8; }
+        /* NUEVO: Estilos para inputs en fondo claro (Login nuevo) */
+        .light-theme-input { color: #1e293b; } /* Texto oscuro */
+        .light-theme-input::placeholder { color: #94a3b8; } /* Placeholder gris claro */
         .light-theme-input:focus::placeholder { color: #cbd5e1; }
         
         .btn-filtro-activo { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
 
-        /* TOASTS */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); border-left: 4px solid #3b82f6; animation: slideIn 0.3s ease-out; font-size: 14px; display: flex; align-items: center; gap: 10px; min-width: 300px; }
         .toast.error { border-left-color: #ef4444; }
         .toast.success { border-left-color: #10b981; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* TOOLTIP */
         .tooltip { position: relative; display: inline-block; }
         .tooltip .tooltiptext { visibility: hidden; width: 120px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -60px; opacity: 0; transition: opacity 0.3s; font-size: 10px; }
         .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
     </style>
     <script>
-        window.onerror = function(message, source, lineno, colno, error) { console.error(message); };
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error(message); 
+        };
     </script>
 </head>
 <body class="h-screen w-screen flex flex-col bg-slate-950">
@@ -81,8 +71,7 @@
     <div id="vista-pass" class="oculto fixed inset-0 z-50 w-full h-full bg-white md:grid md:grid-cols-2 fade-in p-0 overflow-hidden">
         
         <div class="relative hidden md:flex flex-col justify-center items-center p-12 bg-blue-900 overflow-hidden">
-            <div class="absolute inset-0 bg-[url('fondo.jpg')] bg-cover bg-center mix-blend-overlay opacity-60"></div>
-            
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092921461-eab62e97a783?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay opacity-40"></div>
             <div class="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-blue-800/90 to-indigo-900/90 z-0"></div>
 
             <div class="relative z-10 text-left w-full max-w-md">
@@ -93,6 +82,7 @@
         </div>
 
         <div class="flex flex-col justify-center items-center p-8 md:p-16 bg-white h-full relative">
+            
             <div class="absolute top-8 right-8 text-blue-900 font-black tracking-widest hidden md:block opacity-50">LABSE</div>
 
             <div class="w-full max-w-sm">
@@ -108,10 +98,10 @@
                     </div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 transition transform active:scale-[0.98] text-lg tracking-wide mt-4">INGRESAR</button>
                 </form>
+                
             </div>
         </div>
     </div>
-
     <div id="vista-roles" class="oculto fixed inset-0 z-40 w-full h-full bg-slate-950 items-center justify-center flex-col fade-in p-6">
         <div class="text-center mb-8"><h2 class="text-3xl font-bold text-white">Seleccionar Perfil</h2></div>
         
@@ -321,7 +311,8 @@
                         <button onclick="agregarSubtarea()" class="text-xs bg-slate-800 px-3 py-1 rounded text-white border border-slate-700 hover:bg-slate-700" id="btn-add-subtarea">+ Subtarea</button>
                     </div>
                     
-                    <div class="flex-1 overflow-auto space-y-4" id="lista-subtareas-container"></div>
+                    <div class="flex-1 overflow-auto space-y-4" id="lista-subtareas-container">
+                        </div>
                 </div>
 
                 <div class="bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 flex flex-col h-fit">
@@ -398,7 +389,7 @@
             let proveedoresTemporales = [];
             let esAdmin = false;
             let tareaActual = null;
-            let subtaskActivaIdx = 0; 
+            let subtaskActivaIdx = 0; // Para saber a que subtarea agregamos items
             let editandoId = null;
             let ultimoResponsable = '';
             let filtroConsultaActual = 'todos';
@@ -1294,3 +1285,4 @@
     </script>
 </body>
 </html>
+
